@@ -35,7 +35,7 @@ namespace ColumbusWeighing.Controls
             //
             // _captionPanel
             //
-            this._captionPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(20, 30, 60);
+            this._captionPanel.Appearance.BackColor = System.Drawing.Color.Black;
             this._captionPanel.Appearance.Options.UseBackColor = true;
             this._captionPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._captionPanel.Controls.Add(this._captionLabel);

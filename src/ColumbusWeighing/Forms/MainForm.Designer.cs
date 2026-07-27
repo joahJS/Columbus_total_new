@@ -184,37 +184,41 @@ namespace ColumbusWeighing.Forms
             //
             // _userPanel
             //
-            this._userPanel.BackColor = System.Drawing.Color.FromArgb(20, 45, 110);
+            this._userPanel.BackColor = System.Drawing.Color.WhiteSmoke;
             this._userPanel.Controls.Add(this._companyLabel);
             this._userPanel.Controls.Add(this._btnLogin);
             this._userPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this._userPanel.Location = new System.Drawing.Point(604, 0);
             this._userPanel.Name = "_userPanel";
-            this._userPanel.Size = new System.Drawing.Size(230, 110);
+            this._userPanel.Size = new System.Drawing.Size(260, 110);
             this._userPanel.TabIndex = 1;
             //
             // _btnLogin
             //
-            this._btnLogin.Dock = System.Windows.Forms.DockStyle.Top;
-            this._btnLogin.Location = new System.Drawing.Point(0, 0);
+            this._btnLogin.Appearance.BackColor = System.Drawing.Color.FromArgb(41, 128, 225);
+            this._btnLogin.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnLogin.Appearance.Options.UseBackColor = true;
+            this._btnLogin.Appearance.Options.UseForeColor = true;
+            this._btnLogin.Location = new System.Drawing.Point(12, 10);
             this._btnLogin.Name = "_btnLogin";
-            this._btnLogin.Size = new System.Drawing.Size(230, 40);
+            this._btnLogin.Size = new System.Drawing.Size(90, 28);
             this._btnLogin.TabIndex = 0;
             this._btnLogin.Text = "LOGIN";
             //
             // _companyLabel
             //
-            this._companyLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 16F, System.Drawing.FontStyle.Bold);
-            this._companyLabel.Appearance.ForeColor = System.Drawing.Color.White;
+            this._companyLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 20F, System.Drawing.FontStyle.Bold);
+            this._companyLabel.Appearance.ForeColor = System.Drawing.Color.Black;
             this._companyLabel.Appearance.Options.UseFont = true;
             this._companyLabel.Appearance.Options.UseForeColor = true;
-            this._companyLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this._companyLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
             this._companyLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._companyLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
             this._companyLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._companyLabel.Location = new System.Drawing.Point(0, 40);
+            this._companyLabel.Location = new System.Drawing.Point(0, 0);
             this._companyLabel.Name = "_companyLabel";
-            this._companyLabel.Size = new System.Drawing.Size(230, 70);
+            this._companyLabel.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this._companyLabel.Size = new System.Drawing.Size(260, 110);
             this._companyLabel.TabIndex = 1;
             this._companyLabel.Text = "로그인이 필요합니다";
             //

@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
@@ -21,6 +22,7 @@ namespace ColumbusWeighing.Controls
         {
             InitializeComponent();
             BuildColumns();
+            ApplyGridAppearance();
 
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _btnFirstWeighing.Click += (s, e) => RegisterFirstWeighing();
@@ -61,6 +63,37 @@ namespace ColumbusWeighing.Controls
             AddInOutColumn();
             AddColumn("WeigherName", "계량자", 130);
             AddColumn("Remark", "비고", 100);
+        }
+
+        /// <summary>참고 화면과 동일한 배색(크림색 짝수행/흰색 홀수행, 하늘색 헤더, 파란색 선택행)으로 맞춘다.</summary>
+        private void ApplyGridAppearance()
+        {
+            _gridView.RowHeight = 22;
+
+            _gridView.Appearance.HeaderPanel.BackColor = Color.FromArgb(198, 217, 241);
+            _gridView.Appearance.HeaderPanel.ForeColor = Color.Black;
+            _gridView.Appearance.HeaderPanel.Font = new Font("맑은 고딕", 9F, FontStyle.Bold);
+            _gridView.Appearance.HeaderPanel.Options.UseBackColor = true;
+            _gridView.Appearance.HeaderPanel.Options.UseForeColor = true;
+            _gridView.Appearance.HeaderPanel.Options.UseFont = true;
+            _gridView.Appearance.HeaderPanel.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+
+            _gridView.OptionsView.EnableAppearanceEvenRow = true;
+            _gridView.Appearance.EvenRow.BackColor = Color.FromArgb(255, 251, 224);
+            _gridView.Appearance.EvenRow.Options.UseBackColor = true;
+            _gridView.Appearance.OddRow.BackColor = Color.White;
+            _gridView.Appearance.OddRow.Options.UseBackColor = true;
+            _gridView.Appearance.Row.Font = new Font("맑은 고딕", 9F);
+            _gridView.Appearance.Row.Options.UseFont = true;
+
+            _gridView.Appearance.FocusedRow.BackColor = Color.FromArgb(51, 153, 255);
+            _gridView.Appearance.FocusedRow.ForeColor = Color.White;
+            _gridView.Appearance.FocusedRow.Options.UseBackColor = true;
+            _gridView.Appearance.FocusedRow.Options.UseForeColor = true;
+            _gridView.Appearance.SelectedRow.BackColor = Color.FromArgb(51, 153, 255);
+            _gridView.Appearance.SelectedRow.ForeColor = Color.White;
+            _gridView.Appearance.SelectedRow.Options.UseBackColor = true;
+            _gridView.Appearance.SelectedRow.Options.UseForeColor = true;
         }
 
         private GridColumn AddColumn(string fieldName, string caption, int width, string format = null)

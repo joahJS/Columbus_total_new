@@ -15,7 +15,8 @@ namespace ColumbusWeighing
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            UserLookAndFeel.Default.SetSkinStyle("Office 2019 Colorful");
+            // 참고 화면은 최신 플랫 스킨이 아닌 클래식한 Windows 스타일이므로 기본(Basic) 스킨을 사용한다.
+            UserLookAndFeel.Default.SetSkinStyle("Basic");
 
             Application.Run(new MainForm());
         }
