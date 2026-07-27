@@ -45,13 +45,13 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <!-- DevExpress WinForms 참조 (설치된 DevExpress 버전에 맞게 버전 접미사 조정) -->
-    <Reference Include="DevExpress.Data.v18.1" />
-    <Reference Include="DevExpress.Utils.v18.1" />
-    <Reference Include="DevExpress.XtraEditors.v18.1" />
-    <Reference Include="DevExpress.XtraGrid.v18.1" />
-    <Reference Include="DevExpress.XtraLayout.v18.1" />
-    <Reference Include="DevExpress.XtraBars.v18.1" />
-    <Reference Include="DevExpress.Printing.v18.1.Core" />
+    <Reference Include="DevExpress.Data.v18.2" />
+    <Reference Include="DevExpress.Utils.v18.2" />
+    <Reference Include="DevExpress.XtraEditors.v18.2" />
+    <Reference Include="DevExpress.XtraGrid.v18.2" />
+    <Reference Include="DevExpress.XtraLayout.v18.2" />
+    <Reference Include="DevExpress.XtraBars.v18.2" />
+    <Reference Include="DevExpress.Printing.v18.2.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\FirstWeighingControl.cs">
