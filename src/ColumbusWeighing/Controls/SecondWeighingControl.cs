@@ -22,7 +22,6 @@ namespace ColumbusWeighing.Controls
         {
             InitializeComponent();
             BuildColumns();
-            _gridView.OptionsView.ShowFilterPanelMode = DevExpress.XtraGrid.Views.Base.FilterPanelMode.Never;
 
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _dateEdit.EditValueChanged += (s, e) => ApplyDateFilter();

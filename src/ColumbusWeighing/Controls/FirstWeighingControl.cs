@@ -21,7 +21,6 @@ namespace ColumbusWeighing.Controls
         {
             InitializeComponent();
             BuildColumns();
-            _gridView.OptionsView.ShowFilterPanelMode = DevExpress.XtraGrid.Views.Base.FilterPanelMode.Never;
 
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _btnFirstWeighing.Click += (s, e) => RegisterFirstWeighing();
