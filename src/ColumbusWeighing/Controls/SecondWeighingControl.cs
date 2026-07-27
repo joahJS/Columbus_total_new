@@ -1,9 +1,10 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
-using DevExpress.Data.Filtering;
 using DevExpress.XtraEditors;
 using DevExpress.XtraGrid.Columns;
 
@@ -19,12 +20,16 @@ namespace ColumbusWeighing.Controls
         private IScaleIndicatorService _scaleService;
         private AppLogService _logService;
 
+        /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
+        private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
+
         public SecondWeighingControl()
         {
             InitializeComponent();
             BuildColumns();
             ApplyGridAppearance();
 
+            _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _dateEdit.EditValueChanged += (s, e) => ApplyDateFilter();
             _btnSingleWeighing.Click += (s, e) => RegisterSingleWeighing();
@@ -48,27 +53,43 @@ namespace ColumbusWeighing.Controls
             _scaleService = scaleService;
             _logService = logService;
 
-            _gridControl.DataSource = _repository.Records;
+            _repository.Records.ListChanged += (s, e) => RefreshCompletedList();
             QueryDate = DateTime.Today;
-            ApplyDateFilter();
+            RefreshCompletedList();
         }
 
         public void ApplyDateFilter()
         {
-            var start = QueryDate;
-            var end = start.AddDays(1);
-
-            _gridView.ActiveFilterCriteria = new GroupOperator(
-                GroupOperatorType.And,
-                new BinaryOperator("IsCompleted", true),
-                new BinaryOperator("SecondDateTime", start, BinaryOperatorType.GreaterOrEqual),
-                new BinaryOperator("SecondDateTime", end, BinaryOperatorType.Less));
+            RefreshCompletedList();
         }
 
         /// <summary>목록을 최신 데이터로 다시 표시(다른 패널에서 2차 계량 완료 처리 시 호출).</summary>
         public void RefreshView()
         {
-            _gridView.RefreshData();
+            RefreshCompletedList();
+        }
+
+        /// <summary>저장소 전체 목록에서 조회일자에 2차 계량이 완료된 건만 다시 뽑아 그리드용 목록을 갱신한다.</summary>
+        private void RefreshCompletedList()
+        {
+            if (_repository == null)
+            {
+                return;
+            }
+
+            var start = QueryDate;
+            var end = start.AddDays(1);
+
+            _completedRecords.RaiseListChangedEvents = false;
+            _completedRecords.Clear();
+            foreach (var record in _repository.Records
+                .Where(r => r.IsCompleted && r.SecondDateTime.Value >= start && r.SecondDateTime.Value < end))
+            {
+                _completedRecords.Add(record);
+            }
+
+            _completedRecords.RaiseListChangedEvents = true;
+            _completedRecords.ResetBindings();
         }
 
         private void BuildColumns()

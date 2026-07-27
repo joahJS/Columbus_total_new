@@ -1,5 +1,7 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
@@ -18,12 +20,16 @@ namespace ColumbusWeighing.Controls
         private IScaleIndicatorService _scaleService;
         private AppLogService _logService;
 
+        /// <summary>2차 계량 대기 중인 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
+        private readonly BindingList<WeighingRecord> _pendingRecords = new BindingList<WeighingRecord>();
+
         public FirstWeighingControl()
         {
             InitializeComponent();
             BuildColumns();
             ApplyGridAppearance();
 
+            _gridControl.DataSource = _pendingRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _btnFirstWeighing.Click += (s, e) => RegisterFirstWeighing();
             _btnSecondWeighing.Click += (s, e) => CompleteSecondWeighingForSelected();
@@ -45,8 +51,22 @@ namespace ColumbusWeighing.Controls
             _scaleService = scaleService;
             _logService = logService;
 
-            _gridControl.DataSource = _repository.Records;
-            _gridView.ActiveFilterString = "[IsCompleted] = False";
+            _repository.Records.ListChanged += (s, e) => RefreshPendingList();
+            RefreshPendingList();
+        }
+
+        /// <summary>저장소 전체 목록에서 2차 계량 대기 중인 건만 다시 뽑아 그리드용 목록을 갱신한다.</summary>
+        private void RefreshPendingList()
+        {
+            _pendingRecords.RaiseListChangedEvents = false;
+            _pendingRecords.Clear();
+            foreach (var record in _repository.Records.Where(r => !r.IsCompleted))
+            {
+                _pendingRecords.Add(record);
+            }
+
+            _pendingRecords.RaiseListChangedEvents = true;
+            _pendingRecords.ResetBindings();
         }
 
         private void BuildColumns()

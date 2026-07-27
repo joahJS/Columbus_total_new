@@ -225,7 +225,7 @@ namespace ColumbusWeighing.Forms
             // _splitContainer
             //
             this._splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._splitContainer.Horizontal = true;
+            this._splitContainer.Horizontal = false;
             this._splitContainer.Location = new System.Drawing.Point(0, 134);
             this._splitContainer.Name = "_splitContainer";
             this._splitContainer.Panel1.Controls.Add(this._firstWeighingControl);
