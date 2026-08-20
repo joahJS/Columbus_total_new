@@ -17,6 +17,7 @@ namespace ColumbusWeighing.Forms
         private readonly IWeighingRepository _repository;
         private readonly IScaleIndicatorService _scaleService;
         private readonly AppLogService _logService;
+        private readonly IAuthenticationService _authService;
 
         public MainForm()
         {
@@ -26,6 +27,7 @@ namespace ColumbusWeighing.Forms
             _repository = new InMemoryWeighingRepository();
             _scaleService = new SimulatedScaleIndicatorService();
             _logService = new AppLogService();
+            _authService = new FixedAuthenticationService();
 
             _firstWeighingControl.Initialize(_repository, _scaleService, _logService);
             _secondWeighingControl.Initialize(_repository, _scaleService, _logService);
@@ -99,7 +101,7 @@ namespace ColumbusWeighing.Forms
 
         private void BtnLogin_Click(object sender, EventArgs e)
         {
-            using (var form = new LoginForm())
+            using (var form = new LoginForm(_authService))
             {
                 if (form.ShowDialog(this) == DialogResult.OK)
                 {
