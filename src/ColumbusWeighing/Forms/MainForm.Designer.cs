@@ -32,6 +32,7 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.Panel _rightInfoPanel;
         private System.Windows.Forms.TextBox _logMemo;
         private System.Windows.Forms.Panel _userPanel;
+        private System.Windows.Forms.Panel _loginBarPanel;
         private DevExpress.XtraEditors.SimpleButton _btnLogin;
         private DevExpress.XtraEditors.LabelControl _companyLabel;
 
@@ -58,6 +59,7 @@ namespace ColumbusWeighing.Forms
             this._logMemo = new System.Windows.Forms.TextBox();
             this._userPanel = new System.Windows.Forms.Panel();
             this._companyLabel = new DevExpress.XtraEditors.LabelControl();
+            this._loginBarPanel = new System.Windows.Forms.Panel();
             this._btnLogin = new DevExpress.XtraEditors.SimpleButton();
 
             this._splitContainer = new DevExpress.XtraEditors.SplitContainerControl();
@@ -68,6 +70,7 @@ namespace ColumbusWeighing.Forms
             this._topInfoPanel.SuspendLayout();
             this._rightInfoPanel.SuspendLayout();
             this._userPanel.SuspendLayout();
+            this._loginBarPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
             this._splitContainer.SuspendLayout();
             this.SuspendLayout();
@@ -186,12 +189,22 @@ namespace ColumbusWeighing.Forms
             //
             this._userPanel.BackColor = System.Drawing.Color.WhiteSmoke;
             this._userPanel.Controls.Add(this._companyLabel);
-            this._userPanel.Controls.Add(this._btnLogin);
+            this._userPanel.Controls.Add(this._loginBarPanel);
             this._userPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this._userPanel.Location = new System.Drawing.Point(604, 0);
             this._userPanel.Name = "_userPanel";
             this._userPanel.Size = new System.Drawing.Size(260, 82);
             this._userPanel.TabIndex = 1;
+            //
+            // _loginBarPanel (LOGIN 버튼 전용 영역 - 회사명 영역과 분리)
+            //
+            this._loginBarPanel.BackColor = System.Drawing.Color.WhiteSmoke;
+            this._loginBarPanel.Controls.Add(this._btnLogin);
+            this._loginBarPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this._loginBarPanel.Location = new System.Drawing.Point(0, 0);
+            this._loginBarPanel.Name = "_loginBarPanel";
+            this._loginBarPanel.Size = new System.Drawing.Size(260, 38);
+            this._loginBarPanel.TabIndex = 0;
             //
             // _btnLogin
             //
@@ -199,7 +212,7 @@ namespace ColumbusWeighing.Forms
             this._btnLogin.Appearance.ForeColor = System.Drawing.Color.White;
             this._btnLogin.Appearance.Options.UseBackColor = true;
             this._btnLogin.Appearance.Options.UseForeColor = true;
-            this._btnLogin.Location = new System.Drawing.Point(12, 10);
+            this._btnLogin.Location = new System.Drawing.Point(12, 6);
             this._btnLogin.Name = "_btnLogin";
             this._btnLogin.Size = new System.Drawing.Size(90, 28);
             this._btnLogin.TabIndex = 0;
@@ -207,18 +220,19 @@ namespace ColumbusWeighing.Forms
             //
             // _companyLabel
             //
-            this._companyLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 17F, System.Drawing.FontStyle.Bold);
+            this._companyLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 15F, System.Drawing.FontStyle.Bold);
             this._companyLabel.Appearance.ForeColor = System.Drawing.Color.Black;
             this._companyLabel.Appearance.Options.UseFont = true;
             this._companyLabel.Appearance.Options.UseForeColor = true;
             this._companyLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
             this._companyLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._companyLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this._companyLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this._companyLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._companyLabel.Location = new System.Drawing.Point(0, 0);
+            this._companyLabel.Location = new System.Drawing.Point(0, 38);
             this._companyLabel.Name = "_companyLabel";
             this._companyLabel.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this._companyLabel.Size = new System.Drawing.Size(260, 82);
+            this._companyLabel.Size = new System.Drawing.Size(260, 44);
             this._companyLabel.TabIndex = 1;
             this._companyLabel.Text = "콜럼버스 주식회사";
             //
@@ -263,13 +277,14 @@ namespace ColumbusWeighing.Forms
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "계량관리 프로그램 - 콜럼버스 주식회사";
-            this.WindowState = System.Windows.Forms.FormWindowState.Normal;
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this._menuStrip.ResumeLayout(false);
             this._menuStrip.PerformLayout();
             this._topInfoPanel.ResumeLayout(false);
             this._rightInfoPanel.ResumeLayout(false);
             this._rightInfoPanel.PerformLayout();
             this._userPanel.ResumeLayout(false);
+            this._loginBarPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).EndInit();
             this._splitContainer.ResumeLayout(false);
             this.ResumeLayout(false);

@@ -19,15 +19,24 @@ namespace ColumbusWeighing.Forms
         private readonly AppLogService _logService;
         private readonly IAuthenticationService _authService;
 
-        public MainForm()
+        /// <summary>VS 디자이너 전용(디자인 타임 로드를 위해 필요). 실행 시에는 사용하지 않는다.</summary>
+        public MainForm() : this(new FixedAuthenticationService(), "게스트")
+        {
+        }
+
+        /// <summary>
+        /// Program.cs 에서 로그인창을 통과한 뒤에 호출하는 실제 생성자.
+        /// </summary>
+        public MainForm(IAuthenticationService authService, string loggedInUserName)
         {
             InitializeComponent();
-            _btnLogin.BringToFront();
 
             _repository = new InMemoryWeighingRepository();
             _scaleService = new SimulatedScaleIndicatorService();
             _logService = new AppLogService();
-            _authService = new FixedAuthenticationService();
+            _authService = authService;
+
+            _btnLogin.Text = loggedInUserName;
 
             _firstWeighingControl.Initialize(_repository, _scaleService, _logService);
             _secondWeighingControl.Initialize(_repository, _scaleService, _logService);
@@ -49,7 +58,7 @@ namespace ColumbusWeighing.Forms
             Load += (s, e) =>
             {
                 _scaleService.Start();
-                _logService.Info(CompanyName, "무인계근관리 프로그램이 시작되었습니다.");
+                _logService.Info(CompanyName, string.Format("{0} 님으로 로그인된 상태로 프로그램이 시작되었습니다.", loggedInUserName));
             };
 
             FormClosed += (s, e) => _scaleService.Dispose();

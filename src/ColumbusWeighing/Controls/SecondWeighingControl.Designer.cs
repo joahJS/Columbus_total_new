@@ -67,6 +67,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Appearance.Options.UseFont = true;
             this._titleLabel.Appearance.Options.UseForeColor = true;
             this._titleLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            this._titleLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this._titleLabel.Dock = System.Windows.Forms.DockStyle.Left;
             this._titleLabel.Location = new System.Drawing.Point(0, 0);
             this._titleLabel.Name = "_titleLabel";
