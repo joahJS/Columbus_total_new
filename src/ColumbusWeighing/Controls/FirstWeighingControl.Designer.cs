@@ -60,6 +60,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Appearance.ForeColor = System.Drawing.Color.White;
             this._titleLabel.Appearance.Options.UseFont = true;
             this._titleLabel.Appearance.Options.UseForeColor = true;
+            this._titleLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._titleLabel.Dock = System.Windows.Forms.DockStyle.Left;
             this._titleLabel.Location = new System.Drawing.Point(0, 0);
             this._titleLabel.Name = "_titleLabel";
@@ -71,7 +72,7 @@ namespace ColumbusWeighing.Controls
             // _btnFirstWeighing
             //
             this._btnFirstWeighing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnFirstWeighing.Location = new System.Drawing.Point(600, 4);
+            this._btnFirstWeighing.Location = new System.Drawing.Point(562, 4);
             this._btnFirstWeighing.Name = "_btnFirstWeighing";
             this._btnFirstWeighing.Size = new System.Drawing.Size(110, 26);
             this._btnFirstWeighing.TabIndex = 1;
@@ -80,7 +81,7 @@ namespace ColumbusWeighing.Controls
             // _btnSecondWeighing
             //
             this._btnSecondWeighing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnSecondWeighing.Location = new System.Drawing.Point(716, 4);
+            this._btnSecondWeighing.Location = new System.Drawing.Point(680, 4);
             this._btnSecondWeighing.Name = "_btnSecondWeighing";
             this._btnSecondWeighing.Size = new System.Drawing.Size(110, 26);
             this._btnSecondWeighing.TabIndex = 2;
@@ -89,7 +90,7 @@ namespace ColumbusWeighing.Controls
             // _btnFirstSlip
             //
             this._btnFirstSlip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnFirstSlip.Location = new System.Drawing.Point(832, 4);
+            this._btnFirstSlip.Location = new System.Drawing.Point(798, 4);
             this._btnFirstSlip.Name = "_btnFirstSlip";
             this._btnFirstSlip.Size = new System.Drawing.Size(90, 26);
             this._btnFirstSlip.TabIndex = 3;

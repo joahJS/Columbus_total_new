@@ -66,6 +66,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Appearance.ForeColor = System.Drawing.Color.White;
             this._titleLabel.Appearance.Options.UseFont = true;
             this._titleLabel.Appearance.Options.UseForeColor = true;
+            this._titleLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._titleLabel.Dock = System.Windows.Forms.DockStyle.Left;
             this._titleLabel.Location = new System.Drawing.Point(0, 0);
             this._titleLabel.Name = "_titleLabel";
@@ -77,7 +78,7 @@ namespace ColumbusWeighing.Controls
             // _btnSingleWeighing
             //
             this._btnSingleWeighing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnSingleWeighing.Location = new System.Drawing.Point(900, 4);
+            this._btnSingleWeighing.Location = new System.Drawing.Point(980, 4);
             this._btnSingleWeighing.Name = "_btnSingleWeighing";
             this._btnSingleWeighing.Size = new System.Drawing.Size(110, 26);
             this._btnSingleWeighing.TabIndex = 1;
@@ -86,7 +87,7 @@ namespace ColumbusWeighing.Controls
             // _btnSecondSlip
             //
             this._btnSecondSlip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnSecondSlip.Location = new System.Drawing.Point(1016, 4);
+            this._btnSecondSlip.Location = new System.Drawing.Point(1098, 4);
             this._btnSecondSlip.Name = "_btnSecondSlip";
             this._btnSecondSlip.Size = new System.Drawing.Size(90, 26);
             this._btnSecondSlip.TabIndex = 2;

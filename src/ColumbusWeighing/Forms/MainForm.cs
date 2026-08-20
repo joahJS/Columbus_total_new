@@ -21,6 +21,7 @@ namespace ColumbusWeighing.Forms
         public MainForm()
         {
             InitializeComponent();
+            _btnLogin.BringToFront();
 
             _repository = new InMemoryWeighingRepository();
             _scaleService = new SimulatedScaleIndicatorService();
@@ -102,7 +103,8 @@ namespace ColumbusWeighing.Forms
             {
                 if (form.ShowDialog(this) == DialogResult.OK)
                 {
-                    _companyLabel.Text = CompanyName + Environment.NewLine + form.UserId;
+                    // 회사명 타이틀은 항상 표시하고, 로그인 버튼에 사용자명을 반영한다.
+                    _btnLogin.Text = form.UserId;
                     _logService.Info(CompanyName, string.Format("{0} 님이 로그인했습니다.", form.UserId));
                 }
             }
