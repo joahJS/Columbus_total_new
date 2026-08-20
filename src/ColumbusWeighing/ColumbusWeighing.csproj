@@ -84,8 +84,21 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\VersionManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VersionManagementForm.Designer.cs">
+      <DependentUpon>VersionManagementForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\VersionAddForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VersionAddForm.Designer.cs">
+      <DependentUpon>VersionAddForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\InOutType.cs" />
     <Compile Include="Models\WeighingRecord.cs" />
+    <Compile Include="Models\VersionRecord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AppLogService.cs" />
@@ -94,6 +107,8 @@
     <Compile Include="Services\IScaleIndicatorService.cs" />
     <Compile Include="Services\IWeighingRepository.cs" />
     <Compile Include="Services\InMemoryWeighingRepository.cs" />
+    <Compile Include="Services\IVersionRepository.cs" />
+    <Compile Include="Services\InMemoryVersionRepository.cs" />
     <Compile Include="Services\SimulatedScaleIndicatorService.cs" />
   </ItemGroup>
   <ItemGroup>

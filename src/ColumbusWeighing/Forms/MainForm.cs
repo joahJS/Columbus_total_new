@@ -18,6 +18,8 @@ namespace ColumbusWeighing.Forms
         private readonly IScaleIndicatorService _scaleService;
         private readonly AppLogService _logService;
         private readonly IAuthenticationService _authService;
+        private readonly IVersionRepository _versionRepository;
+        private readonly string _loggedInUserName;
 
         /// <summary>VS 디자이너 전용(디자인 타임 로드를 위해 필요). 실행 시에는 사용하지 않는다.</summary>
         public MainForm() : this(new FixedAuthenticationService(), "게스트")
@@ -35,6 +37,8 @@ namespace ColumbusWeighing.Forms
             _scaleService = new SimulatedScaleIndicatorService();
             _logService = new AppLogService();
             _authService = authService;
+            _versionRepository = new InMemoryVersionRepository();
+            _loggedInUserName = loggedInUserName;
 
             _btnLogin.Text = loggedInUserName;
 
@@ -52,6 +56,7 @@ namespace ColumbusWeighing.Forms
             _menuBaseDataProduct.Click += (s, e) => ShowNotReady("제품 관리");
             _menuStatusDaily.Click += (s, e) => ShowNotReady("일일 계량현황");
             _menuStatusPeriod.Click += (s, e) => ShowNotReady("기간별 집계");
+            _menuSystemVersion.Click += (s, e) => ShowVersionManagement();
 
             KeyPreview = true;
 
@@ -118,6 +123,14 @@ namespace ColumbusWeighing.Forms
                     _btnLogin.Text = form.UserId;
                     _logService.Info(CompanyName, string.Format("{0} 님이 로그인했습니다.", form.UserId));
                 }
+            }
+        }
+
+        private void ShowVersionManagement()
+        {
+            using (var form = new VersionManagementForm(_versionRepository, _loggedInUserName))
+            {
+                form.ShowDialog(this);
             }
         }
 

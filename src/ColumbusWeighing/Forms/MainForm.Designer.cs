@@ -26,6 +26,8 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuStatus;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusDaily;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusPeriod;
+        private System.Windows.Forms.ToolStripMenuItem _menuSystem;
+        private System.Windows.Forms.ToolStripMenuItem _menuSystemVersion;
 
         private System.Windows.Forms.Panel _topInfoPanel;
         private ColumbusWeighing.Controls.WeightDisplayControl _weightDisplay;
@@ -52,6 +54,8 @@ namespace ColumbusWeighing.Forms
             this._menuStatus = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusDaily = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusPeriod = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuSystem = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuSystemVersion = new System.Windows.Forms.ToolStripMenuItem();
 
             this._topInfoPanel = new System.Windows.Forms.Panel();
             this._weightDisplay = new ColumbusWeighing.Controls.WeightDisplayControl();
@@ -80,7 +84,8 @@ namespace ColumbusWeighing.Forms
             this._menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._menuFile,
             this._menuBaseData,
-            this._menuStatus});
+            this._menuStatus,
+            this._menuSystem});
             this._menuStrip.Location = new System.Drawing.Point(0, 0);
             this._menuStrip.Name = "_menuStrip";
             this._menuStrip.Size = new System.Drawing.Size(1264, 24);
@@ -139,6 +144,18 @@ namespace ColumbusWeighing.Forms
             //
             this._menuStatusPeriod.Name = "_menuStatusPeriod";
             this._menuStatusPeriod.Text = "기간별 집계";
+            //
+            // _menuSystem
+            //
+            this._menuSystem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._menuSystemVersion});
+            this._menuSystem.Name = "_menuSystem";
+            this._menuSystem.Text = "시스템관리(&Y)";
+            //
+            // _menuSystemVersion
+            //
+            this._menuSystemVersion.Name = "_menuSystemVersion";
+            this._menuSystemVersion.Text = "버전관리";
             //
             // _topInfoPanel
             //
