@@ -43,6 +43,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <!-- DevExpress WinForms 참조 (설치된 DevExpress 버전에 맞게 버전 접미사 조정) -->
@@ -58,7 +59,9 @@
     <Compile Include="ComnLib\ComnFunc.cs" />
     <Compile Include="ComnLib\ComnGridFunc.cs" />
     <Compile Include="ComnLib\ComnString.cs" />
+    <Compile Include="ComnLib\CredentialProtector.cs" />
     <Compile Include="ComnLib\DBConn.cs" />
+    <Compile Include="ComnLib\IniHelper.cs" />
     <Compile Include="ComnLib\LoginUser.cs" />
     <Compile Include="ComnLib\MainButtonInterface.cs" />
     <Compile Include="ComnLib\MessageType.cs" />

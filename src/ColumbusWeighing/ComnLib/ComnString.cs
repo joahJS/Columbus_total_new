@@ -24,5 +24,11 @@ namespace ColumbusWeighing.ComnLib
         public static string TxtSaveFail = "저장에 실패하였습니다. \r\n입력정보를 확인해주세요.";
         public static string TxtLoginOk = "로그인에 성공하였습니다.";
         public static string TxtLoginFail = "아이디 또는 비밀번호를 확인해 주세요.";
+
+        /// <summary>"접속정보 기억하기" 저장에 사용하는 IniHelper 섹션/키.</summary>
+        public static string IniSectionLogin = "LOGIN";
+        public static string IniKeyLoginId = "ID";
+        public static string IniKeyLoginPw = "PW";
+        public static string IniKeyLoginRemember = "REMEMBER";
     }
 }

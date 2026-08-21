@@ -20,6 +20,7 @@ namespace ColumbusWeighing.Forms
         private DevExpress.XtraEditors.LabelControl _pwLabel;
         private DevExpress.XtraEditors.TextEdit _idEdit;
         private DevExpress.XtraEditors.TextEdit _pwEdit;
+        private DevExpress.XtraEditors.CheckEdit _chkRemember;
         private DevExpress.XtraEditors.SimpleButton _btnOk;
         private DevExpress.XtraEditors.SimpleButton _btnCancel;
 
@@ -29,10 +30,12 @@ namespace ColumbusWeighing.Forms
             this._pwLabel = new DevExpress.XtraEditors.LabelControl();
             this._idEdit = new DevExpress.XtraEditors.TextEdit();
             this._pwEdit = new DevExpress.XtraEditors.TextEdit();
+            this._chkRemember = new DevExpress.XtraEditors.CheckEdit();
             this._btnOk = new DevExpress.XtraEditors.SimpleButton();
             this._btnCancel = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this._idEdit.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._pwEdit.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._chkRemember.Properties)).BeginInit();
             this.SuspendLayout();
             //
             // _idLabel
@@ -67,30 +70,39 @@ namespace ColumbusWeighing.Forms
             this._pwEdit.Size = new System.Drawing.Size(180, 20);
             this._pwEdit.TabIndex = 3;
             //
+            // _chkRemember
+            //
+            this._chkRemember.Location = new System.Drawing.Point(90, 88);
+            this._chkRemember.Name = "_chkRemember";
+            this._chkRemember.Properties.Caption = "접속정보 기억하기";
+            this._chkRemember.Size = new System.Drawing.Size(150, 19);
+            this._chkRemember.TabIndex = 4;
+            //
             // _btnOk
             //
-            this._btnOk.Location = new System.Drawing.Point(90, 100);
+            this._btnOk.Location = new System.Drawing.Point(90, 118);
             this._btnOk.Name = "_btnOk";
             this._btnOk.Size = new System.Drawing.Size(85, 28);
-            this._btnOk.TabIndex = 4;
+            this._btnOk.TabIndex = 5;
             this._btnOk.Text = "로그인";
             //
             // _btnCancel
             //
             this._btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this._btnCancel.Location = new System.Drawing.Point(185, 100);
+            this._btnCancel.Location = new System.Drawing.Point(185, 118);
             this._btnCancel.Name = "_btnCancel";
             this._btnCancel.Size = new System.Drawing.Size(85, 28);
-            this._btnCancel.TabIndex = 5;
+            this._btnCancel.TabIndex = 6;
             this._btnCancel.Text = "취소";
             //
             // LoginForm
             //
             this.AcceptButton = this._btnOk;
             this.CancelButton = this._btnCancel;
-            this.ClientSize = new System.Drawing.Size(294, 154);
+            this.ClientSize = new System.Drawing.Size(294, 172);
             this.Controls.Add(this._btnCancel);
             this.Controls.Add(this._btnOk);
+            this.Controls.Add(this._chkRemember);
             this.Controls.Add(this._pwEdit);
             this.Controls.Add(this._idEdit);
             this.Controls.Add(this._pwLabel);
@@ -103,6 +115,7 @@ namespace ColumbusWeighing.Forms
             this.Text = "로그인";
             ((System.ComponentModel.ISupportInitialize)(this._idEdit.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._pwEdit.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._chkRemember.Properties)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
