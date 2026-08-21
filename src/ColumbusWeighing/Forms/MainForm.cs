@@ -20,6 +20,7 @@ namespace ColumbusWeighing.Forms
         private readonly AppLogService _logService;
         private readonly IAuthenticationService _authService;
         private readonly IVersionRepository _versionRepository;
+        private readonly IAppSettingsRepository _appSettingsRepository;
         private readonly string _loggedInUserName;
 
         /// <summary>VS 디자이너 전용(디자인 타임 로드를 위해 필요). 실행 시에는 사용하지 않는다.</summary>
@@ -39,6 +40,7 @@ namespace ColumbusWeighing.Forms
             _logService = new AppLogService();
             _authService = authService;
             _versionRepository = new InMemoryVersionRepository();
+            _appSettingsRepository = new InMemoryAppSettingsRepository();
             _loggedInUserName = loggedInUserName;
 
             _btnLogin.Text = loggedInUserName;
@@ -55,6 +57,7 @@ namespace ColumbusWeighing.Forms
             _menuBaseDataCustomer.Click += (s, e) => ShowNotReady("거래처 관리");
             _menuBaseDataVehicle.Click += (s, e) => ShowNotReady("차량 관리");
             _menuBaseDataProduct.Click += (s, e) => ShowNotReady("제품 관리");
+            _menuBaseDataSystemSettings.Click += (s, e) => ShowSystemSettings();
             _menuStatusDaily.Click += (s, e) => ShowNotReady("일일 계량현황");
             _menuStatusPeriod.Click += (s, e) => ShowNotReady("기간별 집계");
             _menuSystemVersion.Click += (s, e) => ShowVersionManagement();
@@ -130,6 +133,14 @@ namespace ColumbusWeighing.Forms
         private void ShowVersionManagement()
         {
             using (var form = new VersionManagementForm(_versionRepository, _loggedInUserName))
+            {
+                form.ShowDialog(this);
+            }
+        }
+
+        private void ShowSystemSettings()
+        {
+            using (var form = new SystemSettingsForm(_appSettingsRepository))
             {
                 form.ShowDialog(this);
             }
