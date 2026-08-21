@@ -40,7 +40,10 @@ namespace ColumbusWeighing.Models
         public string AmountUnit { get; set; }
 
         // 인쇄 설정
-        public int ApprovalColumnCount { get; set; }
+        public string ApprovalTitle1 { get; set; }
+        public string ApprovalTitle2 { get; set; }
+        public string ApprovalTitle3 { get; set; }
+        public string ApprovalTitle4 { get; set; }
         public string ReportPrinter { get; set; }
 
         // 카메라 설정

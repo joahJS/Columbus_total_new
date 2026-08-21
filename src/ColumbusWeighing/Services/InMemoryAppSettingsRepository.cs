@@ -58,7 +58,10 @@ namespace ColumbusWeighing.Services
                 WeightUnit = "kg",
                 AmountUnit = "원",
 
-                ApprovalColumnCount = 1,
+                ApprovalTitle1 = "결재4",
+                ApprovalTitle2 = "결재3",
+                ApprovalTitle3 = "결재2",
+                ApprovalTitle4 = "결재1",
                 ReportPrinter = string.Empty,
 
                 CameraCount = 0,

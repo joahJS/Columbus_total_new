@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
@@ -7,8 +7,6 @@ using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
 using DevExpress.XtraEditors;
-using DevExpress.XtraEditors.Repository;
-using DevExpress.XtraGrid.Columns;
 
 namespace ColumbusWeighing.Forms
 {
@@ -49,16 +47,23 @@ namespace ColumbusWeighing.Forms
         private TextEdit _txtWeightUnit;
         private TextEdit _txtAmountUnit;
 
-        private readonly SimpleButton[] _approvalButtons = new SimpleButton[4];
-        private int _approvalColumnCount;
+        private TextEdit _txtApproval1;
+        private TextEdit _txtApproval2;
+        private TextEdit _txtApproval3;
+        private TextEdit _txtApproval4;
         private ComboBoxEdit _cboReportPrinter;
 
         private ComboBoxEdit _cboCameraCount;
         private TextEdit _txtPhotoFolder;
 
-        private DevExpress.XtraGrid.GridControl _gridIpCamera;
-        private DevExpress.XtraGrid.Views.Grid.GridView _gridViewIpCamera;
-        private readonly BindingList<IpCameraSetting> _ipCameras = new BindingList<IpCameraSetting>();
+        private const int IpCameraCount = 4;
+        private static readonly string[] IpCameraModels = { "SNB-5000A", "SNB-6004", "XNP-6320" };
+        private readonly TextEdit[] _txtCameraIp = new TextEdit[IpCameraCount];
+        private readonly SpinEdit[] _numCameraVnpPort = new SpinEdit[IpCameraCount];
+        private readonly SpinEdit[] _numCameraHttpPort = new SpinEdit[IpCameraCount];
+        private readonly TextEdit[] _txtCameraId = new TextEdit[IpCameraCount];
+        private readonly TextEdit[] _txtCameraPassword = new TextEdit[IpCameraCount];
+        private readonly ComboBoxEdit[] _cboCameraModel = new ComboBoxEdit[IpCameraCount];
 
         public SystemSettingsForm(IAppSettingsRepository repository)
         {
@@ -124,50 +129,57 @@ namespace ColumbusWeighing.Forms
 
         #region [계량 설정]
 
+        // 계량 설정의 라벨+입력란 줄을 모두 이 격자에 맞춰, 입력란 너비/가로 위치가 줄마다 어긋나지 않게 한다.
+        private const int WeighingColALabelX = 20;
+        private const int WeighingColBLabelX = 250;
+        private const int WeighingLabelWidth = 150;
+        private const int WeighingFieldWidth = 60;
+        private const int WeighingColAFieldX = WeighingColALabelX + WeighingLabelWidth + 4;
+        private const int WeighingColBFieldX = WeighingColBLabelX + WeighingLabelWidth + 4;
+
         private void BuildWeighingSection()
         {
-            AddLabel(_grpWeighing, 20, 30, 100, "차량인식기준");
-            _numVehicleThreshold = AddSpinEdit(_grpWeighing, 124, 27, 70, 0, 100000);
-            AddLabel(_grpWeighing, 250, 30, 100, "중량 판정 편차");
-            _numWeightDeviation = AddSpinEdit(_grpWeighing, 354, 27, 70, 0, 100000);
+            AddLabel(_grpWeighing, WeighingColALabelX, 30, WeighingLabelWidth, "차량인식기준");
+            _numVehicleThreshold = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 27, WeighingFieldWidth, 0, 100000);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 30, WeighingLabelWidth, "중량 판정 편차");
+            _numWeightDeviation = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 27, WeighingFieldWidth, 0, 100000);
 
-            _chkUseBroadcast = AddCheckEdit(_grpWeighing, 20, 58, 180, "PC 안내방송 사용");
-            AddLabel(_grpWeighing, 230, 60, 150, "중량안정판정시간(1~10초)");
-            _numStableSeconds = AddSpinEdit(_grpWeighing, 384, 57, 40, 1, 10);
+            AddLabel(_grpWeighing, WeighingColALabelX, 58, WeighingLabelWidth, "중량안정판정시간(1~10초)");
+            _numStableSeconds = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 55, WeighingFieldWidth, 1, 10);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 58, WeighingLabelWidth, "관리자 자동오프(분)");
+            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 55, WeighingFieldWidth, 0, 999);
 
-            _chkCopySecondToFirst = AddCheckEdit(_grpWeighing, 20, 86, 220, "2차 계량 자료 1차로 복사");
-            _chkMoveSecondToFirst = AddCheckEdit(_grpWeighing, 250, 86, 210, "2차 계량 자료 1차로 이동");
+            AddLabel(_grpWeighing, WeighingColALabelX, 86, WeighingLabelWidth, "마감 기준 시간");
+            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 83, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 86, WeighingLabelWidth, "메인화면 그리드 폰트");
+            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 83, WeighingFieldWidth, 6, 24);
 
-            _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, 20, 114, 220, "메인화면 1차 계량자료 수정");
-            _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, 250, 114, 210, "메인화면 2차계량자료 수정");
+            AddLabel(_grpWeighing, WeighingColALabelX, 114, WeighingLabelWidth, "중량 단위");
+            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 111, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 114, WeighingLabelWidth, "금액 단위");
+            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 111, WeighingFieldWidth);
 
-            AddLabel(_grpWeighing, 20, 144, 70, "입출고 구분");
-            _cboInOutRule = AddComboEdit(_grpWeighing, 95, 141, 355);
+            AddLabel(_grpWeighing, WeighingColALabelX, 144, WeighingLabelWidth, "입출고 구분");
+            _cboInOutRule = AddComboEdit(_grpWeighing, WeighingColAFieldX, 141, 464 - WeighingColAFieldX);
             _cboInOutRule.Properties.Items.AddRange(new object[]
             {
                 "1차>2차 [입고], 2차>1차 [출고]",
                 "1차>2차 [출고], 2차>1차 [입고]"
             });
 
-            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, 20, 170, 430, "1차, 1회 계량시 최종 자료 읽어오기");
+            _chkUseBroadcast = AddCheckEdit(_grpWeighing, 20, 176, 210, "PC 안내방송 사용");
+            _chkAutoLogin = AddCheckEdit(_grpWeighing, 250, 176, 200, "자동 로그인 사용");
 
-            _chkUseDispatch = AddCheckEdit(_grpWeighing, 20, 198, 150, "배차 사용");
+            _chkSaveLog = AddCheckEdit(_grpWeighing, 20, 200, 210, "로그 데이터 저장");
+            _chkUseDispatch = AddCheckEdit(_grpWeighing, 250, 200, 200, "배차 사용");
 
-            _chkAutoLogin = AddCheckEdit(_grpWeighing, 20, 226, 180, "자동 로그인 사용");
-            _chkSaveLog = AddCheckEdit(_grpWeighing, 250, 226, 180, "로그 데이터 저장");
+            _chkCopySecondToFirst = AddCheckEdit(_grpWeighing, 20, 224, 220, "2차 계량 자료 1차로 복사");
+            _chkMoveSecondToFirst = AddCheckEdit(_grpWeighing, 250, 224, 210, "2차 계량 자료 1차로 이동");
 
-            AddLabel(_grpWeighing, 20, 256, 120, "관리자 자동오프(분)");
-            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, 145, 253, 60, 0, 999);
+            _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, 20, 248, 220, "메인화면 1차 계량자료 수정");
+            _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, 250, 248, 210, "메인화면 2차계량자료 수정");
 
-            AddLabel(_grpWeighing, 20, 284, 90, "마감 기준 시간");
-            _txtClosingTime = AddTextEdit(_grpWeighing, 115, 281, 80);
-            AddLabel(_grpWeighing, 230, 284, 120, "메인화면 그리드 폰트");
-            _numGridFontSize = AddSpinEdit(_grpWeighing, 355, 281, 60, 6, 24);
-
-            AddLabel(_grpWeighing, 20, 312, 70, "중량 단위");
-            _txtWeightUnit = AddTextEdit(_grpWeighing, 95, 309, 80);
-            AddLabel(_grpWeighing, 250, 312, 70, "금액 단위");
-            _txtAmountUnit = AddTextEdit(_grpWeighing, 325, 309, 80);
+            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, 20, 272, 430, "1차, 1회 계량시 최종 자료 읽어오기");
         }
 
         #endregion
@@ -180,30 +192,24 @@ namespace ColumbusWeighing.Forms
             {
                 Location = new Point(20, 30),
                 Size = new Size(150, 16),
-                Text = "보고서 인쇄 설정"
+                Text = "보고서 인쇄 설정",
+                AutoSizeMode = LabelAutoSizeMode.None
             };
             subLabel.Appearance.Font = new Font("맑은 고딕", 9F, FontStyle.Bold);
             subLabel.Appearance.Options.UseFont = true;
             _grpPrint.Controls.Add(subLabel);
 
             AddLabel(_grpPrint, 20, 56, 70, "결재란 설정");
-            var approvalCounts = new[] { 4, 3, 2, 1 };
-            var buttonX = 95;
-            for (var i = 0; i < approvalCounts.Length; i++)
-            {
-                var count = approvalCounts[i];
-                var button = new SimpleButton
-                {
-                    Location = new Point(buttonX, 53),
-                    Size = new Size(55, 24),
-                    Text = string.Format("결재{0}", count),
-                    Tag = count
-                };
-                button.Click += (s, e) => SelectApprovalColumnCount(count);
-                _grpPrint.Controls.Add(button);
-                _approvalButtons[i] = button;
-                buttonX += 58;
-            }
+            const int approvalWidth = 85;
+            const int approvalGap = 8;
+            var approvalX = 95;
+            _txtApproval1 = AddTextEdit(_grpPrint, approvalX, 53, approvalWidth);
+            approvalX += approvalWidth + approvalGap;
+            _txtApproval2 = AddTextEdit(_grpPrint, approvalX, 53, approvalWidth);
+            approvalX += approvalWidth + approvalGap;
+            _txtApproval3 = AddTextEdit(_grpPrint, approvalX, 53, approvalWidth);
+            approvalX += approvalWidth + approvalGap;
+            _txtApproval4 = AddTextEdit(_grpPrint, approvalX, 53, approvalWidth);
 
             AddLabel(_grpPrint, 20, 88, 80, "보고서프린터");
             _cboReportPrinter = AddComboEdit(_grpPrint, 105, 85, 345);
@@ -211,19 +217,6 @@ namespace ColumbusWeighing.Forms
             foreach (string printerName in PrinterSettings.InstalledPrinters)
             {
                 _cboReportPrinter.Properties.Items.Add(printerName);
-            }
-        }
-
-        private void SelectApprovalColumnCount(int count)
-        {
-            _approvalColumnCount = count;
-            foreach (var button in _approvalButtons)
-            {
-                var isSelected = button.Tag is int tagValue && tagValue == count;
-                button.Appearance.BackColor = isSelected ? Color.FromArgb(41, 128, 225) : Color.Empty;
-                button.Appearance.ForeColor = isSelected ? Color.White : Color.Empty;
-                button.Appearance.Options.UseBackColor = isSelected;
-                button.Appearance.Options.UseForeColor = isSelected;
             }
         }
 
@@ -271,44 +264,71 @@ namespace ColumbusWeighing.Forms
 
         private void BuildIpCameraSection()
         {
-            _gridIpCamera = new DevExpress.XtraGrid.GridControl
+            AddColumnHeader(_grpIpCamera, 48, 90, "IP");
+            AddColumnHeader(_grpIpCamera, 142, 50, "VNP PORT");
+            AddColumnHeader(_grpIpCamera, 196, 50, "HTTP PORT");
+            AddColumnHeader(_grpIpCamera, 250, 50, "ID");
+            AddColumnHeader(_grpIpCamera, 304, 50, "암호");
+            AddColumnHeader(_grpIpCamera, 358, 90, "MODEL");
+
+            for (var i = 0; i < IpCameraCount; i++)
             {
-                Location = new Point(10, 28),
-                Size = new Size(450, 260)
-            };
-            _gridViewIpCamera = new DevExpress.XtraGrid.Views.Grid.GridView { GridControl = _gridIpCamera };
-            _gridIpCamera.MainView = _gridViewIpCamera;
-            _gridIpCamera.ViewCollection.Add(_gridViewIpCamera);
-            _grpIpCamera.Controls.Add(_gridIpCamera);
+                var y = 52 + i * 28;
 
-            ComnGridFunc.GridStyleBasicSetting(_gridViewIpCamera);
-            _gridViewIpCamera.OptionsView.ShowGroupPanel = false;
+                var rowLabel = new LabelControl
+                {
+                    Location = new Point(12, y + 2),
+                    Size = new Size(30, 16),
+                    Text = string.Format("#{0}", i + 1),
+                    AutoSizeMode = LabelAutoSizeMode.None
+                };
+                _grpIpCamera.Controls.Add(rowLabel);
 
-            var modelItems = new RepositoryItemComboBox { TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor };
-            modelItems.Items.AddRange(new object[] { "SNB-5000A", "SNB-6004", "XNP-6320" });
-            _gridIpCamera.RepositoryItems.Add(modelItems);
+                _txtCameraIp[i] = new TextEdit { Location = new Point(48, y), Size = new Size(90, 20) };
+                _grpIpCamera.Controls.Add(_txtCameraIp[i]);
 
-            var passwordItem = new RepositoryItemTextEdit { PasswordChar = '*' };
-            _gridIpCamera.RepositoryItems.Add(passwordItem);
+                _numCameraVnpPort[i] = new SpinEdit { Location = new Point(142, y), Size = new Size(50, 20) };
+                SetPortRange(_numCameraVnpPort[i]);
+                _grpIpCamera.Controls.Add(_numCameraVnpPort[i]);
 
-            AddGridColumn("No", "번호", 45).OptionsColumn.AllowEdit = false;
-            AddGridColumn("Ip", "IP", 100);
-            AddGridColumn("VnpPort", "VNP PORT", 70);
-            AddGridColumn("HttpPort", "HTTP PORT", 70);
-            AddGridColumn("UserId", "ID", 55);
-            var passwordColumn = AddGridColumn("Password", "암호", 55);
-            passwordColumn.ColumnEdit = passwordItem;
-            var modelColumn = AddGridColumn("Model", "MODEL", 85);
-            modelColumn.ColumnEdit = modelItems;
+                _numCameraHttpPort[i] = new SpinEdit { Location = new Point(196, y), Size = new Size(50, 20) };
+                SetPortRange(_numCameraHttpPort[i]);
+                _grpIpCamera.Controls.Add(_numCameraHttpPort[i]);
 
-            _gridIpCamera.DataSource = _ipCameras;
+                _txtCameraId[i] = new TextEdit { Location = new Point(250, y), Size = new Size(50, 20) };
+                _grpIpCamera.Controls.Add(_txtCameraId[i]);
+
+                _txtCameraPassword[i] = new TextEdit { Location = new Point(304, y), Size = new Size(50, 20) };
+                _txtCameraPassword[i].Properties.PasswordChar = '*';
+                _grpIpCamera.Controls.Add(_txtCameraPassword[i]);
+
+                _cboCameraModel[i] = AddComboEdit(_grpIpCamera, 358, y, 90);
+                _cboCameraModel[i].Properties.Items.AddRange(IpCameraModels);
+            }
         }
 
-        private GridColumn AddGridColumn(string fieldName, string caption, int width)
+        private static void SetPortRange(SpinEdit edit)
         {
-            var column = _gridViewIpCamera.Columns.AddVisible(fieldName, caption);
-            column.Width = width;
-            return column;
+            edit.Properties.MinValue = 0;
+            edit.Properties.MaxValue = 65535;
+            edit.Properties.Mask.EditMask = "N0";
+            edit.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric;
+            edit.Properties.Mask.UseMaskAsDisplayFormat = true;
+        }
+
+        private static void AddColumnHeader(GroupControl group, int x, int width, string text)
+        {
+            var label = new LabelControl
+            {
+                Location = new Point(x, 30),
+                Size = new Size(width, 16),
+                Text = text,
+                AutoSizeMode = LabelAutoSizeMode.None
+            };
+            label.Appearance.Font = new Font("맑은 고딕", 8F, FontStyle.Bold);
+            label.Appearance.Options.UseFont = true;
+            label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            group.Controls.Add(label);
         }
 
         #endregion
@@ -352,7 +372,10 @@ namespace ColumbusWeighing.Forms
             _txtWeightUnit.Text = settings.WeightUnit;
             _txtAmountUnit.Text = settings.AmountUnit;
 
-            SelectApprovalColumnCount(settings.ApprovalColumnCount);
+            _txtApproval1.Text = settings.ApprovalTitle1;
+            _txtApproval2.Text = settings.ApprovalTitle2;
+            _txtApproval3.Text = settings.ApprovalTitle3;
+            _txtApproval4.Text = settings.ApprovalTitle4;
 
             if (!string.IsNullOrEmpty(settings.ReportPrinter) && !_cboReportPrinter.Properties.Items.Contains(settings.ReportPrinter))
             {
@@ -363,14 +386,22 @@ namespace ColumbusWeighing.Forms
             _cboCameraCount.Text = settings.CameraCount <= 0 ? "NONE" : settings.CameraCount.ToString();
             _txtPhotoFolder.Text = settings.PhotoSaveFolder;
 
-            _ipCameras.RaiseListChangedEvents = false;
-            _ipCameras.Clear();
-            foreach (var camera in settings.IpCameras)
+            for (var i = 0; i < IpCameraCount; i++)
             {
-                _ipCameras.Add(camera);
+                var camera = i < settings.IpCameras.Count ? settings.IpCameras[i] : new IpCameraSetting();
+
+                _txtCameraIp[i].Text = camera.Ip;
+                _numCameraVnpPort[i].Value = camera.VnpPort;
+                _numCameraHttpPort[i].Value = camera.HttpPort;
+                _txtCameraId[i].Text = camera.UserId;
+                _txtCameraPassword[i].Text = camera.Password;
+
+                if (!string.IsNullOrEmpty(camera.Model) && !_cboCameraModel[i].Properties.Items.Contains(camera.Model))
+                {
+                    _cboCameraModel[i].Properties.Items.Add(camera.Model);
+                }
+                _cboCameraModel[i].Text = camera.Model;
             }
-            _ipCameras.RaiseListChangedEvents = true;
-            _ipCameras.ResetBindings();
         }
 
         private void Save()
@@ -406,13 +437,16 @@ namespace ColumbusWeighing.Forms
                 WeightUnit = _txtWeightUnit.Text,
                 AmountUnit = _txtAmountUnit.Text,
 
-                ApprovalColumnCount = _approvalColumnCount,
+                ApprovalTitle1 = _txtApproval1.Text,
+                ApprovalTitle2 = _txtApproval2.Text,
+                ApprovalTitle3 = _txtApproval3.Text,
+                ApprovalTitle4 = _txtApproval4.Text,
                 ReportPrinter = _cboReportPrinter.Text,
 
                 CameraCount = _cboCameraCount.Text == "NONE" ? 0 : ParseIntOrZero(_cboCameraCount.Text),
                 PhotoSaveFolder = _txtPhotoFolder.Text,
 
-                IpCameras = new System.Collections.Generic.List<IpCameraSetting>(_ipCameras)
+                IpCameras = BuildIpCameraList()
             };
 
             _repository.Save(settings);
@@ -422,6 +456,26 @@ namespace ColumbusWeighing.Forms
         private static int ParseIntOrZero(string text)
         {
             return int.TryParse(text, out var value) ? value : 0;
+        }
+
+        private List<IpCameraSetting> BuildIpCameraList()
+        {
+            var cameras = new List<IpCameraSetting>();
+            for (var i = 0; i < IpCameraCount; i++)
+            {
+                cameras.Add(new IpCameraSetting
+                {
+                    No = i + 1,
+                    Ip = _txtCameraIp[i].Text,
+                    VnpPort = (int)_numCameraVnpPort[i].Value,
+                    HttpPort = (int)_numCameraHttpPort[i].Value,
+                    UserId = _txtCameraId[i].Text,
+                    Password = _txtCameraPassword[i].Text,
+                    Model = _cboCameraModel[i].Text
+                });
+            }
+
+            return cameras;
         }
 
         #endregion
@@ -437,6 +491,10 @@ namespace ColumbusWeighing.Forms
                 Text = text
             };
             label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
+            // LabelControl은 AutoSizeMode가 기본값(Default)이면 텍스트 크기에 맞춰 스스로 줄어들어
+            // HAlignment.Far를 줘도 정렬할 여유 공간이 없어 항상 좌측처럼 보인다. None으로 고정해야
+            // 위에서 지정한 Size(너비)를 실제로 채우고, 그 안에서 우측정렬이 눈에 보이게 적용된다.
+            label.AutoSizeMode = LabelAutoSizeMode.None;
             group.Controls.Add(label);
             return label;
         }
