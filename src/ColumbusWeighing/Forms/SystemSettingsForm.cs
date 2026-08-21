@@ -140,14 +140,15 @@ namespace ColumbusWeighing.Forms
 
         // 계량 설정의 라벨+입력란 줄을 모두 이 격자에 맞춰, 입력란 너비/가로 위치가 줄마다 어긋나지 않게 한다.
         // A열은 체크박스들과 좌측 줄을 맞추기 위해 좌측정렬(AddLabelLeft), B열은 우측정렬(AddLabel)을 쓴다.
-        private const int WeighingColALabelX = 10;
+        private const int WeighingColALabelX = 20;
         private const int WeighingColALabelWidth = 120;
         private const int WeighingColAFieldX = WeighingColALabelX + WeighingColALabelWidth + 4;
-        private const int WeighingColBLabelX = 199;
+        private const int WeighingColBLabelX = 209;
         private const int WeighingColBLabelWidth = 150;
         private const int WeighingColBFieldX = WeighingColBLabelX + WeighingColBLabelWidth + 4;
         private const int WeighingFieldWidth = 55;
         private const int WeighingCheckWidth = 185;
+        private const int WeighingContentRight = 420;
 
         private void BuildWeighingSection()
         {
@@ -169,15 +170,18 @@ namespace ColumbusWeighing.Forms
             _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, WeighingColALabelX, 108, WeighingCheckWidth, "메인화면 1차 계량자료 수정");
             _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 108, WeighingCheckWidth, "메인화면 2차계량자료 수정");
 
-            AddLabel(_grpWeighing, WeighingColALabelX, 138, WeighingColALabelWidth, "입출고 구분");
-            _cboInOutRule = AddComboEdit(_grpWeighing, WeighingColAFieldX, 135, 420 - WeighingColAFieldX);
+            // 입출고 구분은 라벨을 짧게 두고 선택란을 줄 끝까지 가득 채운다.
+            const int inOutLabelWidth = 70;
+            const int inOutFieldX = WeighingColALabelX + inOutLabelWidth + 4;
+            AddLabel(_grpWeighing, WeighingColALabelX, 138, inOutLabelWidth, "입출고 구분");
+            _cboInOutRule = AddComboEdit(_grpWeighing, inOutFieldX, 135, WeighingContentRight - inOutFieldX);
             _cboInOutRule.Properties.Items.AddRange(new object[]
             {
                 "1차>2차 [입고], 2차>1차 [출고]",
                 "1차>2차 [출고], 2차>1차 [입고]"
             });
 
-            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 162, 400, "1차, 1회 계량시 최종 자료 읽어오기");
+            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 162, WeighingContentRight - WeighingColALabelX, "1차, 1회 계량시 최종 자료 읽어오기");
 
             _chkUseDispatch = AddCheckEdit(_grpWeighing, WeighingColALabelX, 186, WeighingCheckWidth, "배차 사용");
 
