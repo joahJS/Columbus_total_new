@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
 using DevExpress.XtraEditors;
@@ -27,7 +27,7 @@ namespace ColumbusWeighing.Controls
         {
             InitializeComponent();
             BuildColumns();
-            ApplyGridAppearance();
+            ComnGridFunc.GridStyleBasicSetting(_gridView);
             SetupDateEditCalendarButton();
 
             _gridControl.DataSource = _completedRecords;
@@ -110,37 +110,6 @@ namespace ColumbusWeighing.Controls
             AddInOutColumn();
             AddColumn("WeigherName", "계량자", 130);
             AddColumn("Remark", "비고", 100);
-        }
-
-        /// <summary>참고 화면과 동일한 배색(크림색 짝수행/흰색 홀수행, 하늘색 헤더, 파란색 선택행)으로 맞춘다.</summary>
-        private void ApplyGridAppearance()
-        {
-            _gridView.RowHeight = 22;
-
-            _gridView.Appearance.HeaderPanel.BackColor = Color.FromArgb(198, 217, 241);
-            _gridView.Appearance.HeaderPanel.ForeColor = Color.Black;
-            _gridView.Appearance.HeaderPanel.Font = new Font("맑은 고딕", 9F, FontStyle.Bold);
-            _gridView.Appearance.HeaderPanel.Options.UseBackColor = true;
-            _gridView.Appearance.HeaderPanel.Options.UseForeColor = true;
-            _gridView.Appearance.HeaderPanel.Options.UseFont = true;
-            _gridView.Appearance.HeaderPanel.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-
-            _gridView.OptionsView.EnableAppearanceEvenRow = true;
-            _gridView.Appearance.EvenRow.BackColor = Color.FromArgb(255, 251, 224);
-            _gridView.Appearance.EvenRow.Options.UseBackColor = true;
-            _gridView.Appearance.OddRow.BackColor = Color.White;
-            _gridView.Appearance.OddRow.Options.UseBackColor = true;
-            _gridView.Appearance.Row.Font = new Font("맑은 고딕", 9F);
-            _gridView.Appearance.Row.Options.UseFont = true;
-
-            _gridView.Appearance.FocusedRow.BackColor = Color.FromArgb(51, 153, 255);
-            _gridView.Appearance.FocusedRow.ForeColor = Color.White;
-            _gridView.Appearance.FocusedRow.Options.UseBackColor = true;
-            _gridView.Appearance.FocusedRow.Options.UseForeColor = true;
-            _gridView.Appearance.SelectedRow.BackColor = Color.FromArgb(51, 153, 255);
-            _gridView.Appearance.SelectedRow.ForeColor = Color.White;
-            _gridView.Appearance.SelectedRow.Options.UseBackColor = true;
-            _gridView.Appearance.SelectedRow.Options.UseForeColor = true;
         }
 
         /// <summary>조회일자 우측에 클릭하면 달력이 열리는 버튼을 명시적으로 붙인다.</summary>
@@ -227,15 +196,14 @@ namespace ColumbusWeighing.Controls
             var record = SelectedRecord;
             if (record == null)
             {
-                XtraMessageBox.Show("전표를 출력할 건을 목록에서 먼저 선택하세요.", "안내",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ComnFunc.gp_PrintMessage("전표를 출력할 건을 목록에서 먼저 선택하세요.", "안내", MessageType.알림);
                 return;
             }
 
             // TODO: XtraReports 로 작성된 2차 전표(.repx) 연결.
-            XtraMessageBox.Show(
+            ComnFunc.gp_PrintMessage(
                 string.Format("[{0}] {1} 차량 2차 전표 인쇄는 준비 중입니다.", record.WeighSeq, record.VehicleNo),
-                "2차 전표", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "2차 전표", MessageType.알림);
         }
     }
 }

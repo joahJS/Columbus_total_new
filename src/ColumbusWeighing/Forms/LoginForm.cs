@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Services;
 using DevExpress.XtraEditors;
 
@@ -26,15 +27,14 @@ namespace ColumbusWeighing.Forms
 
             if (string.IsNullOrWhiteSpace(userId))
             {
-                XtraMessageBox.Show("사용자ID를 입력하세요.", "로그인", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ComnFunc.gp_PrintMessage("사용자ID를 입력하세요.", "로그인", MessageType.경고);
                 DialogResult = DialogResult.None;
                 return;
             }
 
             if (!_authService.TryLogin(userId, password, out var displayName))
             {
-                XtraMessageBox.Show("아이디 또는 비밀번호가 올바르지 않습니다.", "로그인",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ComnFunc.gp_PrintMessage("아이디 또는 비밀번호가 올바르지 않습니다.", "로그인", MessageType.경고);
                 _pwEdit.Text = string.Empty;
                 _pwEdit.Focus();
                 DialogResult = DialogResult.None;
@@ -42,6 +42,8 @@ namespace ColumbusWeighing.Forms
             }
 
             UserId = displayName;
+            LoginUser.UserId = userId;
+            LoginUser.UserName = displayName;
             DialogResult = DialogResult.OK;
         }
     }

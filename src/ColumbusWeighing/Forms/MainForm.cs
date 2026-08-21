@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Services;
 using DevExpress.XtraEditors;
 
@@ -136,7 +137,7 @@ namespace ColumbusWeighing.Forms
 
         private static void ShowNotReady(string menuName)
         {
-            XtraMessageBox.Show(menuName + " 화면은 준비 중입니다.", "안내", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ComnFunc.gp_PrintMessage(menuName + " 화면은 준비 중입니다.", "안내", MessageType.알림);
         }
     }
 }
