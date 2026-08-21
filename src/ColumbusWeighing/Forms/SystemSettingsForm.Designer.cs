@@ -116,7 +116,7 @@ namespace ColumbusWeighing.Forms
             this._leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this._leftPanel.Location = new System.Drawing.Point(0, 0);
             this._leftPanel.Name = "_leftPanel";
-            this._leftPanel.Size = new System.Drawing.Size(500, 658);
+            this._leftPanel.Size = new System.Drawing.Size(450, 658);
             this._leftPanel.TabIndex = 0;
             //
             // _rightPanel
@@ -126,9 +126,9 @@ namespace ColumbusWeighing.Forms
             this._rightPanel.Controls.Add(this._grpCamera);
             this._rightPanel.Controls.Add(this._grpPrint);
             this._rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._rightPanel.Location = new System.Drawing.Point(500, 0);
+            this._rightPanel.Location = new System.Drawing.Point(450, 0);
             this._rightPanel.Name = "_rightPanel";
-            this._rightPanel.Size = new System.Drawing.Size(510, 658);
+            this._rightPanel.Size = new System.Drawing.Size(560, 658);
             this._rightPanel.TabIndex = 1;
             //
             // _grpUser
@@ -137,7 +137,7 @@ namespace ColumbusWeighing.Forms
             this._grpUser.Appearance.Options.UseFont = true;
             this._grpUser.Location = new System.Drawing.Point(10, 10);
             this._grpUser.Name = "_grpUser";
-            this._grpUser.Size = new System.Drawing.Size(470, 240);
+            this._grpUser.Size = new System.Drawing.Size(430, 240);
             this._grpUser.TabIndex = 0;
             this._grpUser.Text = "사용자 설정";
             //
@@ -147,7 +147,7 @@ namespace ColumbusWeighing.Forms
             this._grpWeighing.Appearance.Options.UseFont = true;
             this._grpWeighing.Location = new System.Drawing.Point(10, 260);
             this._grpWeighing.Name = "_grpWeighing";
-            this._grpWeighing.Size = new System.Drawing.Size(470, 350);
+            this._grpWeighing.Size = new System.Drawing.Size(430, 350);
             this._grpWeighing.TabIndex = 1;
             this._grpWeighing.Text = "계량 설정";
             //
@@ -157,7 +157,7 @@ namespace ColumbusWeighing.Forms
             this._grpPrint.Appearance.Options.UseFont = true;
             this._grpPrint.Location = new System.Drawing.Point(10, 10);
             this._grpPrint.Name = "_grpPrint";
-            this._grpPrint.Size = new System.Drawing.Size(470, 140);
+            this._grpPrint.Size = new System.Drawing.Size(530, 140);
             this._grpPrint.TabIndex = 0;
             this._grpPrint.Text = "인쇄 설정";
             //
@@ -167,7 +167,7 @@ namespace ColumbusWeighing.Forms
             this._grpCamera.Appearance.Options.UseFont = true;
             this._grpCamera.Location = new System.Drawing.Point(10, 160);
             this._grpCamera.Name = "_grpCamera";
-            this._grpCamera.Size = new System.Drawing.Size(470, 120);
+            this._grpCamera.Size = new System.Drawing.Size(530, 120);
             this._grpCamera.TabIndex = 1;
             this._grpCamera.Text = "카메라 설정";
             //
@@ -177,7 +177,7 @@ namespace ColumbusWeighing.Forms
             this._grpIpCamera.Appearance.Options.UseFont = true;
             this._grpIpCamera.Location = new System.Drawing.Point(10, 290);
             this._grpIpCamera.Name = "_grpIpCamera";
-            this._grpIpCamera.Size = new System.Drawing.Size(470, 190);
+            this._grpIpCamera.Size = new System.Drawing.Size(530, 190);
             this._grpIpCamera.TabIndex = 2;
             this._grpIpCamera.Text = "IP 카메라 설정";
             //
