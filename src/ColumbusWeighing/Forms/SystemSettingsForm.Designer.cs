@@ -105,7 +105,7 @@ namespace ColumbusWeighing.Forms
             this._bodyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._bodyPanel.Location = new System.Drawing.Point(0, 42);
             this._bodyPanel.Name = "_bodyPanel";
-            this._bodyPanel.Size = new System.Drawing.Size(1010, 638);
+            this._bodyPanel.Size = new System.Drawing.Size(1010, 658);
             this._bodyPanel.TabIndex = 1;
             //
             // _leftPanel
@@ -116,7 +116,7 @@ namespace ColumbusWeighing.Forms
             this._leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this._leftPanel.Location = new System.Drawing.Point(0, 0);
             this._leftPanel.Name = "_leftPanel";
-            this._leftPanel.Size = new System.Drawing.Size(500, 638);
+            this._leftPanel.Size = new System.Drawing.Size(500, 658);
             this._leftPanel.TabIndex = 0;
             //
             // _rightPanel
@@ -128,7 +128,7 @@ namespace ColumbusWeighing.Forms
             this._rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._rightPanel.Location = new System.Drawing.Point(500, 0);
             this._rightPanel.Name = "_rightPanel";
-            this._rightPanel.Size = new System.Drawing.Size(510, 638);
+            this._rightPanel.Size = new System.Drawing.Size(510, 658);
             this._rightPanel.TabIndex = 1;
             //
             // _grpUser
@@ -147,7 +147,7 @@ namespace ColumbusWeighing.Forms
             this._grpWeighing.Appearance.Options.UseFont = true;
             this._grpWeighing.Location = new System.Drawing.Point(10, 260);
             this._grpWeighing.Name = "_grpWeighing";
-            this._grpWeighing.Size = new System.Drawing.Size(470, 330);
+            this._grpWeighing.Size = new System.Drawing.Size(470, 350);
             this._grpWeighing.TabIndex = 1;
             this._grpWeighing.Text = "계량 설정";
             //
@@ -183,7 +183,7 @@ namespace ColumbusWeighing.Forms
             //
             // SystemSettingsForm
             //
-            this.ClientSize = new System.Drawing.Size(1010, 680);
+            this.ClientSize = new System.Drawing.Size(1010, 700);
             this.Controls.Add(this._bodyPanel);
             this.Controls.Add(this._topBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;

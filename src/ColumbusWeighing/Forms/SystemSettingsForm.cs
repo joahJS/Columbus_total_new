@@ -139,47 +139,51 @@ namespace ColumbusWeighing.Forms
 
         private void BuildWeighingSection()
         {
+            // 참고 화면(TS2020)과 동일한 순서: 차량인식기준/편차 → PC안내방송+안정판정시간 →
+            // 2차자료 복사/이동 → 메인화면 수정권한 → 입출고구분 → 최종자료읽기 → 배차사용 →
+            // 자동로그인/로그저장 → 관리자자동오프 → 마감시간/그리드폰트 → 중량/금액 단위.
             AddLabel(_grpWeighing, WeighingColALabelX, 30, WeighingLabelWidth, "차량인식기준");
             _numVehicleThreshold = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 27, WeighingFieldWidth, 0, 100000);
             AddLabel(_grpWeighing, WeighingColBLabelX, 30, WeighingLabelWidth, "중량 판정 편차");
             _numWeightDeviation = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 27, WeighingFieldWidth, 0, 100000);
 
-            AddLabel(_grpWeighing, WeighingColALabelX, 58, WeighingLabelWidth, "중량안정판정시간(1~10초)");
-            _numStableSeconds = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 55, WeighingFieldWidth, 1, 10);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 58, WeighingLabelWidth, "관리자 자동오프(분)");
-            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 55, WeighingFieldWidth, 0, 999);
+            _chkUseBroadcast = AddCheckEdit(_grpWeighing, WeighingColALabelX, 60, 210, "PC 안내방송 사용");
+            AddLabel(_grpWeighing, WeighingColBLabelX, 58, WeighingLabelWidth, "중량안정판정시간(1~10초)");
+            _numStableSeconds = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 55, WeighingFieldWidth, 1, 10);
 
-            AddLabel(_grpWeighing, WeighingColALabelX, 86, WeighingLabelWidth, "마감 기준 시간");
-            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 83, WeighingFieldWidth);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 86, WeighingLabelWidth, "메인화면 그리드 폰트");
-            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 83, WeighingFieldWidth, 6, 24);
+            _chkCopySecondToFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 84, 210, "2차 계량 자료 1차로 복사");
+            _chkMoveSecondToFirst = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 84, 210, "2차 계량 자료 1차로 이동");
 
-            AddLabel(_grpWeighing, WeighingColALabelX, 114, WeighingLabelWidth, "중량 단위");
-            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 111, WeighingFieldWidth);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 114, WeighingLabelWidth, "금액 단위");
-            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 111, WeighingFieldWidth);
+            _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, WeighingColALabelX, 108, 210, "메인화면 1차 계량자료 수정");
+            _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 108, 210, "메인화면 2차계량자료 수정");
 
-            AddLabel(_grpWeighing, WeighingColALabelX, 144, WeighingLabelWidth, "입출고 구분");
-            _cboInOutRule = AddComboEdit(_grpWeighing, WeighingColAFieldX, 141, 464 - WeighingColAFieldX);
+            AddLabel(_grpWeighing, WeighingColALabelX, 138, WeighingLabelWidth, "입출고 구분");
+            _cboInOutRule = AddComboEdit(_grpWeighing, WeighingColAFieldX, 135, 464 - WeighingColAFieldX);
             _cboInOutRule.Properties.Items.AddRange(new object[]
             {
                 "1차>2차 [입고], 2차>1차 [출고]",
                 "1차>2차 [출고], 2차>1차 [입고]"
             });
 
-            _chkUseBroadcast = AddCheckEdit(_grpWeighing, 20, 176, 210, "PC 안내방송 사용");
-            _chkAutoLogin = AddCheckEdit(_grpWeighing, 250, 176, 200, "자동 로그인 사용");
+            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 162, 430, "1차, 1회 계량시 최종 자료 읽어오기");
 
-            _chkSaveLog = AddCheckEdit(_grpWeighing, 20, 200, 210, "로그 데이터 저장");
-            _chkUseDispatch = AddCheckEdit(_grpWeighing, 250, 200, 200, "배차 사용");
+            _chkUseDispatch = AddCheckEdit(_grpWeighing, WeighingColALabelX, 186, 210, "배차 사용");
 
-            _chkCopySecondToFirst = AddCheckEdit(_grpWeighing, 20, 224, 220, "2차 계량 자료 1차로 복사");
-            _chkMoveSecondToFirst = AddCheckEdit(_grpWeighing, 250, 224, 210, "2차 계량 자료 1차로 이동");
+            _chkAutoLogin = AddCheckEdit(_grpWeighing, WeighingColALabelX, 210, 210, "자동 로그인 사용");
+            _chkSaveLog = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 210, 210, "로그 데이터 저장");
 
-            _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, 20, 248, 220, "메인화면 1차 계량자료 수정");
-            _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, 250, 248, 210, "메인화면 2차계량자료 수정");
+            AddLabel(_grpWeighing, WeighingColALabelX, 240, WeighingLabelWidth, "관리자 자동오프(분)");
+            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 237, WeighingFieldWidth, 0, 999);
 
-            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, 20, 272, 430, "1차, 1회 계량시 최종 자료 읽어오기");
+            AddLabel(_grpWeighing, WeighingColALabelX, 268, WeighingLabelWidth, "마감 기준 시간");
+            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 265, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 268, WeighingLabelWidth, "메인화면 그리드 폰트");
+            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 265, WeighingFieldWidth, 6, 24);
+
+            AddLabel(_grpWeighing, WeighingColALabelX, 296, WeighingLabelWidth, "중량 단위");
+            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 293, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 296, WeighingLabelWidth, "금액 단위");
+            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 293, WeighingFieldWidth);
         }
 
         #endregion
