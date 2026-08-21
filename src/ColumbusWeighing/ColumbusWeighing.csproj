@@ -56,6 +56,7 @@
     <Reference Include="DevExpress.Printing.v18.2.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComnLib\CalendarIcon.cs" />
     <Compile Include="ComnLib\ComnFunc.cs" />
     <Compile Include="ComnLib\ComnGridFunc.cs" />
     <Compile Include="ComnLib\ComnString.cs" />

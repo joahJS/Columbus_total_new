@@ -79,12 +79,13 @@ namespace ColumbusWeighing.Controls
             this._valueLabel.Appearance.ForeColor = System.Drawing.Color.Lime;
             this._valueLabel.Appearance.Options.UseFont = true;
             this._valueLabel.Appearance.Options.UseForeColor = true;
-            this._valueLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this._valueLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
             this._valueLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._valueLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this._valueLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._valueLabel.Location = new System.Drawing.Point(0, 0);
             this._valueLabel.Name = "_valueLabel";
+            this._valueLabel.Padding = new System.Windows.Forms.Padding(0, 0, 28, 0);
             this._valueLabel.Size = new System.Drawing.Size(310, 100);
             this._valueLabel.TabIndex = 0;
             this._valueLabel.Text = "0 kg";
