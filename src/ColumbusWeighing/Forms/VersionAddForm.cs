@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Services;
 using DevExpress.XtraEditors;
 
@@ -71,7 +72,7 @@ namespace ColumbusWeighing.Forms
                 _tx_FileSize.Text = _uploadedFileData.LongLength.ToString("N0");
             }
 
-            XtraMessageBox.Show("저장을 눌러주세요.", "안내", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ComnFunc.gp_PrintMessage("저장을 눌러주세요.", "안내", MessageType.알림);
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -80,13 +81,13 @@ namespace ColumbusWeighing.Forms
 
             if (_uploadedFileData == null)
             {
-                XtraMessageBox.Show("파일을 업로드하세요.", "안내", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ComnFunc.gp_PrintMessage("파일을 업로드하세요.", "안내", MessageType.경고);
                 return;
             }
 
             if (string.IsNullOrEmpty(versionId))
             {
-                XtraMessageBox.Show("VersionID를 입력하세요(예 : 1.1.10)", "안내", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ComnFunc.gp_PrintMessage("VersionID를 입력하세요(예 : 1.1.10)", "안내", MessageType.경고);
                 _tx_Version.Focus();
                 return;
             }
@@ -101,7 +102,7 @@ namespace ColumbusWeighing.Forms
 
             SavedVersionId = record.VersionId;
 
-            XtraMessageBox.Show("저장되었습니다.", "안내", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ComnFunc.gp_PrintMessage("저장되었습니다.", "안내", MessageType.알림);
             DialogResult = DialogResult.OK;
             Close();
         }

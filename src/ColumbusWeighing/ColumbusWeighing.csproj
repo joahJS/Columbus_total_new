@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -54,6 +55,14 @@
     <Reference Include="DevExpress.Printing.v18.2.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComnLib\ComnFunc.cs" />
+    <Compile Include="ComnLib\ComnGridFunc.cs" />
+    <Compile Include="ComnLib\ComnString.cs" />
+    <Compile Include="ComnLib\DBConn.cs" />
+    <Compile Include="ComnLib\LoginUser.cs" />
+    <Compile Include="ComnLib\MainButtonInterface.cs" />
+    <Compile Include="ComnLib\MessageType.cs" />
+    <Compile Include="ComnLib\Parameter.cs" />
     <Compile Include="Controls\FirstWeighingControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
