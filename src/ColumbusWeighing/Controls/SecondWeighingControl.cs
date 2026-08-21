@@ -28,7 +28,6 @@ namespace ColumbusWeighing.Controls
             InitializeComponent();
             BuildColumns();
             ComnGridFunc.GridStyleBasicSetting(_gridView);
-            SetupDateEditCalendarButton();
 
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
@@ -110,14 +109,6 @@ namespace ColumbusWeighing.Controls
             AddInOutColumn();
             AddColumn("WeigherName", "계량자", 130);
             AddColumn("Remark", "비고", 100);
-        }
-
-        /// <summary>조회일자 우측에 달력 아이콘 버튼을 명시적으로 붙인다(참고 화면과 동일한 달력 모양).</summary>
-        private void SetupDateEditCalendarButton()
-        {
-            _dateEdit.Properties.Buttons.Clear();
-            _dateEdit.Properties.Buttons.Add(new DevExpress.XtraEditors.Controls.EditorButton(
-                DevExpress.XtraEditors.Controls.ButtonPredefines.Glyph));
         }
 
         private GridColumn AddColumn(string fieldName, string caption, int width, string format = null)

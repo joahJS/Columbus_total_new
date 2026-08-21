@@ -30,6 +30,7 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuSystemVersion;
 
         private System.Windows.Forms.Panel _topInfoPanel;
+        private System.Windows.Forms.Panel _topDividerPanel;
         private ColumbusWeighing.Controls.WeightDisplayControl _weightDisplay;
         private System.Windows.Forms.Panel _rightInfoPanel;
         private System.Windows.Forms.TextBox _logMemo;
@@ -57,6 +58,7 @@ namespace ColumbusWeighing.Forms
             this._menuSystem = new System.Windows.Forms.ToolStripMenuItem();
             this._menuSystemVersion = new System.Windows.Forms.ToolStripMenuItem();
 
+            this._topDividerPanel = new System.Windows.Forms.Panel();
             this._topInfoPanel = new System.Windows.Forms.Panel();
             this._weightDisplay = new ColumbusWeighing.Controls.WeightDisplayControl();
             this._rightInfoPanel = new System.Windows.Forms.Panel();
@@ -156,6 +158,15 @@ namespace ColumbusWeighing.Forms
             //
             this._menuSystemVersion.Name = "_menuSystemVersion";
             this._menuSystemVersion.Text = "버전관리";
+            //
+            // _topDividerPanel
+            //
+            this._topDividerPanel.BackColor = System.Drawing.Color.Gainsboro;
+            this._topDividerPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this._topDividerPanel.Location = new System.Drawing.Point(0, 106);
+            this._topDividerPanel.Name = "_topDividerPanel";
+            this._topDividerPanel.Size = new System.Drawing.Size(1264, 1);
+            this._topDividerPanel.TabIndex = 3;
             //
             // _topInfoPanel
             //
@@ -287,6 +298,7 @@ namespace ColumbusWeighing.Forms
             //
             this.ClientSize = new System.Drawing.Size(1264, 703);
             this.Controls.Add(this._splitContainer);
+            this.Controls.Add(this._topDividerPanel);
             this.Controls.Add(this._topInfoPanel);
             this.Controls.Add(this._menuStrip);
             this.MainMenuStrip = this._menuStrip;
