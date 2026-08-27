@@ -4,6 +4,8 @@ VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColumbusWeighing", "src\ColumbusWeighing\ColumbusWeighing.csproj", "{FB6C6E2B-7890-4836-BBA8-7AF670121661}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColumbusSync.BranchA", "src\ColumbusSync.BranchA\ColumbusSync.BranchA.csproj", "{42F73549-6565-4815-94FB-57790F08BE89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,14 @@ Global
 		{FB6C6E2B-7890-4836-BBA8-7AF670121661}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB6C6E2B-7890-4836-BBA8-7AF670121661}.Release|x86.ActiveCfg = Release|Any CPU
 		{FB6C6E2B-7890-4836-BBA8-7AF670121661}.Release|x86.Build.0 = Release|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Debug|x86.Build.0 = Debug|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Release|x86.ActiveCfg = Release|Any CPU
+		{42F73549-6565-4815-94FB-57790F08BE89}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
