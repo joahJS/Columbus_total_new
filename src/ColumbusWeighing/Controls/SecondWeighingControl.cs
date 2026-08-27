@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
@@ -11,14 +10,13 @@ using DevExpress.XtraGrid.Columns;
 namespace ColumbusWeighing.Controls
 {
     /// <summary>
-    /// "2차계량" 패널. 조회일자 기준으로 2차 계량까지 완료된(순중량 확정) 계근 건 목록을 보여준다.
-    /// 원본 화면의 팝업(계량 화면 설정)에 가려져 있던 하단 그리드 영역에 해당한다.
+    /// "2차계량 완료" 조회 패널. 조회일자 기준으로 2차 계량까지 완료된(순중량 확정) 계근 건
+    /// 목록을 보여준다. 계량 입력(1회계량 버튼)은 각 지점이 지금 쓰는 프로그램에서 그대로
+    /// 처리하므로 여기에는 두지 않는다.
     /// </summary>
     public partial class SecondWeighingControl : XtraUserControl
     {
         private IWeighingRepository _repository;
-        private IScaleIndicatorService _scaleService;
-        private AppLogService _logService;
 
         /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
@@ -33,7 +31,6 @@ namespace ColumbusWeighing.Controls
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _dateEdit.EditValueChanged += (s, e) => ApplyDateFilter();
-            _btnSingleWeighing.Click += (s, e) => RegisterSingleWeighing();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
         }
 
@@ -48,12 +45,9 @@ namespace ColumbusWeighing.Controls
             set { _dateEdit.DateTime = value.Date; }
         }
 
-        public void Initialize(IWeighingRepository repository, IScaleIndicatorService scaleService, AppLogService logService)
+        public void Initialize(IWeighingRepository repository)
         {
             _repository = repository;
-            _scaleService = scaleService;
-            _logService = logService;
-
             _repository.Records.ListChanged += (s, e) => RefreshCompletedList();
             QueryDate = DateTime.Today;
             RefreshCompletedList();
@@ -61,10 +55,11 @@ namespace ColumbusWeighing.Controls
 
         public void ApplyDateFilter()
         {
+            _repository?.Refresh(QueryDate, QueryDate.AddDays(1));
             RefreshCompletedList();
         }
 
-        /// <summary>목록을 최신 데이터로 다시 표시(다른 패널에서 2차 계량 완료 처리 시 호출).</summary>
+        /// <summary>목록을 최신 데이터로 다시 표시(다른 화면에서 데이터가 갱신된 뒤 호출).</summary>
         public void RefreshView()
         {
             RefreshCompletedList();
@@ -151,44 +146,6 @@ namespace ColumbusWeighing.Controls
             {
                 e.DisplayText = inOut.ToDisplayString();
             }
-        }
-
-        /// <summary>MainForm 의 F7 단축키에서 호출.</summary>
-        public void RegisterSingleWeighing()
-        {
-            if (_repository == null || _scaleService == null)
-            {
-                return;
-            }
-
-            var vehicleNo = XtraInputBox.Show("차량번호를 입력하세요.", "1회 계량 등록", string.Empty);
-            if (string.IsNullOrWhiteSpace(vehicleNo))
-            {
-                return;
-            }
-
-            var customerName = XtraInputBox.Show("거래처명을 입력하세요.", "1회 계량 등록", string.Empty);
-            var productName = XtraInputBox.Show("제품명을 입력하세요.", "1회 계량 등록", string.Empty);
-            var tareText = XtraInputBox.Show("등록된 공차중량(kg)을 입력하세요.", "1회 계량 등록", "0");
-
-            if (!decimal.TryParse(tareText, out var tareWeight))
-            {
-                tareWeight = 0m;
-            }
-
-            var currentWeight = _scaleService.CurrentWeight;
-            var record = _repository.AddSingleWeighing(
-                vehicleNo.Trim(),
-                customerName?.Trim() ?? string.Empty,
-                productName?.Trim() ?? string.Empty,
-                InOutType.Out,
-                currentWeight,
-                tareWeight,
-                "콜럼버스 주식회사");
-
-            _logService?.Info("콜럼버스 주식회사", string.Format("{0} : 1회 계량 완료 (순중량 {1:N0}kg)", record.VehicleNo, record.NetWeight));
-
-            RefreshView();
         }
 
         private void PrintSecondSlip()

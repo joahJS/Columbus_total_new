@@ -9,12 +9,12 @@ namespace ColumbusWeighing.ComnLib
     /// </summary>
     public static class ComnString
     {
-        /// <summary>App.config의 connectionStrings에 등록된 "Columbus" 연결 문자열. DB 연동 전까지는 비어 있을 수 있다.</summary>
+        /// <summary>App.config의 connectionStrings에 등록된 "ColumbusWeighHub"(통합 허브 DB) 연결 문자열. DB 연동 전까지는 비어 있을 수 있다.</summary>
         public static string ConnectionString
         {
             get
             {
-                var setting = ConfigurationManager.ConnectionStrings["Columbus"];
+                var setting = ConfigurationManager.ConnectionStrings["ColumbusWeighHub"];
                 return setting == null ? string.Empty : setting.ConnectionString;
             }
         }

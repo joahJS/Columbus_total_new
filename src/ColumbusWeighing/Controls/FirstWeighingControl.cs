@@ -1,7 +1,5 @@
-using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
@@ -11,14 +9,13 @@ using DevExpress.XtraGrid.Columns;
 namespace ColumbusWeighing.Controls
 {
     /// <summary>
-    /// "1차 계량" 패널. 아직 2차 계량이 완료되지 않은(대기 중) 계근 건 목록을 보여주고,
-    /// F5(1차계량 등록) / F6(선택 건 2차계량 완료) 를 처리한다.
+    /// "1차 계량 대기" 조회 패널. 아직 2차 계량이 완료되지 않은 건 목록을 보여준다.
+    /// 이 프로그램은 조회/집계 전용이며, 계량 입력(1차/2차 계량 버튼)은 각 지점이 지금
+    /// 쓰는 프로그램(TS2020/MES)에서 그대로 처리하므로 여기에는 두지 않는다.
     /// </summary>
     public partial class FirstWeighingControl : XtraUserControl
     {
         private IWeighingRepository _repository;
-        private IScaleIndicatorService _scaleService;
-        private AppLogService _logService;
 
         /// <summary>2차 계량 대기 중인 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _pendingRecords = new BindingList<WeighingRecord>();
@@ -31,13 +28,8 @@ namespace ColumbusWeighing.Controls
 
             _gridControl.DataSource = _pendingRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
-            _btnFirstWeighing.Click += (s, e) => RegisterFirstWeighing();
-            _btnSecondWeighing.Click += (s, e) => CompleteSecondWeighingForSelected();
             _btnFirstSlip.Click += (s, e) => PrintFirstSlip();
         }
-
-        /// <summary>2차 계량이 완료되어 해당 건이 2차계량 화면으로 이동했을 때 발생.</summary>
-        public event EventHandler SecondWeighingCompleted;
 
         /// <summary>선택된 행의 계근 기록(없으면 null).</summary>
         public WeighingRecord SelectedRecord
@@ -45,12 +37,9 @@ namespace ColumbusWeighing.Controls
             get { return _gridView.GetFocusedRow() as WeighingRecord; }
         }
 
-        public void Initialize(IWeighingRepository repository, IScaleIndicatorService scaleService, AppLogService logService)
+        public void Initialize(IWeighingRepository repository)
         {
             _repository = repository;
-            _scaleService = scaleService;
-            _logService = logService;
-
             _repository.Records.ListChanged += (s, e) => RefreshPendingList();
             RefreshPendingList();
         }
@@ -116,57 +105,6 @@ namespace ColumbusWeighing.Controls
             {
                 e.DisplayText = inOut.ToDisplayString();
             }
-        }
-
-        /// <summary>MainForm 의 F5 단축키에서 호출.</summary>
-        public void RegisterFirstWeighing()
-        {
-            if (_repository == null || _scaleService == null)
-            {
-                return;
-            }
-
-            var vehicleNo = XtraInputBox.Show("차량번호를 입력하세요.", "1차 계량 등록", string.Empty);
-            if (string.IsNullOrWhiteSpace(vehicleNo))
-            {
-                return;
-            }
-
-            var customerName = XtraInputBox.Show("거래처명을 입력하세요.", "1차 계량 등록", string.Empty);
-            var productName = XtraInputBox.Show("제품명을 입력하세요.", "1차 계량 등록", string.Empty);
-
-            var weight = _scaleService.CurrentWeight;
-            var record = _repository.AddFirstWeighing(
-                vehicleNo.Trim(),
-                customerName?.Trim() ?? string.Empty,
-                productName?.Trim() ?? string.Empty,
-                InOutType.Out,
-                weight,
-                "콜럼버스 주식회사");
-
-            _logService?.Info("콜럼버스 주식회사", string.Format("{0} : 1차 계량 완료 ({1:N0}kg)", record.VehicleNo, weight));
-        }
-
-        /// <summary>MainForm 의 F6 단축키에서 호출.</summary>
-        public void CompleteSecondWeighingForSelected()
-        {
-            if (_repository == null || _scaleService == null)
-            {
-                return;
-            }
-
-            var record = SelectedRecord;
-            if (record == null)
-            {
-                ComnFunc.gp_PrintMessage("2차 계량을 완료할 건을 목록에서 먼저 선택하세요.", "안내", MessageType.알림);
-                return;
-            }
-
-            var weight = _scaleService.CurrentWeight;
-            _repository.CompleteSecondWeighing(record, weight, "콜럼버스 주식회사");
-
-            _logService?.Info("콜럼버스 주식회사", string.Format("{0} : 2차 계량 완료 ({1:N0}kg)", record.VehicleNo, weight));
-            SecondWeighingCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         private void PrintFirstSlip()

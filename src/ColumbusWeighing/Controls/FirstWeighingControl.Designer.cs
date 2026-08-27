@@ -18,8 +18,6 @@ namespace ColumbusWeighing.Controls
 
         private DevExpress.XtraEditors.PanelControl _headerPanel;
         private DevExpress.XtraEditors.LabelControl _titleLabel;
-        private DevExpress.XtraEditors.SimpleButton _btnFirstWeighing;
-        private DevExpress.XtraEditors.SimpleButton _btnSecondWeighing;
         private DevExpress.XtraEditors.SimpleButton _btnFirstSlip;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
@@ -28,8 +26,6 @@ namespace ColumbusWeighing.Controls
         {
             this._headerPanel = new DevExpress.XtraEditors.PanelControl();
             this._btnFirstSlip = new DevExpress.XtraEditors.SimpleButton();
-            this._btnSecondWeighing = new DevExpress.XtraEditors.SimpleButton();
-            this._btnFirstWeighing = new DevExpress.XtraEditors.SimpleButton();
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._gridControl = new DevExpress.XtraGrid.GridControl();
             this._gridView = new DevExpress.XtraGrid.Views.Grid.GridView();
@@ -45,8 +41,6 @@ namespace ColumbusWeighing.Controls
             this._headerPanel.Appearance.Options.UseBackColor = true;
             this._headerPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._headerPanel.Controls.Add(this._btnFirstSlip);
-            this._headerPanel.Controls.Add(this._btnSecondWeighing);
-            this._headerPanel.Controls.Add(this._btnFirstWeighing);
             this._headerPanel.Controls.Add(this._titleLabel);
             this._headerPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._headerPanel.Location = new System.Drawing.Point(0, 0);
@@ -68,25 +62,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this._titleLabel.Size = new System.Drawing.Size(120, 34);
             this._titleLabel.TabIndex = 0;
-            this._titleLabel.Text = "1차 계량";
-            //
-            // _btnFirstWeighing
-            //
-            this._btnFirstWeighing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnFirstWeighing.Location = new System.Drawing.Point(562, 4);
-            this._btnFirstWeighing.Name = "_btnFirstWeighing";
-            this._btnFirstWeighing.Size = new System.Drawing.Size(110, 26);
-            this._btnFirstWeighing.TabIndex = 1;
-            this._btnFirstWeighing.Text = "1차계량(F5)";
-            //
-            // _btnSecondWeighing
-            //
-            this._btnSecondWeighing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnSecondWeighing.Location = new System.Drawing.Point(680, 4);
-            this._btnSecondWeighing.Name = "_btnSecondWeighing";
-            this._btnSecondWeighing.Size = new System.Drawing.Size(110, 26);
-            this._btnSecondWeighing.TabIndex = 2;
-            this._btnSecondWeighing.Text = "2차계량(F6)";
+            this._titleLabel.Text = "1차 계량 대기";
             //
             // _btnFirstSlip
             //
@@ -94,7 +70,7 @@ namespace ColumbusWeighing.Controls
             this._btnFirstSlip.Location = new System.Drawing.Point(798, 4);
             this._btnFirstSlip.Name = "_btnFirstSlip";
             this._btnFirstSlip.Size = new System.Drawing.Size(90, 26);
-            this._btnFirstSlip.TabIndex = 3;
+            this._btnFirstSlip.TabIndex = 1;
             this._btnFirstSlip.Text = "1차 전표";
             //
             // _gridControl

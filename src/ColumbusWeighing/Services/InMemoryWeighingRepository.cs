@@ -1,12 +1,13 @@
 using System;
 using System.ComponentModel;
-using System.Linq;
 using ColumbusWeighing.Models;
 
 namespace ColumbusWeighing.Services
 {
     /// <summary>
-    /// 메모리 기반 계근 기록 저장소. 프로그램 시작 시 데모/개발용 샘플 데이터를 적재한다.
+    /// 메모리 기반 계근 기록 저장소. 개발/디자인 타임 확인용 데모 데이터를 담고 있으며,
+    /// Refresh()는 기간 조건을 무시하고 항상 같은 샘플 데이터를 보여준다.
+    /// 실제 배포 시에는 통합 허브 DB에서 조회해오는 구현체로 교체한다.
     /// </summary>
     public sealed class InMemoryWeighingRepository : IWeighingRepository
     {
@@ -21,97 +22,17 @@ namespace ColumbusWeighing.Services
             SeedSampleData();
         }
 
-        public WeighingRecord AddFirstWeighing(
-            string vehicleNo,
-            string customerName,
-            string productName,
-            InOutType inOutType,
-            decimal firstWeight,
-            string weigherName)
+        public void Refresh(DateTime fromDate, DateTime toDate)
         {
-            var record = new WeighingRecord
-            {
-                Id = _nextId++,
-                WeighSeq = GetNextSeq(DateTime.Today),
-                VehicleNo = vehicleNo,
-                CustomerName = customerName,
-                ProductName = productName,
-                InOutType = inOutType,
-                FirstDateTime = DateTime.Now,
-                FirstWeight = firstWeight,
-                WeigherName = weigherName,
-                OwnerCompany = CompanyName
-            };
-
-            Records.Add(record);
-            return record;
-        }
-
-        public void CompleteSecondWeighing(WeighingRecord record, decimal secondWeight, string weigherName)
-        {
-            if (record == null)
-            {
-                throw new ArgumentNullException(nameof(record));
-            }
-
-            record.SecondDateTime = DateTime.Now;
-            record.SecondWeight = secondWeight;
-
-            if (!string.IsNullOrEmpty(weigherName))
-            {
-                record.WeigherName = weigherName;
-            }
-
-            // BindingList 는 속성 변경만으로는 그리드 정렬/필터를 갱신하지 않으므로
-            // 리스트 변경 이벤트를 강제로 한 번 발생시켜 화면(1차/2차 그리드 이동)을 갱신한다.
-            var index = Records.IndexOf(record);
-            if (index >= 0)
-            {
-                Records.ResetItem(index);
-            }
-        }
-
-        public WeighingRecord AddSingleWeighing(
-            string vehicleNo,
-            string customerName,
-            string productName,
-            InOutType inOutType,
-            decimal firstWeight,
-            decimal secondWeight,
-            string weigherName)
-        {
-            var now = DateTime.Now;
-            var record = new WeighingRecord
-            {
-                Id = _nextId++,
-                WeighSeq = GetNextSeq(DateTime.Today),
-                VehicleNo = vehicleNo,
-                CustomerName = customerName,
-                ProductName = productName,
-                InOutType = inOutType,
-                FirstDateTime = now,
-                FirstWeight = firstWeight,
-                SecondDateTime = now,
-                SecondWeight = secondWeight,
-                WeigherName = weigherName,
-                OwnerCompany = CompanyName
-            };
-
-            Records.Add(record);
-            return record;
-        }
-
-        public int GetNextSeq(DateTime date)
-        {
-            var todays = Records.Where(r => r.FirstDateTime.Date == date.Date).ToList();
-            return todays.Count == 0 ? 1 : todays.Max(r => r.WeighSeq) + 1;
+            // 데모 저장소는 항상 동일한 샘플 데이터를 유지한다.
+            // 통합 허브 DB 연동 구현체에서는 여기서 실제 SELECT를 수행해 Records를 다시 채운다.
         }
 
         private void SeedSampleData()
         {
             var today = DateTime.Today;
 
-            // (seq, 1차시간, 2차시간, 차량번호, 거래처, 제품, 1차중량, 2차중량, 입출고, 계량자, 비고)
+            // (seq, 1차시간, 2차시간, 차량번호, 거래처, 제품, 1차중량, 2차중량, 입출고, 비고)
             var completed = new[]
             {
                 new { Seq = 1,  T1 = "16:40", T2 = "07:06", Car = "3812", Cust = "생곡>>>녹산이송", Prod = "왕문철A",       W1 = 32556m, W2 = 15708m, InOut = InOutType.Out, Remark = "납품" },

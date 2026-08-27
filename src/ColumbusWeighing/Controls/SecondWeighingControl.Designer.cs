@@ -18,7 +18,6 @@ namespace ColumbusWeighing.Controls
 
         private DevExpress.XtraEditors.PanelControl _headerPanel;
         private DevExpress.XtraEditors.LabelControl _titleLabel;
-        private DevExpress.XtraEditors.SimpleButton _btnSingleWeighing;
         private DevExpress.XtraEditors.SimpleButton _btnSecondSlip;
         private DevExpress.XtraEditors.PanelControl _filterPanel;
         private DevExpress.XtraEditors.LabelControl _dateLabel;
@@ -30,7 +29,6 @@ namespace ColumbusWeighing.Controls
         {
             this._headerPanel = new DevExpress.XtraEditors.PanelControl();
             this._btnSecondSlip = new DevExpress.XtraEditors.SimpleButton();
-            this._btnSingleWeighing = new DevExpress.XtraEditors.SimpleButton();
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
             this._dateEdit = new DevExpress.XtraEditors.DateEdit();
@@ -52,7 +50,6 @@ namespace ColumbusWeighing.Controls
             this._headerPanel.Appearance.Options.UseBackColor = true;
             this._headerPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._headerPanel.Controls.Add(this._btnSecondSlip);
-            this._headerPanel.Controls.Add(this._btnSingleWeighing);
             this._headerPanel.Controls.Add(this._titleLabel);
             this._headerPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._headerPanel.Location = new System.Drawing.Point(0, 0);
@@ -74,16 +71,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this._titleLabel.Size = new System.Drawing.Size(120, 34);
             this._titleLabel.TabIndex = 0;
-            this._titleLabel.Text = "2차계량";
-            //
-            // _btnSingleWeighing
-            //
-            this._btnSingleWeighing.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnSingleWeighing.Location = new System.Drawing.Point(980, 4);
-            this._btnSingleWeighing.Name = "_btnSingleWeighing";
-            this._btnSingleWeighing.Size = new System.Drawing.Size(110, 26);
-            this._btnSingleWeighing.TabIndex = 1;
-            this._btnSingleWeighing.Text = "1회계량(F7)";
+            this._titleLabel.Text = "2차계량 완료";
             //
             // _btnSecondSlip
             //
@@ -91,7 +79,7 @@ namespace ColumbusWeighing.Controls
             this._btnSecondSlip.Location = new System.Drawing.Point(1098, 4);
             this._btnSecondSlip.Name = "_btnSecondSlip";
             this._btnSecondSlip.Size = new System.Drawing.Size(90, 26);
-            this._btnSecondSlip.TabIndex = 2;
+            this._btnSecondSlip.TabIndex = 1;
             this._btnSecondSlip.Text = "2차 전표";
             //
             // _filterPanel

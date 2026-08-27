@@ -7,16 +7,16 @@ using DevExpress.XtraEditors;
 namespace ColumbusWeighing.Forms
 {
     /// <summary>
-    /// 무인계근관리 프로그램 메인 화면.
-    /// 상단: 현재 중량 표시 + 통신/이벤트 로그 + 로그인,
-    /// 중단: 1차 계량(대기 목록), 하단: 2차계량(당일 완료 목록).
+    /// 계량 조회/집계 프로그램 메인 화면 (A/B/C 지점 공용, 조회 전용).
+    /// 상단: 로그/로그인, 중단: 1차 계량 대기 조회, 하단: 2차계량 완료 조회.
+    /// 실제 계량 입력(1차/2차/1회 계량)은 각 지점이 지금 쓰는 프로그램(TS2020/MES)에서
+    /// 그대로 처리하며, 이 프로그램은 통합 허브 DB에서 그 결과를 읽어와 보여주기만 한다.
     /// </summary>
     public partial class MainForm : XtraForm
     {
         private const string CompanyName = "콜럼버스 주식회사";
 
         private readonly IWeighingRepository _repository;
-        private readonly IScaleIndicatorService _scaleService;
         private readonly AppLogService _logService;
         private readonly IAuthenticationService _authService;
         private readonly IVersionRepository _versionRepository;
@@ -35,7 +35,6 @@ namespace ColumbusWeighing.Forms
             InitializeComponent();
 
             _repository = new InMemoryWeighingRepository();
-            _scaleService = new SimulatedScaleIndicatorService();
             _logService = new AppLogService();
             _authService = authService;
             _versionRepository = new InMemoryVersionRepository();
@@ -43,11 +42,9 @@ namespace ColumbusWeighing.Forms
 
             _btnLogin.Text = loggedInUserName;
 
-            _firstWeighingControl.Initialize(_repository, _scaleService, _logService);
-            _secondWeighingControl.Initialize(_repository, _scaleService, _logService);
-            _firstWeighingControl.SecondWeighingCompleted += (s, e) => _secondWeighingControl.RefreshView();
+            _firstWeighingControl.Initialize(_repository);
+            _secondWeighingControl.Initialize(_repository);
 
-            _scaleService.WeightChanged += ScaleService_WeightChanged;
             _logService.LogAdded += LogService_LogAdded;
 
             _btnLogin.Click += BtnLogin_Click;
@@ -59,46 +56,10 @@ namespace ColumbusWeighing.Forms
             _menuStatusPeriod.Click += (s, e) => ShowNotReady("기간별 집계");
             _menuSystemVersion.Click += (s, e) => ShowVersionManagement();
 
-            KeyPreview = true;
-
             Load += (s, e) =>
             {
-                _scaleService.Start();
                 _logService.Info(CompanyName, string.Format("{0} 님으로 로그인된 상태로 프로그램이 시작되었습니다.", loggedInUserName));
             };
-
-            FormClosed += (s, e) => _scaleService.Dispose();
-        }
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            switch (keyData)
-            {
-                case Keys.F5:
-                    _firstWeighingControl.RegisterFirstWeighing();
-                    return true;
-                case Keys.F6:
-                    _firstWeighingControl.CompleteSecondWeighingForSelected();
-                    return true;
-                case Keys.F7:
-                    _secondWeighingControl.RegisterSingleWeighing();
-                    return true;
-            }
-
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
-
-        private void ScaleService_WeightChanged(object sender, WeightChangedEventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)(() => ScaleService_WeightChanged(sender, e)));
-                return;
-            }
-
-            _weightDisplay.Value = e.Weight;
-            _weightDisplay.SetStable(e.IsStable);
-            _logService.Raw(e.RawPacket);
         }
 
         private void LogService_LogAdded(object sender, LogEventArgs e)
