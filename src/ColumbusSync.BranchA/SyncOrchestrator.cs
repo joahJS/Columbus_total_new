@@ -1,4 +1,5 @@
 using System;
+using ColumbusSync.BranchA.Config;
 using ColumbusSync.BranchA.Hub;
 using ColumbusSync.BranchA.Logging;
 using ColumbusSync.BranchA.Source;
@@ -46,10 +47,12 @@ namespace ColumbusSync.BranchA
 
                 // TODO: 품목 마스터는 MesSourceReader.GetProducts() 구현 후 여기에 추가.
 
-                // 계근 데이터는 최근 N일치만 반복 동기화한다(당일 수정/취소 건 반영 목적).
-                // 전체 이력을 매번 긁으면 배치가 오래 걸리므로, 운영 규모에 맞게 조정한다.
+                // 계근 데이터는 최근 N일치를 매번 다시 훑는다. MEASURE_RETR이 계량일자(TDATE)로만
+                // 조회 조건을 받고 수정일시 기준 필터를 지원하지 않기 때문에, 검수/수정이 늦게
+                // 들어온 건도 놓치지 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다.
+                // App.config의 WeighSyncLookbackDays로 조정한다(기본 30일).
                 var toDate = DateTime.Today;
-                var fromDate = toDate.AddDays(-3);
+                var fromDate = toDate.AddDays(-SyncSettings.WeighSyncLookbackDays);
 
                 foreach (var raw in _source.GetWeighRecords(fromDate, toDate))
                 {

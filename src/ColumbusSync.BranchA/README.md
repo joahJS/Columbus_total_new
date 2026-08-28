@@ -24,7 +24,11 @@ A지점(Columbus_total, 기존 MES) 데이터를 통합 허브 DB(`COLUMBUS_WEIG
 
 계정/비밀번호는 소스에 커밋하지 말고 배포 PC의 `App.config`에서만 채워 넣으세요.
 
-`appSettings`의 `SyncIntervalMinutes`(기본 10분)로 동기화 주기를 조정할 수 있습니다.
+`appSettings`의 `SyncIntervalMinutes`(기본 10분)로 동기화 주기를,
+`WeighSyncLookbackDays`(기본 30일)로 계근 데이터를 매번 다시 훑는 기간을 조정할 수 있습니다.
+`MEASURE_RETR`이 계량일자(TDATE) 기준으로만 조회되고 수정일시 필터를 지원하지 않기 때문에,
+검수/수정이 이 기간보다 늦게 들어오면 반영되지 않습니다 — 실제 업무에서 검수가 며칠까지
+늦어질 수 있는지에 맞춰 조정하세요.
 
 ### 비밀번호 보호 (중요)
 
