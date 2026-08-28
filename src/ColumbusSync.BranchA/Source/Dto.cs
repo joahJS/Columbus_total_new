@@ -20,6 +20,18 @@ namespace ColumbusSync.BranchA.Source
         public string Remark { get; set; }
     }
 
+    /// <summary>MES DP_CM003F00 'LIST_M' 조회 결과 1행 (ITEMAS 원본).
+    /// 감량중량/감량율(LossWeight/LossRate)에 해당하는 컬럼이 ITEMAS에 없어서 항상 null이다
+    /// (B/C지점 mdb TB_PUM에는 LossWt/LossPro로 실제 존재하는 값).</summary>
+    public class RawProductRow
+    {
+        public string ItCod { get; set; }
+        public string ItNam { get; set; }
+        public string Unit { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public string Remark { get; set; }
+    }
+
     /// <summary>MES DP_CM009F00 'CAR_RETR' 조회 결과 1행.
     /// 실제 원본(CAR_TEMPLATE)은 "차량번호+거래처+품목 조합 템플릿"에 가까워서 운전자명/공차중량
     /// 컬럼이 아예 없다. DriverName/TareWeight는 통합 허브 VEHICLE 테이블에는 있지만(B/C지점 mdb

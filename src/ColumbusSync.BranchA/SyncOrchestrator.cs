@@ -45,7 +45,11 @@ namespace ColumbusSync.BranchA
                     upserted++;
                 }
 
-                // TODO: 품목 마스터는 MesSourceReader.GetProducts() 구현 후 여기에 추가.
+                foreach (var product in _source.GetProducts())
+                {
+                    _hub.UpsertProduct(product);
+                    upserted++;
+                }
 
                 // 계근 데이터는 최근 N일치를 매번 다시 훑는다. MEASURE_RETR이 계량일자(TDATE)로만
                 // 조회 조건을 받고 수정일시 기준 필터를 지원하지 않기 때문에, 검수/수정이 늦게

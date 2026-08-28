@@ -76,6 +76,29 @@ WHEN NOT MATCHED THEN INSERT
             });
         }
 
+        public void UpsertProduct(RawProductRow p)
+        {
+            const string sql = @"
+MERGE dbo.PRODUCT AS target
+USING (SELECT @BranchCode AS BRANCH_CODE, @SourceCode AS SOURCE_CODE) AS src
+    ON target.BRANCH_CODE = src.BRANCH_CODE AND target.SOURCE_CODE = src.SOURCE_CODE
+WHEN MATCHED THEN UPDATE SET
+    PRODUCT_NAME = @ProductName, UNIT = @Unit, UNIT_PRICE = @UnitPrice, REMARK = @Remark, SYNCED_AT = SYSDATETIME()
+WHEN NOT MATCHED THEN INSERT
+    (BRANCH_CODE, SOURCE_CODE, PRODUCT_NAME, UNIT, UNIT_PRICE, REMARK)
+    VALUES (@BranchCode, @SourceCode, @ProductName, @Unit, @UnitPrice, @Remark);";
+
+            SqlHelper.ExecuteNonQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", BranchCode),
+                new SqlParam("@SourceCode", p.ItCod),
+                new SqlParam("@ProductName", p.ItNam),
+                new SqlParam("@Unit", p.Unit),
+                new SqlParam("@UnitPrice", p.UnitPrice, SqlDbType.Decimal),
+                new SqlParam("@Remark", p.Remark),
+            });
+        }
+
         public void UpsertWeighRecord(WeighRecordForHub w)
         {
             const string sql = @"

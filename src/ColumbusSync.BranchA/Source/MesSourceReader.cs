@@ -1,27 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using ColumbusSync.BranchA.Logging;
 
 namespace ColumbusSync.BranchA.Source
 {
     /// <summary>
-    /// A지점 MES(Columbus_total)에서 계근/거래처/차량 데이터를 읽어오는 소스 리더.
+    /// A지점 MES(Columbus_total)에서 계근/거래처/차량/품목 데이터를 읽어오는 소스 리더.
     ///
     /// 프로시저 라우팅은 Columbus_total 소스코드의 PROCEDURE_ID 상수를 실제로 확인해서 맞췄다
     /// (03SA/SA015F00.cs -> DP_SA015F00, 01CM/CM001F00.cs -> DP_CM001F00,
-    ///  01CM/CM009F00.cs -> DP_CM009F00). 처음에는 CV_Retr/CAR_RETR도 DP_SA015F00으로
-    /// 잘못 호출해서, 해당 CMD 분기가 없는 프로시저가 "오류 없이 빈 결과"를 돌려주는 바람에
-    /// 0건으로 보였다.
+    ///  01CM/CM009F00.cs -> DP_CM009F00, 01CM/CM003F00.cs -> DP_CM003F00). 처음에는
+    /// CV_Retr/CAR_RETR도 DP_SA015F00으로 잘못 호출해서, 해당 CMD 분기가 없는 프로시저가
+    /// "오류 없이 빈 결과"를 돌려주는 바람에 0건으로 보였다.
     ///
-    /// DP_SA015F00/DP_CM001F00/DP_CM009F00 세 프로시저 모두 실제 본문을 받아 컬럼명/필터
-    /// 조건을 확인했다(README 참고). 다만 GetProducts()용 품목 프로시저는 아직 미확인 상태다.
+    /// 네 프로시저 모두 실제 본문을 받아 컬럼명/필터 조건을 확인했다(README 참고).
+    /// MEASURE_RETR의 @COPYN/@GUBUN, LIST_M의 @STDYN처럼 "빈 값이면 WHERE절이 거짓이 되어
+    /// 무조건 0건"이 되는 함정이 여러 프로시저에 반복해서 있었으니, 새 CMD를 추가할 때도
+    /// 필터 파라미터의 기본값 처리를 프로시저 본문에서 꼭 확인할 것.
     /// </summary>
     public class MesSourceReader
     {
         private const string MeasureProcedureId = "DP_SA015F00";
         private const string CustomerProcedureId = "DP_CM001F00";
         private const string VehicleProcedureId = "DP_CM009F00";
+        private const string ProductProcedureId = "DP_CM003F00";
         private readonly string _connectionString;
 
         public MesSourceReader(string connectionString)
@@ -92,14 +94,33 @@ namespace ColumbusSync.BranchA.Source
             return list;
         }
 
-        /// <summary>
-        /// 품목(제품) 마스터 조회. Columbus_total 01CM/CM003~004 폼의 PROCEDURE_ID/CMD 값을
-        /// 아직 확인하지 못했다.
-        /// </summary>
-        public List<object> GetProducts()
+        /// <summary>품목(제품) 마스터 전체 조회 (DP_CM003F00, CMD=LIST_M).
+        /// 실제 프로시저 본문으로 확인 완료. @STDYN을 명시적으로 'ALL'로 넘겨야 한다 —
+        /// MEASURE_RETR의 @COPYN/@GUBUN과 같은 함정으로, @STDYN이 정확히 'ALL'이거나
+        /// A.STDYN 값과 일치해야만 WHERE절이 참이 되는 구조라 빈 값이면 무조건 0건이 나온다.
+        /// 감량중량/감량율은 ITEMAS에 대응 컬럼이 없어 항상 null이다.</summary>
+        public List<RawProductRow> GetProducts()
         {
-            FileLogger.Info("GetProducts()는 아직 미구현 상태입니다. MES 품목관리 화면의 PROCEDURE_ID/CMD 값을 확인한 뒤 구현하세요.");
-            return new List<object>();
+            var table = SqlHelper.GetDataTable(_connectionString, ProductProcedureId, new[]
+            {
+                new SqlParam("CMD", "LIST_M"),
+                new SqlParam("STDYN", "ALL"),
+            });
+
+            var list = new List<RawProductRow>();
+            foreach (DataRow row in table.Rows)
+            {
+                list.Add(new RawProductRow
+                {
+                    ItCod = AsString(row, "ITCOD"),
+                    ItNam = AsString(row, "ITNAM"),
+                    Unit = AsString(row, "DANWI"),
+                    UnitPrice = AsDecimal(row, "OCOST"),
+                    Remark = AsString(row, "RK"),
+                });
+            }
+
+            return list;
         }
 
         /// <summary>

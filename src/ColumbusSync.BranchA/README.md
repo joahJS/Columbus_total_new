@@ -56,8 +56,9 @@ git update-index --no-skip-worktree src/ColumbusSync.BranchA/App.config
 
 ## 구현 상태
 
-세 프로시저(`DP_SA015F00`, `DP_CM001F00`, `DP_CM009F00`) 모두 **실제 본문을 받아서 컬럼명/
-필터 조건을 확인·반영했습니다.** 처음 버전에는 아래 버그들이 있었고 전부 수정되었습니다.
+네 프로시저(`DP_SA015F00`, `DP_CM001F00`, `DP_CM009F00`, `DP_CM003F00`) 모두 **실제 본문을
+받아서 컬럼명/필터 조건을 확인·반영했습니다.** 처음 버전에는 아래 버그들이 있었고 전부
+수정되었습니다.
 
 - `CV_Retr`/`CAR_RETR`을 `DP_SA015F00`으로 잘못 호출 — 해당 CMD 분기가 없는 프로시저라
   오류 없이 빈 결과만 돌아왔음. 실제로는 CV_Retr는 `DP_CM001F00`, CAR_RETR은 `DP_CM009F00`.
@@ -76,12 +77,13 @@ git update-index --no-skip-worktree src/ColumbusSync.BranchA/App.config
   테이블에는 이 컬럼들이 있지만(B/C지점 mdb `TB_CAR`에는 실제로 있음), A지점에서는 항상
   `NULL`로 채워진다. `VehicleType`으로 매핑한 `CARML`이 정말 "차종"을 뜻하는지는 담당자
   확인이 필요하다.
-
-남은 미확인 항목:
-
-- 품목(제품) 마스터는 `Source/MesSourceReader.cs`의 `GetProducts()`가 아직 비어 있습니다.
-  MES의 `01CM/CM003F00`, `CM004F00` 화면이 실제로 호출하는 `PROCEDURE_ID`/CMD 값을 확인한
-  뒤 채워야 합니다.
+- 품목(`DP_CM003F00`, CMD=`LIST_M`)도 `@STDYN`을 빈 값으로 보내면 무조건 0건이 나오는
+  같은 함정이 있었음 — `'ALL'`을 명시적으로 넘기도록 구현했다. `ITEMAS` 원본에는 감량중량/
+  감량율에 해당하는 컬럼이 없어서(B/C지점 mdb `TB_PUM`에는 `LossWt`/`LossPro`로 있음),
+  통합 허브 `PRODUCT.LOSS_WEIGHT`/`LOSS_RATE`는 A지점에서는 항상 `NULL`이다. 단가는
+  `BCOST`(매입원가)와 `OCOST`(매출원가) 두 개가 있는데, 계근 화면(`DP_SA015F00`)이 계근
+  단가를 채울 때 `OCOST`를 쓰는 것으로 보여(차량 조회 쿼리에서 `I.OCOST AS UCOST`) 그것을
+  `UNIT_PRICE`로 매핑했다.
 
 입/출고 구분(`IN_OUT_TYPE`), 완료 여부(`IS_COMPLETED`)는 원본 값을 그대로 쓰지 않고
 `SyncOrchestrator.Transform()`에서 통합 규칙으로 재계산합니다 (지점별 데이터 차이점 정리 문서 참고).
