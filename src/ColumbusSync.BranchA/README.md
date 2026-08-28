@@ -26,6 +26,22 @@ A지점(Columbus_total, 기존 MES) 데이터를 통합 허브 DB(`COLUMBUS_WEIG
 
 `appSettings`의 `SyncIntervalMinutes`(기본 10분)로 동기화 주기를 조정할 수 있습니다.
 
+### 비밀번호 보호 (중요)
+
+`App.config`는 Git 추적 대상 파일입니다. 로컬에서 실제 비밀번호를 채워 넣은 뒤 실수로
+`git add -A`/`git commit -a` 등으로 같이 커밋해버리면, 나중에 값을 지워도 **커밋 이력에는
+비밀번호가 그대로 남습니다.** (실제로 한 번 이런 일이 있었고, 그때 노출된 비밀번호는
+즉시 변경했습니다.)
+
+이 저장소를 받아서 실제 값을 채워 넣을 PC에서는, 아래 명령을 한 번만 실행해두세요.
+이후로는 이 파일을 로컬에서 수정해도 `git status`/`git commit`에 걸리지 않습니다.
+
+```
+git update-index --skip-worktree src/ColumbusSync.BranchA/App.config
+```
+
+되돌리려면(파일을 다시 git 추적 대상으로): `git update-index --no-skip-worktree src/ColumbusSync.BranchA/App.config`
+
 ## 구현 상태
 
 - **계근 원장(`MEASURE_RETR`/`FIRST_MEASURE_RETR`)은 `DP_SA015F00` 프로시저 실제 본문을
