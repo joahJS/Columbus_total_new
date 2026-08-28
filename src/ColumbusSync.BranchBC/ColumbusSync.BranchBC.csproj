@@ -14,20 +14,20 @@
     <Deterministic>true</Deterministic>
     <!--
       독립 배포 프로젝트: DevExpress나 다른 ColumbusSync/ColumbusWeighing 프로젝트를
-      참조하지 않는다. 이 프로젝트 폴더(bin\Release 결과물 + App.config)만 그대로 복사하면
-      B지점/C지점 PC에서 단독으로 실행 가능해야 한다.
+      참조하지 않는다.
 
-      기본 플랫폼을 x86으로 고정했다: mdb(Access) 파일을 읽는 ACE OLEDB 12.0 드라이버가
-      보통 32비트로 설치되어 있는 사무용 PC가 많기 때문이다. 만약 대상 PC에 64비트 ACE
-      드라이버(Access Database Engine 2016 x64 등)가 설치되어 있다면, 이 파일과 아래
-      PropertyGroup의 Platform을 x64로 바꿔서 빌드하면 된다.
+      mdb(Access)를 읽는 ACE OLEDB 12.0 드라이버는 PC마다 32비트로 깔려있을 수도, 64비트로
+      깔려있을 수도 있어서, 이 프로젝트는 x86/x64 두 가지 플랫폼으로 모두 빌드해둔다.
+      실제 배포 시에는 ColumbusSync.BranchBC.Launcher가 그 PC에 설치된 드라이버 비트수를
+      보고 맞는 쪽을 자동으로 실행해준다(그 프로젝트의 README 참고). OutputPath에 플랫폼
+      이름을 포함시켜, x86/x64 빌드 결과물이 서로 겹쳐쓰지 않고 별도 폴더에 쌓이게 했다.
     -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -37,12 +37,33 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>7.0</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.0</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.0</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

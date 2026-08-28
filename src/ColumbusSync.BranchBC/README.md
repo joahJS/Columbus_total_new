@@ -19,8 +19,9 @@ SQL Server가 아니라 Access mdb 파일이라는 점이 다릅니다.
 ## 독립성
 
 - 메인 계량 화면 프로젝트(`ColumbusWeighing`)나 `ColumbusSync.BranchA`를 전혀 참조하지 않습니다.
-- 이 폴더(빌드 결과 `bin\Release\ColumbusSync.BranchBC.exe` + `App.config`)만 그대로
-  각 지점 PC에 복사해서 실행하면 됩니다.
+- 빌드 결과(`bin\x86\Release\` 또는 `bin\x64\Release\`의 `ColumbusSync.BranchBC.exe` +
+  설정파일)만 그대로 복사하면 실행 가능합니다. 다만 비트수를 신경 쓰지 않으려면
+  `ColumbusSync.BranchBC.Launcher`를 통해 배포하는 걸 권장합니다(아래 참고).
 - TS2020이 쓰는 mdb를 **읽기 전용**으로만 조회합니다. TS2020 프로그램은 지금처럼 그대로
   계속 쓰시면 되고, 이 프로그램이 mdb에 뭔가를 쓰는 일은 없습니다.
 - 화면(UI) 없는 콘솔 프로그램이며, 실행하면 내부 타이머로 계속 대기하다가 설정된 주기마다
@@ -45,11 +46,17 @@ mdb 파일을 읽으려면 **ACE OLEDB 12.0 드라이버**(Microsoft Access Data
 Redistributable)가 그 PC에 설치되어 있어야 합니다. TS2020(Access 기반 프로그램)이 이미
 설치되어 있는 PC라면 대개 이미 깔려 있을 가능성이 높지만, 없다면 별도로 설치해야 합니다.
 
-**비트수(32비트/64비트)를 맞추는 게 중요합니다.** 이 프로젝트는 기본적으로 x86(32비트)으로
-빌드되도록 설정해뒀습니다 — 사무용 PC에는 32비트 Office/Access가 설치된 경우가 많아서입니다.
-만약 그 PC에 64비트 ACE 드라이버만 설치되어 있다면(예: 64비트 Office), 이 프로젝트를
-x64로 다시 빌드해야 합니다(`ColumbusSync.BranchBC.csproj`의 `Platform`을 `x64`로 바꾸고
-다시 빌드).
+**비트수(32비트/64비트)를 이 워커 exe와 정확히 맞춰야 합니다.** PC마다 32비트가 깔려있을
+수도, 64비트가 깔려있을 수도 있어서, 직접 이 프로젝트만 빌드해서 배포하면 매번 그 PC의
+비트수를 확인해야 하는 번거로움이 있습니다.
+
+**→ 그래서 직접 이 exe를 실행하지 마시고, `../ColumbusSync.BranchBC.Launcher`를
+   대신 사용하는 걸 권장합니다.** 그 런처가 PC에 설치된 드라이버 비트수를 자동으로
+   판단해서 맞는 쪽(x86/x64)을 대신 실행해줍니다. 배포 폴더 구성과 패키징 방법은
+   그 프로젝트의 README를 참고하세요.
+
+(직접 이 프로젝트만 빌드해서 쓰고 싶다면, `ColumbusSync.BranchBC.csproj`를
+`msbuild ... /p:Platform=x86` 또는 `/p:Platform=x64`로 빌드해 그 PC와 비트수를 맞추면 됩니다.)
 
 ## 구현 상태
 
