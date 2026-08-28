@@ -15,14 +15,23 @@ A지점(Columbus_total, 기존 MES) 데이터를 통합 허브 DB(`COLUMBUS_WEIG
 
 ## 실행 전 설정 (`App.config`)
 
-`connectionStrings` 두 개를 실제 값으로 채워야 합니다.
+**`App.config`는 Git 추적 대상이 아닙니다.** (비밀번호가 실수로 커밋되는 사고가 있었고,
+그 뒤로 `git update-index --skip-worktree`로 막아봤지만, 템플릿 자체가 바뀔 때마다
+`git pull`이 "로컬 변경사항이 덮어써진다"며 막히는 문제가 있어서, 아예 추적 대상에서
+뺐습니다.)
+
+**처음 받으신 분은 다음과 같이 설정하세요.**
+
+1. 같은 폴더의 `App.config.example`을 복사해서 `App.config`라는 이름으로 저장합니다.
+2. `App.config`를 열어 `connectionStrings` 두 개를 실제 값으로 채웁니다.
 
 | 이름 | 용도 | 현재 알려진 서버 정보 |
 |---|---|---|
 | `BranchA_Mes` | A지점 MES 원본 DB | `sql16ssd-006.localnet.kr,1433` / DB `columbusdb_pineit` |
 | `IntegrationHub` | 통합 허브 DB | `121.66.17.30,16433` / DB `COLUMBUS_WEIGH_HUB` |
 
-계정/비밀번호는 소스에 커밋하지 말고 배포 PC의 `App.config`에서만 채워 넣으세요.
+`App.config`는 `.gitignore`에 등록되어 있어서, 실제 값을 채워도 커밋/푸시될 일이 없고
+`git pull`도 더 이상 이 파일 때문에 막히지 않습니다.
 
 `appSettings`의 `SyncIntervalMinutes`(기본 10분)로 동기화 주기를,
 `WeighSyncLookbackDays`(기본 30일)로 계근 데이터를 매번 다시 훑는 기간을 조정할 수 있습니다.
@@ -30,21 +39,20 @@ A지점(Columbus_total, 기존 MES) 데이터를 통합 허브 DB(`COLUMBUS_WEIG
 검수/수정이 이 기간보다 늦게 들어오면 반영되지 않습니다 — 실제 업무에서 검수가 며칠까지
 늦어질 수 있는지에 맞춰 조정하세요.
 
-### 비밀번호 보호 (중요)
+### 새 설정이 추가되면
 
-`App.config`는 Git 추적 대상 파일입니다. 로컬에서 실제 비밀번호를 채워 넣은 뒤 실수로
-`git add -A`/`git commit -a` 등으로 같이 커밋해버리면, 나중에 값을 지워도 **커밋 이력에는
-비밀번호가 그대로 남습니다.** (실제로 한 번 이런 일이 있었고, 그때 노출된 비밀번호는
-즉시 변경했습니다.)
+`App.config.example`(템플릿, Git 추적됨)에 새 설정이 추가될 때가 있습니다. 그 항목만
+로컬 `App.config`에 직접 옮겨 적으시면 됩니다 — `App.config` 자체는 추적 대상이 아니라서
+자동으로 반영되지 않습니다.
 
-이 저장소를 받아서 실제 값을 채워 넣을 PC에서는, 아래 명령을 한 번만 실행해두세요.
-이후로는 이 파일을 로컬에서 수정해도 `git status`/`git commit`에 걸리지 않습니다.
+### 기존에 `git update-index --skip-worktree`로 설정해두신 경우
+
+더 이상 필요 없으니, 다음 명령으로 원래대로 되돌려두세요(안 해도 동작엔 지장 없지만,
+찜찜하시면):
 
 ```
-git update-index --skip-worktree src/ColumbusSync.BranchA/App.config
+git update-index --no-skip-worktree src/ColumbusSync.BranchA/App.config
 ```
-
-되돌리려면(파일을 다시 git 추적 대상으로): `git update-index --no-skip-worktree src/ColumbusSync.BranchA/App.config`
 
 ## 구현 상태
 

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  경고: 이 파일은 Git에 커밋되는 파일입니다. 로컬에서 실제 계정/비밀번호를 채워 넣은 뒤
-  git add / git commit으로 올리지 마세요. 한 번 커밋되면 나중에 값을 지워도 커밋 이력에는
-  남습니다. 실수로 다시 커밋되는 걸 막는 방법은 README.md의 "비밀번호 보호" 항목을 참고하세요.
+  이 파일은 템플릿입니다(Git 추적 대상). 실제 App.config는 Git 추적 대상이 아니므로,
+  처음 받으신 분은 이 파일을 같은 폴더에 "App.config"로 복사한 뒤 실제 값을 채워 넣으세요.
+  App.config 자체는 .gitignore에 등록되어 있어서, 값을 채워도 커밋/푸시될 일이 없습니다.
+  이후 이 예시 파일(App.config.example)에 새 설정이 추가되면, 그 항목만 로컬 App.config에
+  직접 옮겨 적으면 됩니다.
 -->
 <configuration>
   <startup>
