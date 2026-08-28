@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{80A53FF6-4F8C-4BDC-8C08-E1D085264439}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ColumbusSync.BranchBC</RootNamespace>
+    <AssemblyName>ColumbusSync.BranchBC</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <!--
+      독립 배포 프로젝트: DevExpress나 다른 ColumbusSync/ColumbusWeighing 프로젝트를
+      참조하지 않는다. 이 프로젝트 폴더(bin\Release 결과물 + App.config)만 그대로 복사하면
+      B지점/C지점 PC에서 단독으로 실행 가능해야 한다.
+
+      기본 플랫폼을 x86으로 고정했다: mdb(Access) 파일을 읽는 ACE OLEDB 12.0 드라이버가
+      보통 32비트로 설치되어 있는 사무용 PC가 많기 때문이다. 만약 대상 PC에 64비트 ACE
+      드라이버(Access Database Engine 2016 x64 등)가 설치되어 있다면, 이 파일과 아래
+      PropertyGroup의 Platform을 x64로 바꿔서 빌드하면 된다.
+    -->
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.0</LangVersion>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.0</LangVersion>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config\SyncSettings.cs" />
+    <Compile Include="Hub\HubWriter.cs" />
+    <Compile Include="Hub\SqlHelper.cs" />
+    <Compile Include="Logging\FileLogger.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Dto.cs" />
+    <Compile Include="Source\MdbSourceReader.cs" />
+    <Compile Include="Source\OleDbHelper.cs" />
+    <Compile Include="SyncOrchestrator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--
+      App.config는 Git 추적 대상이 아니다(README 참고) — 빌드하려면 App.config.example을
+      복사해서 App.config로 만들어야 한다. MSBuild는 실제 파일이 디스크에 있으면 되므로
+      git 추적 여부와 무관하게 정상적으로 참조/복사한다.
+    -->
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

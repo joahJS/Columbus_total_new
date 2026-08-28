@@ -12,3 +12,4 @@ packages/
 ## DevExpress design-time cache
 *.dsettings
 src/ColumbusSync.BranchA/App.config
+src/ColumbusSync.BranchBC/App.config
