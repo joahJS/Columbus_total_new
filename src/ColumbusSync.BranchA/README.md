@@ -26,14 +26,24 @@ A지점(Columbus_total, 기존 MES) 데이터를 통합 허브 DB(`COLUMBUS_WEIG
 
 `appSettings`의 `SyncIntervalMinutes`(기본 10분)로 동기화 주기를 조정할 수 있습니다.
 
-## 구현 상태 (스켈레톤)
+## 구현 상태
 
-- 거래처(`CV_Retr`), 차량(`CAR_RETR`), 계근 원장(`MEASURE_RETR`) 동기화 로직은 구현되어 있습니다.
+- **계근 원장(`MEASURE_RETR`/`FIRST_MEASURE_RETR`)은 `DP_SA015F00` 프로시저 실제 본문을
+  확인하고 그에 맞춰 검증된 상태**입니다. 처음 버전은 `CV_Retr`/`CAR_RETR`까지 전부
+  `DP_SA015F00`으로 잘못 호출하고 있었는데(해당 CMD 분기가 없어 오류 없이 빈 결과만 돌아옴),
+  실제 화면 소스(`SA015F00.cs`, `CM001F00.cs`, `CM009F00.cs`)의 `PROCEDURE_ID` 상수를
+  다시 확인해서 CV_Retr는 `DP_CM001F00`, CAR_RETR은 `DP_CM009F00`으로 바로잡았습니다.
+  또한 `MEASURE_RETR`은 `@COPYN`/`@GUBUN`이 `'A'`/`'Y'`/`'N'`, `'A'`/`'I'`/`'O'` 중 하나가
+  아니면 WHERE절 전체가 거짓이 되어 무조건 0건이 나오는 구조라, 빈 값 대신 `'A'`를 명시적으로
+  넘기도록 고쳤습니다. 화면과 동일하게 `FIRST_MEASURE_RETR`(1차 대기)도 같이 호출해 합칩니다.
+- **거래처(`DP_CM001F00`)/차량(`DP_CM009F00`) 반환 컬럼명은 아직 실제 프로시저 본문으로
+  검증하지 못했습니다.** 화면 코드에서 저장 시 쓰는 파라미터명(거래처: CVCOD/CVNAM/CEO/
+  DAMDANG/TEL/FAX/BUSSNO/UPTAE/JONGMOK/RK 추정, 차량: SEQNO/CARML/CARNO/CVCOD/ITCOD/RK만
+  확인됨 — 차종/운전자/공차중량 컬럼은 이 MES 화면에 아예 없을 가능성이 있습니다)만 근거로
+  추정한 상태라, `DP_SA015F00`처럼 실제 본문을 확인하면 한 번 더 맞춰야 합니다.
 - 품목(제품) 마스터는 `Source/MesSourceReader.cs`의 `GetProducts()`가 아직 비어 있습니다.
-  MES의 `01CM/CM003F00`, `CM004F00` 화면이 실제로 호출하는 CMD 값을 확인한 뒤 채워야 합니다.
-- 저장프로시저 반환 컬럼명은 `Columbus_total`의 `SA015F00.cs`, `CM001F00.cs`, `CM009F00.cs`
-  코드에서 실제로 바인딩하는 컬럼명을 근거로 작성했습니다. 운영 반영 전 DBA/MES 담당자와
-  한 번 더 대조 확인을 권장합니다.
+  MES의 `01CM/CM003F00`, `CM004F00` 화면이 실제로 호출하는 `PROCEDURE_ID`/CMD 값을 확인한
+  뒤 채워야 합니다.
 - 입/출고 구분(`IN_OUT_TYPE`), 완료 여부(`IS_COMPLETED`)는 원본 값을 그대로 쓰지 않고
   `SyncOrchestrator.Transform()`에서 통합 규칙으로 재계산합니다 (지점별 데이터 차이점 정리 문서 참고).
 

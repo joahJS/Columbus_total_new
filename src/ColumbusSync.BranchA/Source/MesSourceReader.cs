@@ -7,15 +7,23 @@ namespace ColumbusSync.BranchA.Source
 {
     /// <summary>
     /// A지점 MES(Columbus_total)에서 계근/거래처/차량 데이터를 읽어오는 소스 리더.
-    /// Columbus_total의 03SA/SA015F00.cs, 01CM/CM001F00.cs, 01CM/CM009F00.cs 에서 실제로
-    /// 호출하는 저장프로시저/CMD 값을 그대로 사용한다.
     ///
-    /// 주의: 여기 있는 CMD 값과 컬럼명은 화면 코드를 근거로 확인한 것이며, 실제 저장프로시저의
-    /// 정확한 반환 컬럼 목록은 DBA/MES 담당자에게 한 번 더 확인 후 맞춰야 한다(스켈레톤 단계).
+    /// 프로시저 라우팅은 Columbus_total 소스코드의 PROCEDURE_ID 상수를 실제로 확인해서 맞췄다
+    /// (03SA/SA015F00.cs -> DP_SA015F00, 01CM/CM001F00.cs -> DP_CM001F00,
+    ///  01CM/CM009F00.cs -> DP_CM009F00). 처음에는 CV_Retr/CAR_RETR도 DP_SA015F00으로
+    /// 잘못 호출해서, 해당 CMD 분기가 없는 프로시저가 "오류 없이 빈 결과"를 돌려주는 바람에
+    /// 0건으로 보였다.
+    ///
+    /// MEASURE_RETR/FIRST_MEASURE_RETR의 실제 컬럼명/필터 조건은 DP_SA015F00 프로시저 본문을
+    /// 직접 받아 확인한 것이라 신뢰도가 높다. 반면 DP_CM001F00/DP_CM009F00은 아직 본문을
+    /// 확인하지 못해 화면 코드 추정치를 그대로 쓰고 있으므로, 실제 프로시저 본문을 받으면
+    /// 한 번 더 검증이 필요하다(README 참고).
     /// </summary>
     public class MesSourceReader
     {
         private const string MeasureProcedureId = "DP_SA015F00";
+        private const string CustomerProcedureId = "DP_CM001F00";
+        private const string VehicleProcedureId = "DP_CM009F00";
         private readonly string _connectionString;
 
         public MesSourceReader(string connectionString)
@@ -23,10 +31,11 @@ namespace ColumbusSync.BranchA.Source
             _connectionString = connectionString;
         }
 
-        /// <summary>거래처 마스터 전체 조회 (CM001F00.cs: CMD=CV_Retr).</summary>
+        /// <summary>거래처 마스터 전체 조회 (CM001F00.cs: PROCEDURE_ID=DP_CM001F00, CMD=CV_Retr).
+        /// 컬럼명은 아직 실제 프로시저 본문으로 검증하지 못한 추정치다.</summary>
         public List<RawCustomerRow> GetCustomers()
         {
-            var table = SqlHelper.GetDataTable(_connectionString, MeasureProcedureId, new[]
+            var table = SqlHelper.GetDataTable(_connectionString, CustomerProcedureId, new[]
             {
                 new SqlParam("CMD", "CV_Retr"),
             });
@@ -53,10 +62,12 @@ namespace ColumbusSync.BranchA.Source
             return list;
         }
 
-        /// <summary>차량 마스터 전체 조회 (CM009F00.cs: CMD=CAR_RETR).</summary>
+        /// <summary>차량 마스터 전체 조회 (CM009F00.cs: PROCEDURE_ID=DP_CM009F00, CMD=CAR_RETR).
+        /// CAR_SAVE가 실제로 저장하는 컬럼(SEQNO, CARML, CARNO, CVCOD, ITCOD, RK)만 확인된 상태라,
+        /// 차종/운전자/공차중량 컬럼은 이 화면에 없을 수 있다 — 프로시저 본문 확인 필요.</summary>
         public List<RawVehicleRow> GetVehicles()
         {
-            var table = SqlHelper.GetDataTable(_connectionString, MeasureProcedureId, new[]
+            var table = SqlHelper.GetDataTable(_connectionString, VehicleProcedureId, new[]
             {
                 new SqlParam("CMD", "CAR_RETR"),
             });
@@ -79,67 +90,83 @@ namespace ColumbusSync.BranchA.Source
         }
 
         /// <summary>
-        /// 품목(제품) 마스터 조회. Columbus_total 01CM/CM003~004 폼에서 정확한 CMD 이름을
-        /// 아직 확인하지 못했다 (SetData 등 값 바인딩 흔적으로 화면 존재만 확인됨).
-        /// 실제 연동 전, MES 담당자에게 CM003F00/CM004F00이 호출하는 CMD 값을 확인해서
-        /// 이 메서드를 채워 넣어야 한다.
+        /// 품목(제품) 마스터 조회. Columbus_total 01CM/CM003~004 폼의 PROCEDURE_ID/CMD 값을
+        /// 아직 확인하지 못했다.
         /// </summary>
         public List<object> GetProducts()
         {
-            FileLogger.Info("GetProducts()는 아직 미구현 상태입니다. MES 품목관리 화면의 CMD 값을 확인한 뒤 구현하세요.");
+            FileLogger.Info("GetProducts()는 아직 미구현 상태입니다. MES 품목관리 화면의 PROCEDURE_ID/CMD 값을 확인한 뒤 구현하세요.");
             return new List<object>();
         }
 
         /// <summary>
-        /// 지정한 날짜의 계근 데이터 전체 조회.
-        /// SA015F00.cs의 RETR()에서 쓰는 CMD=MEASURE_RETR과 동일한 파라미터 구성을 따른다.
-        /// (FIRST_MEASURE_RETR은 "아직 2차 계량 전" 건만 보는 별도 조회이며, 여기서는
-        /// 1차/2차 완료 여부를 통합 스키마 쪽에서 재계산하므로 MEASURE_RETR 하나로 충분하다.)
+        /// 계근 데이터 조회. DP_SA015F00 실제 본문 기준으로 두 CMD를 모두 호출해서 합친다.
+        ///  - FIRST_MEASURE_RETR: 아직 2차 계량 전(SWEIT=0)인 건. 날짜/구분 파라미터가 없다.
+        ///  - MEASURE_RETR: 1·2차 모두 완료된(FWEIT&lt;&gt;0 AND SWEIT&lt;&gt;0) 건만 대상이며,
+        ///    @COPYN이 'A'/'Y'/'N' 중 하나, @GUBUN이 'A'/'I'/'O' 중 하나가 아니면 WHERE절 전체가
+        ///    거짓이 되어 무조건 0건이 나오므로 반드시 채워서 호출해야 한다.
         /// </summary>
         public List<RawWeighRow> GetWeighRecords(DateTime fromDate, DateTime toDate)
         {
-            var table = SqlHelper.GetDataTable(_connectionString, MeasureProcedureId, new[]
+            var list = new List<RawWeighRow>();
+
+            var firstTable = SqlHelper.GetDataTable(_connectionString, MeasureProcedureId, new[]
+            {
+                new SqlParam("CMD", "FIRST_MEASURE_RETR"),
+            });
+            foreach (DataRow row in firstTable.Rows)
+            {
+                list.Add(MapWeighRow(row, fromDate));
+            }
+
+            var measureTable = SqlHelper.GetDataTable(_connectionString, MeasureProcedureId, new[]
             {
                 new SqlParam("CMD", "MEASURE_RETR"),
                 new SqlParam("FROM", fromDate.ToString("yyyy-MM-dd")),
                 new SqlParam("TO", toDate.ToString("yyyy-MM-dd")),
-                new SqlParam("COPYN", null),
-                new SqlParam("GUBUN", null),
+                new SqlParam("COPYN", "A"),
+                new SqlParam("GUBUN", "A"),
                 new SqlParam("IDX", "0"),
                 new SqlParam("WORD", null),
             });
-
-            var list = new List<RawWeighRow>();
-            foreach (DataRow row in table.Rows)
+            foreach (DataRow row in measureTable.Rows)
             {
-                list.Add(new RawWeighRow
-                {
-                    Slino = AsString(row, "SLINO"),
-                    TDate = AsDateTime(row, "TDATE") ?? fromDate,
-                    SeqNo = AsString(row, "SEQNO"),
-                    JobGu = AsString(row, "JOBGU"),
-                    CarNo = AsString(row, "CARNO"),
-                    CvCod = AsString(row, "CVCOD"),
-                    CvNam = AsString(row, "CVNAM"),
-                    ItCod = AsString(row, "ITCOD"),
-                    ItNam = AsString(row, "ITNAM"),
-                    FTime = AsDateTime(row, "FTIME"),
-                    STime = AsDateTime(row, "STIME"),
-                    FWeit = AsDecimal(row, "FWEIT"),
-                    SWeit = AsDecimal(row, "SWEIT"),
-                    EWeit = AsDecimal(row, "EWEIT"),
-                    RWeit = AsDecimal(row, "RWEIT"),
-                    LWeit = AsDecimal(row, "LWEIT"),
-                    LosGu = AsString(row, "LOSGU"),
-                    AWeit = AsDecimal(row, "AWEIT"),
-                    UCost = AsDecimal(row, "UCOST"),
-                    ChkYn = AsString(row, "CHKYN"),
-                    PlnNm = AsString(row, "PLNNM"),
-                    InsRk = AsString(row, "INSRK"),
-                });
+                list.Add(MapWeighRow(row, fromDate));
             }
 
             return list;
+        }
+
+        private static RawWeighRow MapWeighRow(DataRow row, DateTime fallbackDate)
+        {
+            return new RawWeighRow
+            {
+                Slino = AsString(row, "SLINO"),
+                TDate = AsDateTime(row, "TDATE") ?? fallbackDate,
+                SeqNo = AsString(row, "SEQNO"),
+                JobGu = AsString(row, "JOBGU"),
+                CarNo = AsString(row, "CARNO"),
+                CvCod = AsString(row, "CVCOD"),
+                CvNam = AsString(row, "CVNAM"),
+                ItCod = AsString(row, "ITCOD"),
+                ItNam = AsString(row, "ITNAM"),
+                FTime = AsDateTime(row, "FTIME"),
+                STime = AsDateTime(row, "STIME"),
+                FWeit = AsDecimal(row, "FWEIT"),
+                SWeit = AsDecimal(row, "SWEIT"),
+                EWeit = AsDecimal(row, "EWEIT"),
+                RWeit = AsDecimal(row, "RWEIT"),
+                LWeit = AsDecimal(row, "LWEIT"),
+                // 실제 SELECT에서 LOSGU가 (디코딩값, M.LOSGU 원본값) 순서로 두 번 나와서
+                // ADO.NET이 두 번째 컬럼명을 LOSGU1로 자동 변경한다. 원본 코드가 필요하면 LOSGU1을 읽어야 한다.
+                LosGu = AsString(row, "LOSGU1") ?? AsString(row, "LOSGU"),
+                AWeit = AsDecimal(row, "AWEIT"),
+                UCost = AsDecimal(row, "UCOST"),
+                ChkYn = AsString(row, "CHKYN"),
+                PlnNm = AsString(row, "PLNNM"),
+                // INSRK는 검수(inspector) 비고, RK는 일반 비고. 통합 스키마의 REMARK는 RK를 사용한다.
+                InsRk = AsString(row, "RK"),
+            };
         }
 
         private static string AsString(DataRow row, string column)
