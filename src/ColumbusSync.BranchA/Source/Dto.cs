@@ -2,7 +2,9 @@ using System;
 
 namespace ColumbusSync.BranchA.Source
 {
-    /// <summary>MES(Columbus_total) CM001F00 'CV_Retr' 조회 결과 1행.</summary>
+    /// <summary>MES(Columbus_total) DP_CM001F00 'CV_Retr' 조회 결과 1행.
+    /// DTO 필드명은 통합 허브 스키마 쪽 의미를 따르고, 실제 CVMAST 원본 컬럼명과는 다르다
+    /// (예: Ceo는 실제로 OWNAM 컬럼에서 옴). 매핑은 MesSourceReader.GetCustomers() 참고.</summary>
     public class RawCustomerRow
     {
         public string CvCod { get; set; }
@@ -18,7 +20,10 @@ namespace ColumbusSync.BranchA.Source
         public string Remark { get; set; }
     }
 
-    /// <summary>MES CM009F00 'CAR_RETR' 조회 결과 1행.</summary>
+    /// <summary>MES DP_CM009F00 'CAR_RETR' 조회 결과 1행.
+    /// 실제 원본(CAR_TEMPLATE)은 "차량번호+거래처+품목 조합 템플릿"에 가까워서 운전자명/공차중량
+    /// 컬럼이 아예 없다. DriverName/TareWeight는 통합 허브 VEHICLE 테이블에는 있지만(B/C지점 mdb
+    /// TB_CAR에는 실제로 있는 컬럼), A지점에서는 항상 null로 채워진다.</summary>
     public class RawVehicleRow
     {
         public string CarNo { get; set; }

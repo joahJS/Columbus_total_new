@@ -44,24 +44,35 @@ git update-index --skip-worktree src/ColumbusSync.BranchA/App.config
 
 ## 구현 상태
 
-- **계근 원장(`MEASURE_RETR`/`FIRST_MEASURE_RETR`)은 `DP_SA015F00` 프로시저 실제 본문을
-  확인하고 그에 맞춰 검증된 상태**입니다. 처음 버전은 `CV_Retr`/`CAR_RETR`까지 전부
-  `DP_SA015F00`으로 잘못 호출하고 있었는데(해당 CMD 분기가 없어 오류 없이 빈 결과만 돌아옴),
-  실제 화면 소스(`SA015F00.cs`, `CM001F00.cs`, `CM009F00.cs`)의 `PROCEDURE_ID` 상수를
-  다시 확인해서 CV_Retr는 `DP_CM001F00`, CAR_RETR은 `DP_CM009F00`으로 바로잡았습니다.
-  또한 `MEASURE_RETR`은 `@COPYN`/`@GUBUN`이 `'A'`/`'Y'`/`'N'`, `'A'`/`'I'`/`'O'` 중 하나가
-  아니면 WHERE절 전체가 거짓이 되어 무조건 0건이 나오는 구조라, 빈 값 대신 `'A'`를 명시적으로
-  넘기도록 고쳤습니다. 화면과 동일하게 `FIRST_MEASURE_RETR`(1차 대기)도 같이 호출해 합칩니다.
-- **거래처(`DP_CM001F00`)/차량(`DP_CM009F00`) 반환 컬럼명은 아직 실제 프로시저 본문으로
-  검증하지 못했습니다.** 화면 코드에서 저장 시 쓰는 파라미터명(거래처: CVCOD/CVNAM/CEO/
-  DAMDANG/TEL/FAX/BUSSNO/UPTAE/JONGMOK/RK 추정, 차량: SEQNO/CARML/CARNO/CVCOD/ITCOD/RK만
-  확인됨 — 차종/운전자/공차중량 컬럼은 이 MES 화면에 아예 없을 가능성이 있습니다)만 근거로
-  추정한 상태라, `DP_SA015F00`처럼 실제 본문을 확인하면 한 번 더 맞춰야 합니다.
+세 프로시저(`DP_SA015F00`, `DP_CM001F00`, `DP_CM009F00`) 모두 **실제 본문을 받아서 컬럼명/
+필터 조건을 확인·반영했습니다.** 처음 버전에는 아래 버그들이 있었고 전부 수정되었습니다.
+
+- `CV_Retr`/`CAR_RETR`을 `DP_SA015F00`으로 잘못 호출 — 해당 CMD 분기가 없는 프로시저라
+  오류 없이 빈 결과만 돌아왔음. 실제로는 CV_Retr는 `DP_CM001F00`, CAR_RETR은 `DP_CM009F00`.
+- `MEASURE_RETR`의 `@COPYN`/`@GUBUN`을 빈 값으로 보내고 있었음 — 이 프로시저는 `@COPYN`이
+  `'A'`/`'Y'`/`'N'`, `@GUBUN`이 `'A'`/`'I'`/`'O'` 중 하나와 정확히 일치해야 WHERE절이 참이
+  되는 구조라, 빈 값이면 무조건 0건. 지금은 `'A'`(전체)를 명시적으로 넘긴다.
+- `FIRST_MEASURE_RETR`(1차 대기 목록)을 호출하지 않고 있었음 — `MEASURE_RETR`은
+  `FWEIT<>0 AND SWEIT<>0`(완료 건)만 주기 때문에, 원본 화면처럼 대기 건까지 보려면 두
+  CMD를 같이 호출해서 합쳐야 함. 지금은 둘 다 호출해서 합친다.
+- 거래처(`DP_CM001F00`) 컬럼명이 짐작과 많이 달랐음 — 예: 대표자명은 `CEO`가 아니라
+  `OWNAM`, 담당자명은 조인된 `PLNCD_NM`, 전화/팩스는 `TELNO`/`FAXNO`, 사업자번호는 `SANO`,
+  종목은 `JONGK`, 주소는 이미 합쳐진 `ADDR`. `Source/MesSourceReader.cs`의 `GetCustomers()`
+  주석에 실제 매핑을 정리해뒀다.
+- 차량(`DP_CM009F00`)의 원본 테이블(`CAR_TEMPLATE`)은 순수 차량대장이 아니라 **"차량번호+
+  거래처+품목 조합 템플릿"**이라, 운전자명/공차중량 컬럼이 아예 없다. 통합 허브 `VEHICLE`
+  테이블에는 이 컬럼들이 있지만(B/C지점 mdb `TB_CAR`에는 실제로 있음), A지점에서는 항상
+  `NULL`로 채워진다. `VehicleType`으로 매핑한 `CARML`이 정말 "차종"을 뜻하는지는 담당자
+  확인이 필요하다.
+
+남은 미확인 항목:
+
 - 품목(제품) 마스터는 `Source/MesSourceReader.cs`의 `GetProducts()`가 아직 비어 있습니다.
   MES의 `01CM/CM003F00`, `CM004F00` 화면이 실제로 호출하는 `PROCEDURE_ID`/CMD 값을 확인한
   뒤 채워야 합니다.
-- 입/출고 구분(`IN_OUT_TYPE`), 완료 여부(`IS_COMPLETED`)는 원본 값을 그대로 쓰지 않고
-  `SyncOrchestrator.Transform()`에서 통합 규칙으로 재계산합니다 (지점별 데이터 차이점 정리 문서 참고).
+
+입/출고 구분(`IN_OUT_TYPE`), 완료 여부(`IS_COMPLETED`)는 원본 값을 그대로 쓰지 않고
+`SyncOrchestrator.Transform()`에서 통합 규칙으로 재계산합니다 (지점별 데이터 차이점 정리 문서 참고).
 
 ## 빌드
 

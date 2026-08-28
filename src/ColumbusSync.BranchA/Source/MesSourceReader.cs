@@ -14,10 +14,8 @@ namespace ColumbusSync.BranchA.Source
     /// 잘못 호출해서, 해당 CMD 분기가 없는 프로시저가 "오류 없이 빈 결과"를 돌려주는 바람에
     /// 0건으로 보였다.
     ///
-    /// MEASURE_RETR/FIRST_MEASURE_RETR의 실제 컬럼명/필터 조건은 DP_SA015F00 프로시저 본문을
-    /// 직접 받아 확인한 것이라 신뢰도가 높다. 반면 DP_CM001F00/DP_CM009F00은 아직 본문을
-    /// 확인하지 못해 화면 코드 추정치를 그대로 쓰고 있으므로, 실제 프로시저 본문을 받으면
-    /// 한 번 더 검증이 필요하다(README 참고).
+    /// DP_SA015F00/DP_CM001F00/DP_CM009F00 세 프로시저 모두 실제 본문을 받아 컬럼명/필터
+    /// 조건을 확인했다(README 참고). 다만 GetProducts()용 품목 프로시저는 아직 미확인 상태다.
     /// </summary>
     public class MesSourceReader
     {
@@ -31,8 +29,11 @@ namespace ColumbusSync.BranchA.Source
             _connectionString = connectionString;
         }
 
-        /// <summary>거래처 마스터 전체 조회 (CM001F00.cs: PROCEDURE_ID=DP_CM001F00, CMD=CV_Retr).
-        /// 컬럼명은 아직 실제 프로시저 본문으로 검증하지 못한 추정치다.</summary>
+        /// <summary>거래처 마스터 전체 조회 (DP_CM001F00, CMD=CV_Retr).
+        /// 실제 프로시저 본문으로 확인 완료. CVMAST 원본 컬럼명이 짐작과 많이 달랐다
+        /// (예: 대표자명은 CEO가 아니라 OWNAM, 담당자명은 DAMDANG이 아니라 조인된 PLNCD_NM,
+        /// 전화/팩스는 TEL/FAX가 아니라 TELNO/FAXNO, 사업자번호는 BUSSNO가 아니라 SANO,
+        /// 종목은 JONGMOK이 아니라 JONGK, 주소는 이미 CONCAT(ADDR1,ADDR2)된 ADDR로 내려온다).</summary>
         public List<RawCustomerRow> GetCustomers()
         {
             var table = SqlHelper.GetDataTable(_connectionString, CustomerProcedureId, new[]
@@ -47,14 +48,14 @@ namespace ColumbusSync.BranchA.Source
                 {
                     CvCod = AsString(row, "CVCOD"),
                     CvNam = AsString(row, "CVNAM"),
-                    Ceo = AsString(row, "CEO"),
-                    Damdang = AsString(row, "DAMDANG"),
-                    Tel = AsString(row, "TEL"),
-                    Fax = AsString(row, "FAX"),
-                    Addr = AsString(row, "ADD1"),
-                    BussNo = AsString(row, "BUSSNO"),
+                    Ceo = AsString(row, "OWNAM"),
+                    Damdang = AsString(row, "PLNCD_NM"),
+                    Tel = AsString(row, "TELNO"),
+                    Fax = AsString(row, "FAXNO"),
+                    Addr = AsString(row, "ADDR"),
+                    BussNo = AsString(row, "SANO"),
                     Uptae = AsString(row, "UPTAE"),
-                    Jongmok = AsString(row, "JONGMOK"),
+                    Jongmok = AsString(row, "JONGK"),
                     Remark = AsString(row, "RK"),
                 });
             }
@@ -62,9 +63,11 @@ namespace ColumbusSync.BranchA.Source
             return list;
         }
 
-        /// <summary>차량 마스터 전체 조회 (CM009F00.cs: PROCEDURE_ID=DP_CM009F00, CMD=CAR_RETR).
-        /// CAR_SAVE가 실제로 저장하는 컬럼(SEQNO, CARML, CARNO, CVCOD, ITCOD, RK)만 확인된 상태라,
-        /// 차종/운전자/공차중량 컬럼은 이 화면에 없을 수 있다 — 프로시저 본문 확인 필요.</summary>
+        /// <summary>차량(차량-거래처-품목 조합 템플릿) 전체 조회 (DP_CM009F00, CMD=CAR_RETR).
+        /// 실제 프로시저 본문으로 확인 완료. 원본 테이블(CAR_TEMPLATE)은 순수 차량대장이
+        /// 아니라 "차량번호+거래처+품목" 조합을 미리 저장해두는 템플릿이라, 운전자명/공차중량
+        /// 컬럼이 아예 없다 — 항상 null로 채워진다. VehicleType은 CARML을 매핑했는데,
+        /// 실제로 "차종"인지 다른 의미인지는 담당자 확인이 필요하다.</summary>
         public List<RawVehicleRow> GetVehicles()
         {
             var table = SqlHelper.GetDataTable(_connectionString, VehicleProcedureId, new[]
@@ -80,8 +83,8 @@ namespace ColumbusSync.BranchA.Source
                     CarNo = AsString(row, "CARNO"),
                     CarrierName = AsString(row, "CVNAM"),
                     VehicleType = AsString(row, "CARML"),
-                    DriverName = AsString(row, "DRIVER"),
-                    TareWeight = AsDecimal(row, "EMPTWT"),
+                    DriverName = null,   // CAR_TEMPLATE에 없는 컬럼 (B/C지점 mdb에는 있음)
+                    TareWeight = null,   // CAR_TEMPLATE에 없는 컬럼 (B/C지점 mdb에는 있음)
                     Remark = AsString(row, "RK"),
                 });
             }
