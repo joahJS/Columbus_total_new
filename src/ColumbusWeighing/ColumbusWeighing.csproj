@@ -108,7 +108,7 @@
     <Compile Include="Services\FixedAuthenticationService.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
     <Compile Include="Services\IWeighingRepository.cs" />
-    <Compile Include="Services\InMemoryWeighingRepository.cs" />
+    <Compile Include="Services\SqlWeighingRepository.cs" />
     <Compile Include="Services\IVersionRepository.cs" />
     <Compile Include="Services\InMemoryVersionRepository.cs" />
   </ItemGroup>

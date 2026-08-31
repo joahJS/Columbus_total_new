@@ -34,7 +34,7 @@ namespace ColumbusWeighing.Forms
         {
             InitializeComponent();
 
-            _repository = new InMemoryWeighingRepository();
+            _repository = new SqlWeighingRepository();
             _logService = new AppLogService();
             _authService = authService;
             _versionRepository = new InMemoryVersionRepository();

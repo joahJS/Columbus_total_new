@@ -6,10 +6,8 @@ using System.Data.SqlClient;
 namespace ColumbusWeighing.ComnLib
 {
     /// <summary>
-    /// MSSQL 저장프로시저 호출 헬퍼. VisionIns 솔루션의 DBConn과 같은 역할을 하도록 만든 구조이지만,
-    /// 아직 실제 DB(스키마/저장프로시저)가 연동되지 않았으므로 현재는 어떤 리포지토리에서도 호출하지
-    /// 않는 대기 상태이다. Columbus 쪽 DB 스키마가 준비되면 IWeighingRepository/IVersionRepository의
-    /// DB 연동 구현체(예: SqlWeighingRepository)에서 이 클래스를 사용하면 된다.
+    /// MSSQL 조회 헬퍼. VisionIns 솔루션의 DBConn과 같은 역할이며, SqlWeighingRepository 등
+    /// DB 연동 리포지토리가 통합 허브 DB(COLUMBUS_WEIGH_HUB)를 조회할 때 사용한다.
     ///
     /// 원본과 달리 연결 문자열을 소스에 하드코딩하지 않고 App.config의 connectionStrings에서 읽으며,
     /// "기존 커넥션 재사용" / "커넥션 자동 생성" 두 갈래로 중복 구현되어 있던 원본 오버로드는
@@ -17,10 +15,10 @@ namespace ColumbusWeighing.ComnLib
     /// </summary>
     public static class DBConn
     {
-        public static DataTable GetDataTable(string spName, List<Parameter> parameters)
+        public static DataTable GetDataTable(string commandText, List<Parameter> parameters, CommandType commandType = CommandType.StoredProcedure)
         {
             using (var connection = new SqlConnection(ComnString.ConnectionString))
-            using (var command = new SqlCommand(spName, connection) { CommandType = CommandType.StoredProcedure })
+            using (var command = new SqlCommand(commandText, connection) { CommandType = commandType })
             {
                 foreach (var parameter in parameters)
                 {

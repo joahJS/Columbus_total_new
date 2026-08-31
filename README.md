@@ -31,7 +31,7 @@ src/ColumbusWeighing/
     WeighingRecord, InOutType   계근 기록 도메인 모델
   Services/
     IWeighingRepository /
-    InMemoryWeighingRepository  계근 기록 저장소(메모리, 데모 데이터 포함) — 통합 허브 DB 연동 시 교체
+    SqlWeighingRepository       계근 기록 저장소 — 통합 허브 DB(COLUMBUS_WEIGH_HUB)의 WEIGH_RECORD 조회
     AppLogService                상단 로그 패널에 표시되는 이벤트 로그
 ```
 
@@ -48,11 +48,23 @@ src/ColumbusWeighing/
 계량 등록 버튼(1차계량/2차계량/1회계량)과 계근대 지시계 통신 서비스는 조회 전용
 프로그램 방향에 맞춰 제거했습니다. 계량 입력은 각 지점 원본 프로그램에서 계속 이루어집니다.
 
+## DB 연동 설정
+
+이 화면은 `SqlWeighingRepository`를 통해 통합 허브 DB(`COLUMBUS_WEIGH_HUB`,
+`sql/COLUMBUS_WEIGH_HUB_schema.sql` 참고)의 `WEIGH_RECORD` 테이블을 직접 조회합니다.
+
+1. `App.config`의 `connectionStrings` 중 `ColumbusWeighHub` 값을 채웁니다
+   (예: `Server=121.66.17.30,16433;Database=COLUMBUS_WEIGH_HUB;User Id=pineit_ex;Password=...;`).
+   비워두면 화면을 열자마자 DB 조회 오류가 표시됩니다.
+2. `appSettings`의 `WeighQueryLookbackDays`(기본 3)로, 화면을 처음 열 때 기본으로 조회하는
+   기간(오늘부터 며칠 전까지)을 조정할 수 있습니다. "1차 계량 대기" 목록은 날짜 조건 없이
+   이 범위 안의 미완료 건을 그대로 보여주므로, 전날 넘어온 미완료 차량을 놓치지 않을 만큼
+   넉넉하게 잡아야 합니다.
+3. 허브 DB 조회가 실패해도(네트워크 단절 등) 프로그램 전체가 죽지 않고 오류 메시지만
+   표시하며, 직전에 조회했던 목록은 그대로 유지됩니다.
+
 ## 실제 현장 적용 시 확장 포인트
 
-- `InMemoryWeighingRepository` 를 통합 허브 DB(`COLUMBUS_WEIGH_HUB`, `sql/COLUMBUS_WEIGH_HUB_schema.sql`
-  참고) 연동 리포지토리로 교체하세요. `IWeighingRepository` 인터페이스(`Records`, `Refresh(from, to)`)만
-  구현하면 화면 코드는 수정할 필요가 없습니다.
 - 거래처/차량/제품 마스터 조회 화면과 전표(XtraReports) 출력은 메뉴/버튼 자리만
   마련되어 있으며 별도 구현이 필요합니다.
 - 원본 화면의 "계량 화면 설정" 팝업(표시 컬럼 선택)은 이번 작업 범위에서 제외했습니다.
