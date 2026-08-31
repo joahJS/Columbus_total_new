@@ -39,8 +39,9 @@ ColumbusSync.BranchBC\              (B/C지점 PC에 통째로 복사)
    만들고, 실제 값(허브 DB 접속정보, `BranchCode`, `MdbFilePath`)을 채웁니다. `MdbFilePath`는
    **실제로 배포할 그 PC** 기준 경로여야 하니, 지점마다 이 값을 다르게 해서 각각 따로
    빌드/패키징해야 합니다(B지점용 패키지, C지점용 패키지 두 벌).
-2. Visual Studio의 "Developer Command Prompt"를 열고, 이 폴더에서
-   `build-package.bat`을 실행합니다.
+2. 이 폴더의 `build-package.bat`을 **탐색기에서 그냥 더블클릭**합니다. ("Developer
+   Command Prompt"를 따로 열 필요 없습니다 — Visual Studio가 항상 같이 설치해두는
+   `vswhere.exe`로 스스로 msbuild 위치를 찾습니다.)
 3. 저장소 루트의 `dist\ColumbusSync.BranchBC\` 폴더가 만들어집니다 — 이 폴더를 통째로
    해당 지점 PC에 복사하고 `ColumbusSync.BranchBC.Launcher.exe`를 실행하면 됩니다.
 
