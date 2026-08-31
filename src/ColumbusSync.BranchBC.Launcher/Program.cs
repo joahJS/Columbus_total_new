@@ -81,17 +81,49 @@ namespace ColumbusSync.BranchBC.Launcher
             }
         }
 
-        /// <summary>지정한 레지스트리 뷰(32비트/64비트)에 ACE OLEDB ProgID가 등록되어 있는지 확인한다.
-        /// RegistryView는 이 프로세스 자신의 비트수와 무관하게 원하는 쪽 레지스트리 하이브를
-        /// 그대로 열어준다(.NET 4.0+의 WOW64 리다이렉션 지원).</summary>
+        /// <summary>지정한 레지스트리 뷰(32비트/64비트)에 ACE OLEDB가 "실제로 로드 가능한 상태로"
+        /// 등록되어 있는지 확인한다. RegistryView는 이 프로세스 자신의 비트수와 무관하게 원하는
+        /// 쪽 레지스트리 하이브를 그대로 열어준다(.NET 4.0+의 WOW64 리다이렉션 지원).
+        ///
+        /// ProgID 키(Microsoft.ACE.OLEDB.12.0)만 있는지 확인하는 걸로는 부족하다 — Office와
+        /// 반대 비트수의 ACE를 설치하려다 실패한 흔적 등으로 ProgID 키만 고아 상태로 남아있는
+        /// 경우가 실제로 있다(이번에 발생한 문제가 정확히 이 케이스). ProgID -> CLSID ->
+        /// InprocServer32(실제 dll 경로)까지 따라가서 그 dll 파일이 디스크에 실제로 존재하는지까지
+        /// 확인해야 "설치되어 있다"고 신뢰할 수 있다.</summary>
         private static bool IsAceRegistered(RegistryView view)
         {
             try
             {
                 using (var classesRoot = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, view))
-                using (var key = classesRoot.OpenSubKey(AceProgId))
                 {
-                    return key != null;
+                    using (var progIdKey = classesRoot.OpenSubKey(AceProgId))
+                    {
+                        if (progIdKey == null) return false;
+                    }
+
+                    string clsid;
+                    using (var clsidKey = classesRoot.OpenSubKey(AceProgId + @"\CLSID"))
+                    {
+                        clsid = clsidKey == null ? null : clsidKey.GetValue(null) as string;
+                    }
+                    if (string.IsNullOrEmpty(clsid))
+                    {
+                        // CLSID 서브키가 없으면 ProgID가 고아 상태 - 실제로는 못 쓴다.
+                        return false;
+                    }
+
+                    using (var inprocKey = classesRoot.OpenSubKey(@"CLSID\" + clsid + @"\InprocServer32"))
+                    {
+                        var dllPath = inprocKey == null ? null : inprocKey.GetValue(null) as string;
+                        if (string.IsNullOrEmpty(dllPath))
+                        {
+                            return false;
+                        }
+                        // 값이 dll 파일 전체 경로가 아니라(예: 환경변수 미확장 등) 그대로는
+                        // File.Exists가 실패할 수 있으니 확장해서 한 번 더 확인한다.
+                        var expanded = Environment.ExpandEnvironmentVariables(dllPath);
+                        return File.Exists(expanded);
+                    }
                 }
             }
             catch
