@@ -14,6 +14,9 @@ namespace ColumbusWeighing.Models
 
         public int Id { get; set; }
 
+        /// <summary>원본 지점 코드(A/B/C). 화면에는 BranchCodeExtensions.ToDisplayString()으로 지역명을 표시한다.</summary>
+        public string BranchCode { get; set; }
+
         /// <summary>당일 계량 순번.</summary>
         public int WeighSeq { get; set; }
 

@@ -17,7 +17,7 @@ namespace ColumbusWeighing.Services
     public sealed class SqlWeighingRepository : IWeighingRepository
     {
         private const string SelectSql = @"
-SELECT WEIGH_ID, WEIGH_SEQ, VEHICLE_NO, CUSTOMER_NAME, PRODUCT_NAME, IN_OUT_TYPE,
+SELECT WEIGH_ID, BRANCH_CODE, WEIGH_SEQ, VEHICLE_NO, CUSTOMER_NAME, PRODUCT_NAME, IN_OUT_TYPE,
        WEIGHER_NAME, UNIT_PRICE, REMARK, WEIGH_DATE, FIRST_DATETIME, FIRST_WEIGHT,
        SECOND_DATETIME, SECOND_WEIGHT, LOSS_WEIGHT
 FROM dbo.WEIGH_RECORD
@@ -99,6 +99,7 @@ ORDER BY FIRST_DATETIME";
             return new WeighingRecord
             {
                 Id = Convert.ToInt32(row["WEIGH_ID"]),
+                BranchCode = AsString(row, "BRANCH_CODE"),
                 WeighSeq = AsNullableInt(row, "WEIGH_SEQ") ?? 0,
                 VehicleNo = AsString(row, "VEHICLE_NO"),
                 CustomerName = AsString(row, "CUSTOMER_NAME"),

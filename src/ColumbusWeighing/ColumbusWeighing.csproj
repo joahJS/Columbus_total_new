@@ -99,6 +99,7 @@
     <Compile Include="Forms\VersionAddForm.Designer.cs">
       <DependentUpon>VersionAddForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\BranchCodeExtensions.cs" />
     <Compile Include="Models\InOutType.cs" />
     <Compile Include="Models\WeighingRecord.cs" />
     <Compile Include="Models\VersionRecord.cs" />

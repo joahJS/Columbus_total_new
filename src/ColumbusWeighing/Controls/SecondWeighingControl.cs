@@ -93,6 +93,7 @@ namespace ColumbusWeighing.Controls
             _gridView.Columns.Clear();
 
             AddColumn("SecondDateTime", "2차계량일", 90, "yyyy-MM-dd");
+            AddColumn("BranchCode", "지점", 60);
             AddColumn("WeighSeq", "계량순번", 60);
             AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
             AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
@@ -145,6 +146,10 @@ namespace ColumbusWeighing.Controls
             if (e.Column.FieldName == "InOutType" && e.Value is InOutType inOut)
             {
                 e.DisplayText = inOut.ToDisplayString();
+            }
+            else if (e.Column.FieldName == "BranchCode" && e.Value is string branchCode)
+            {
+                e.DisplayText = branchCode.ToDisplayString();
             }
         }
 
