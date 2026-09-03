@@ -13,6 +13,7 @@ packages/
 *.dsettings
 src/ColumbusSync.BranchA/App.config
 src/ColumbusSync.BranchBC/App.config
+src/ColumbusWeighing/App.config
 
 ## 배포 패키징 결과물 (build-package.bat 산출물)
 /dist/

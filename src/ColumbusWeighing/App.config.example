@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  이 파일은 템플릿입니다(Git 추적 대상). 실제 App.config는 Git 추적 대상이 아니므로,
+  이 파일을 같은 폴더에 "App.config"로 복사한 뒤 실제 접속 비밀번호를 채워 넣으세요.
+  App.config 자체는 .gitignore에 등록되어 있어서, 값을 채워도 커밋/푸시될 일이 없습니다.
+-->
 <configuration>
   <startup>
     <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.6.1" />
@@ -8,11 +13,12 @@
     하드코딩하지 않고 여기(배포 환경별로 교체되는 설정 파일)에만 둔다.
     이 프로그램은 조회/집계 전용이므로 통합 허브 DB(COLUMBUS_WEIGH_HUB, sql/COLUMBUS_WEIGH_HUB_schema.sql
     참고)만 바라보면 되며, SqlWeighingRepository가 이 값으로 실제 조회를 수행한다.
-    예: Server=121.66.17.30,16433;Database=COLUMBUS_WEIGH_HUB;User Id=pineit_ex;Password=...;
     이 값을 비워두면(빈 문자열) 접속 시도 시 오류가 나므로 반드시 채워야 한다.
   -->
   <connectionStrings>
-    <add name="ColumbusWeighHub" connectionString="Server=121.66.17.30,16433;Database=COLUMBUS_WEIGH_HUB;User Id=pineit_ex;Password=1Qazxsw2!;Encrypt=True;TrustServerCertificate=True;" providerName="System.Data.SqlClient" />
+    <add name="ColumbusWeighHub"
+         connectionString="Server=121.66.17.30,16433;Database=COLUMBUS_WEIGH_HUB;User Id=pineit_ex;Password=__SET_ME__;Encrypt=True;TrustServerCertificate=True;"
+         providerName="System.Data.SqlClient" />
   </connectionStrings>
   <appSettings>
     <!-- 화면을 처음 열 때 기본으로 조회하는 기간(오늘부터 며칠 전까지). 1차 계량 대기 목록이
