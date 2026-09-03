@@ -18,6 +18,10 @@ namespace ColumbusWeighing.Controls
     {
         private IWeighingRepository _repository;
 
+        /// <summary>true인 동안은 날짜 편집기 값이 바뀌어도 ApplyDateFilter를 실행하지 않는다
+        /// (시작일/종료일 두 값을 한꺼번에 세팅할 때 중간 상태로 DB를 두 번 조회하는 것을 막는다).</summary>
+        private bool _suppressDateChangeEvents;
+
         /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
 
@@ -30,7 +34,8 @@ namespace ColumbusWeighing.Controls
 
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
-            _dateEdit.EditValueChanged += (s, e) => ApplyDateFilter();
+            _dateEditFrom.EditValueChanged += (s, e) => ApplyDateFilter();
+            _dateEditTo.EditValueChanged += (s, e) => ApplyDateFilter();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
         }
 
@@ -39,23 +44,52 @@ namespace ColumbusWeighing.Controls
             get { return _gridView.GetFocusedRow() as WeighingRecord; }
         }
 
-        public DateTime QueryDate
+        /// <summary>조회 기간 시작일(포함).</summary>
+        public DateTime FromDate
         {
-            get { return _dateEdit.DateTime == DateTime.MinValue ? DateTime.Today : _dateEdit.DateTime.Date; }
-            set { _dateEdit.DateTime = value.Date; }
+            get { return _dateEditFrom.DateTime == DateTime.MinValue ? DateTime.Today : _dateEditFrom.DateTime.Date; }
+            set { _dateEditFrom.DateTime = value.Date; }
+        }
+
+        /// <summary>조회 기간 종료일(포함) - 이 날짜까지의 2차 계량 완료 건을 보여준다.</summary>
+        public DateTime ToDate
+        {
+            get { return _dateEditTo.DateTime == DateTime.MinValue ? DateTime.Today : _dateEditTo.DateTime.Date; }
+            set { _dateEditTo.DateTime = value.Date; }
         }
 
         public void Initialize(IWeighingRepository repository)
         {
             _repository = repository;
             _repository.Records.ListChanged += (s, e) => RefreshCompletedList();
-            QueryDate = DateTime.Today;
-            RefreshCompletedList();
+
+            // 두 값을 세팅하는 동안은 ApplyDateFilter를 억제해, 중간 상태(시작일만 오늘로
+            // 바뀐 상태 등)로 DB를 불필요하게 두 번 조회하지 않게 한다.
+            _suppressDateChangeEvents = true;
+            _dateEditFrom.DateTime = DateTime.Today;
+            _dateEditTo.DateTime = DateTime.Today;
+            _suppressDateChangeEvents = false;
+
+            ApplyDateFilter();
         }
 
         public void ApplyDateFilter()
         {
-            _repository?.Refresh(QueryDate, QueryDate.AddDays(1));
+            if (_suppressDateChangeEvents)
+            {
+                return;
+            }
+
+            var from = FromDate;
+            var to = ToDate;
+            if (to < from)
+            {
+                // 종료일이 시작일보다 빠르면 종료일을 시작일에 맞춰 되돌린다(범위가 뒤집히지 않도록).
+                ToDate = from;
+                return; // ToDate 세팅이 다시 ApplyDateFilter를 호출하므로 여기서는 끝낸다.
+            }
+
+            _repository?.Refresh(from, to.AddDays(1));
             RefreshCompletedList();
         }
 
@@ -73,8 +107,8 @@ namespace ColumbusWeighing.Controls
                 return;
             }
 
-            var start = QueryDate;
-            var end = start.AddDays(1);
+            var start = FromDate;
+            var end = ToDate.AddDays(1);
 
             _completedRecords.RaiseListChangedEvents = false;
             _completedRecords.Clear();
@@ -111,9 +145,12 @@ namespace ColumbusWeighing.Controls
         /// <summary>조회일자 우측에 클릭하면 달력이 열리는 버튼을 명시적으로 붙인다.</summary>
         private void SetupDateEditCalendarButton()
         {
-            _dateEdit.Properties.Buttons.Clear();
-            _dateEdit.Properties.Buttons.Add(new DevExpress.XtraEditors.Controls.EditorButton(
-                DevExpress.XtraEditors.Controls.ButtonPredefines.Combo));
+            foreach (var dateEdit in new[] { _dateEditFrom, _dateEditTo })
+            {
+                dateEdit.Properties.Buttons.Clear();
+                dateEdit.Properties.Buttons.Add(new DevExpress.XtraEditors.Controls.EditorButton(
+                    DevExpress.XtraEditors.Controls.ButtonPredefines.Combo));
+            }
         }
 
         private GridColumn AddColumn(string fieldName, string caption, int width, string format = null)

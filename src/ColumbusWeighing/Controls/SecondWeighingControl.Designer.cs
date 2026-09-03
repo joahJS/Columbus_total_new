@@ -21,7 +21,9 @@ namespace ColumbusWeighing.Controls
         private DevExpress.XtraEditors.SimpleButton _btnSecondSlip;
         private DevExpress.XtraEditors.PanelControl _filterPanel;
         private DevExpress.XtraEditors.LabelControl _dateLabel;
-        private DevExpress.XtraEditors.DateEdit _dateEdit;
+        private DevExpress.XtraEditors.DateEdit _dateEditFrom;
+        private DevExpress.XtraEditors.LabelControl _dateRangeLabel;
+        private DevExpress.XtraEditors.DateEdit _dateEditTo;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
 
@@ -31,7 +33,9 @@ namespace ColumbusWeighing.Controls
             this._btnSecondSlip = new DevExpress.XtraEditors.SimpleButton();
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
-            this._dateEdit = new DevExpress.XtraEditors.DateEdit();
+            this._dateEditTo = new DevExpress.XtraEditors.DateEdit();
+            this._dateRangeLabel = new DevExpress.XtraEditors.LabelControl();
+            this._dateEditFrom = new DevExpress.XtraEditors.DateEdit();
             this._dateLabel = new DevExpress.XtraEditors.LabelControl();
             this._gridControl = new DevExpress.XtraGrid.GridControl();
             this._gridView = new DevExpress.XtraGrid.Views.Grid.GridView();
@@ -39,7 +43,8 @@ namespace ColumbusWeighing.Controls
             this._headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._filterPanel)).BeginInit();
             this._filterPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._dateEdit.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._dateEditTo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._dateEditFrom.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridView)).BeginInit();
             this.SuspendLayout();
@@ -87,7 +92,9 @@ namespace ColumbusWeighing.Controls
             this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 251, 224);
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this._filterPanel.Controls.Add(this._dateEdit);
+            this._filterPanel.Controls.Add(this._dateEditTo);
+            this._filterPanel.Controls.Add(this._dateRangeLabel);
+            this._filterPanel.Controls.Add(this._dateEditFrom);
             this._filterPanel.Controls.Add(this._dateLabel);
             this._filterPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._filterPanel.Location = new System.Drawing.Point(0, 34);
@@ -103,16 +110,33 @@ namespace ColumbusWeighing.Controls
             this._dateLabel.Name = "_dateLabel";
             this._dateLabel.Size = new System.Drawing.Size(52, 16);
             this._dateLabel.TabIndex = 0;
-            this._dateLabel.Text = "조회일자";
+            this._dateLabel.Text = "조회기간";
             //
-            // _dateEdit
+            // _dateEditFrom
             //
-            this._dateEdit.EditValue = null;
-            this._dateEdit.Location = new System.Drawing.Point(70, 5);
-            this._dateEdit.Name = "_dateEdit";
-            this._dateEdit.Properties.Mask.EditMask = "yyyy-MM-dd";
-            this._dateEdit.Size = new System.Drawing.Size(120, 20);
-            this._dateEdit.TabIndex = 1;
+            this._dateEditFrom.EditValue = null;
+            this._dateEditFrom.Location = new System.Drawing.Point(70, 5);
+            this._dateEditFrom.Name = "_dateEditFrom";
+            this._dateEditFrom.Properties.Mask.EditMask = "yyyy-MM-dd";
+            this._dateEditFrom.Size = new System.Drawing.Size(120, 20);
+            this._dateEditFrom.TabIndex = 1;
+            //
+            // _dateRangeLabel
+            //
+            this._dateRangeLabel.Location = new System.Drawing.Point(197, 9);
+            this._dateRangeLabel.Name = "_dateRangeLabel";
+            this._dateRangeLabel.Size = new System.Drawing.Size(6, 13);
+            this._dateRangeLabel.TabIndex = 2;
+            this._dateRangeLabel.Text = "~";
+            //
+            // _dateEditTo
+            //
+            this._dateEditTo.EditValue = null;
+            this._dateEditTo.Location = new System.Drawing.Point(213, 5);
+            this._dateEditTo.Name = "_dateEditTo";
+            this._dateEditTo.Properties.Mask.EditMask = "yyyy-MM-dd";
+            this._dateEditTo.Size = new System.Drawing.Size(120, 20);
+            this._dateEditTo.TabIndex = 3;
             //
             // _gridControl
             //
@@ -145,7 +169,8 @@ namespace ColumbusWeighing.Controls
             ((System.ComponentModel.ISupportInitialize)(this._filterPanel)).EndInit();
             this._filterPanel.ResumeLayout(false);
             this._filterPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._dateEdit.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._dateEditTo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._dateEditFrom.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridControl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridView)).EndInit();
             this.ResumeLayout(false);
