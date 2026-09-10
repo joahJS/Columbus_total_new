@@ -20,17 +20,20 @@ namespace ColumbusWeighing.Models
         public string Fax { get; set; }
 
         // 계량 설정
-        public int VehicleRecognitionThreshold { get; set; }
-        public int WeightJudgmentDeviation { get; set; }
-        public bool UseBroadcast { get; set; }
-        public int WeightStableSeconds { get; set; }
-        public bool CopySecondToFirst { get; set; }
-        public bool MoveSecondToFirst { get; set; }
-        public bool EditFirstOnMainScreen { get; set; }
-        public bool EditSecondOnMainScreen { get; set; }
-        public string InOutRule { get; set; }
-        public bool LoadLastDataOnFirstWeighing { get; set; }
-        public bool UseDispatch { get; set; }
+        // 아래는 실계량 입력/현장 장비 제어용 항목이라 조회 전용인 이 프로그램에는 불필요해
+        // 주석 처리했다(SystemSettingsForm.BuildWeighingSection 참고). InOutRule은 각 지점
+        // SyncOrchestrator.Transform()에서 이미 고정 규칙으로 계산되고 있어 특히 그렇다.
+        // public int VehicleRecognitionThreshold { get; set; }
+        // public int WeightJudgmentDeviation { get; set; }
+        // public bool UseBroadcast { get; set; }
+        // public int WeightStableSeconds { get; set; }
+        // public bool CopySecondToFirst { get; set; }
+        // public bool MoveSecondToFirst { get; set; }
+        // public bool EditFirstOnMainScreen { get; set; }
+        // public bool EditSecondOnMainScreen { get; set; }
+        // public string InOutRule { get; set; }
+        // public bool LoadLastDataOnFirstWeighing { get; set; }
+        // public bool UseDispatch { get; set; }
         public bool UseAutoLogin { get; set; }
         public bool SaveLogData { get; set; }
         public int AdminAutoOffMinutes { get; set; }
@@ -46,11 +49,11 @@ namespace ColumbusWeighing.Models
         public string ApprovalTitle4 { get; set; }
         public string ReportPrinter { get; set; }
 
-        // 카메라 설정
-        public int CameraCount { get; set; }
-        public string PhotoSaveFolder { get; set; }
-
-        // IP 카메라 설정
-        public List<IpCameraSetting> IpCameras { get; set; } = new List<IpCameraSetting>();
+        // 카메라 설정 / IP 카메라 설정: 계근장 CCTV·차량 사진 캡처 장비 연동용. 이 프로그램은
+        // 조회 전용이라 사진을 찍거나 표시하지 않아(WEIGH_RECORD 테이블에도 사진 컬럼이 없음)
+        // 주석 처리했다.
+        // public int CameraCount { get; set; }
+        // public string PhotoSaveFolder { get; set; }
+        // public List<IpCameraSetting> IpCameras { get; set; } = new List<IpCameraSetting>();
     }
 }

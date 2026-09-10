@@ -28,17 +28,19 @@ namespace ColumbusWeighing.Forms
         private TextEdit _txtPhone;
         private TextEdit _txtFax;
 
-        private SpinEdit _numVehicleThreshold;
-        private SpinEdit _numWeightDeviation;
-        private CheckEdit _chkUseBroadcast;
-        private SpinEdit _numStableSeconds;
-        private CheckEdit _chkCopySecondToFirst;
-        private CheckEdit _chkMoveSecondToFirst;
-        private CheckEdit _chkEditFirstOnMain;
-        private CheckEdit _chkEditSecondOnMain;
-        private ComboBoxEdit _cboInOutRule;
-        private CheckEdit _chkLoadLastOnFirst;
-        private CheckEdit _chkUseDispatch;
+        // 아래 항목들은 실계량 입력/현장 장비 제어용 설정으로, 이 프로그램은 조회 전용(계량 입력을
+        // 하지 않음)이라 해당 사항이 없어 주석 처리했다. 나중에 실제로 필요해지면 되살리면 된다.
+        // private SpinEdit _numVehicleThreshold;
+        // private SpinEdit _numWeightDeviation;
+        // private CheckEdit _chkUseBroadcast;
+        // private SpinEdit _numStableSeconds;
+        // private CheckEdit _chkCopySecondToFirst;
+        // private CheckEdit _chkMoveSecondToFirst;
+        // private CheckEdit _chkEditFirstOnMain;
+        // private CheckEdit _chkEditSecondOnMain;
+        // private ComboBoxEdit _cboInOutRule;
+        // private CheckEdit _chkLoadLastOnFirst;
+        // private CheckEdit _chkUseDispatch;
         private CheckEdit _chkAutoLogin;
         private CheckEdit _chkSaveLog;
         private SpinEdit _numAdminAutoOffMinutes;
@@ -53,17 +55,20 @@ namespace ColumbusWeighing.Forms
         private TextEdit _txtApproval4;
         private ComboBoxEdit _cboReportPrinter;
 
-        private ComboBoxEdit _cboCameraCount;
-        private TextEdit _txtPhotoFolder;
-
-        private const int IpCameraCount = 4;
-        private static readonly string[] IpCameraModels = { "SNB-5000A", "SNB-6004", "XNP-6320" };
-        private readonly TextEdit[] _txtCameraIp = new TextEdit[IpCameraCount];
-        private readonly SpinEdit[] _numCameraVnpPort = new SpinEdit[IpCameraCount];
-        private readonly SpinEdit[] _numCameraHttpPort = new SpinEdit[IpCameraCount];
-        private readonly TextEdit[] _txtCameraId = new TextEdit[IpCameraCount];
-        private readonly TextEdit[] _txtCameraPassword = new TextEdit[IpCameraCount];
-        private readonly ComboBoxEdit[] _cboCameraModel = new ComboBoxEdit[IpCameraCount];
+        // 카메라 설정 / IP 카메라 설정: 계근장 CCTV·사진 캡처 장비 연동용. 이 프로그램은 사진을
+        // 찍거나 표시하지 않고(WEIGH_RECORD 테이블에도 사진 컬럼이 없음) 조회 전용이라 불필요해
+        // 주석 처리했다.
+        // private ComboBoxEdit _cboCameraCount;
+        // private TextEdit _txtPhotoFolder;
+        //
+        // private const int IpCameraCount = 4;
+        // private static readonly string[] IpCameraModels = { "SNB-5000A", "SNB-6004", "XNP-6320" };
+        // private readonly TextEdit[] _txtCameraIp = new TextEdit[IpCameraCount];
+        // private readonly SpinEdit[] _numCameraVnpPort = new SpinEdit[IpCameraCount];
+        // private readonly SpinEdit[] _numCameraHttpPort = new SpinEdit[IpCameraCount];
+        // private readonly TextEdit[] _txtCameraId = new TextEdit[IpCameraCount];
+        // private readonly TextEdit[] _txtCameraPassword = new TextEdit[IpCameraCount];
+        // private readonly ComboBoxEdit[] _cboCameraModel = new ComboBoxEdit[IpCameraCount];
 
         public SystemSettingsForm(IAppSettingsRepository repository)
         {
@@ -74,8 +79,8 @@ namespace ColumbusWeighing.Forms
             BuildUserSection();
             BuildWeighingSection();
             BuildPrintSection();
-            BuildCameraSection();
-            BuildIpCameraSection();
+            // BuildCameraSection();
+            // BuildIpCameraSection();
 
             LoadFromSettings(_repository.Load());
 
@@ -155,35 +160,40 @@ namespace ColumbusWeighing.Forms
             // 참고 화면(TS2020)과 동일한 순서: 차량인식기준/편차 → PC안내방송+안정판정시간 →
             // 2차자료 복사/이동 → 메인화면 수정권한 → 입출고구분 → 최종자료읽기 → 배차사용 →
             // 자동로그인/로그저장 → 관리자자동오프 → 마감시간/그리드폰트 → 중량/금액 단위.
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 30, WeighingColALabelWidth, "차량인식기준");
-            _numVehicleThreshold = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 27, WeighingFieldWidth, 0, 100000);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 30, WeighingColBLabelWidth, "중량 판정 편차");
-            _numWeightDeviation = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 27, WeighingFieldWidth, 0, 100000);
+            //
+            // 아래 실계량 입력/현장 장비 제어용 항목들(차량인식기준~배차 사용)은 이 프로그램이
+            // 조회 전용이라 해당 사항이 없어 주석 처리했다. 입출고 구분도 각 지점
+            // SyncOrchestrator.Transform()에서 이미 고정 규칙으로 계산되고 있어 이 화면 설정값이
+            // 실제로 연결될 곳이 없다.
+            // AddLabelLeft(_grpWeighing, WeighingColALabelX, 30, WeighingColALabelWidth, "차량인식기준");
+            // _numVehicleThreshold = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 27, WeighingFieldWidth, 0, 100000);
+            // AddLabel(_grpWeighing, WeighingColBLabelX, 30, WeighingColBLabelWidth, "중량 판정 편차");
+            // _numWeightDeviation = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 27, WeighingFieldWidth, 0, 100000);
 
-            _chkUseBroadcast = AddCheckEdit(_grpWeighing, WeighingColALabelX, 60, WeighingCheckWidth, "PC 안내방송 사용");
-            AddLabel(_grpWeighing, WeighingColBLabelX, 58, WeighingColBLabelWidth, "중량안정판정시간(1~10초)");
-            _numStableSeconds = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 55, WeighingFieldWidth, 1, 10);
+            // _chkUseBroadcast = AddCheckEdit(_grpWeighing, WeighingColALabelX, 60, WeighingCheckWidth, "PC 안내방송 사용");
+            // AddLabel(_grpWeighing, WeighingColBLabelX, 58, WeighingColBLabelWidth, "중량안정판정시간(1~10초)");
+            // _numStableSeconds = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 55, WeighingFieldWidth, 1, 10);
 
-            _chkCopySecondToFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 84, WeighingCheckWidth, "2차 계량 자료 1차로 복사");
-            _chkMoveSecondToFirst = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 84, WeighingCheckWidth, "2차 계량 자료 1차로 이동");
+            // _chkCopySecondToFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 84, WeighingCheckWidth, "2차 계량 자료 1차로 복사");
+            // _chkMoveSecondToFirst = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 84, WeighingCheckWidth, "2차 계량 자료 1차로 이동");
 
-            _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, WeighingColALabelX, 108, WeighingCheckWidth, "메인화면 1차 계량자료 수정");
-            _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 108, WeighingCheckWidth, "메인화면 2차계량자료 수정");
+            // _chkEditFirstOnMain = AddCheckEdit(_grpWeighing, WeighingColALabelX, 108, WeighingCheckWidth, "메인화면 1차 계량자료 수정");
+            // _chkEditSecondOnMain = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 108, WeighingCheckWidth, "메인화면 2차계량자료 수정");
 
             // 입출고 구분은 라벨을 짧게 두고 선택란을 줄 끝까지 가득 채운다.
-            const int inOutLabelWidth = 70;
-            const int inOutFieldX = WeighingColALabelX + inOutLabelWidth + 4;
-            AddLabel(_grpWeighing, WeighingColALabelX, 138, inOutLabelWidth, "입출고 구분");
-            _cboInOutRule = AddComboEdit(_grpWeighing, inOutFieldX, 135, WeighingContentRight - inOutFieldX);
-            _cboInOutRule.Properties.Items.AddRange(new object[]
-            {
-                "1차>2차 [입고], 2차>1차 [출고]",
-                "1차>2차 [출고], 2차>1차 [입고]"
-            });
+            // const int inOutLabelWidth = 70;
+            // const int inOutFieldX = WeighingColALabelX + inOutLabelWidth + 4;
+            // AddLabel(_grpWeighing, WeighingColALabelX, 138, inOutLabelWidth, "입출고 구분");
+            // _cboInOutRule = AddComboEdit(_grpWeighing, inOutFieldX, 135, WeighingContentRight - inOutFieldX);
+            // _cboInOutRule.Properties.Items.AddRange(new object[]
+            // {
+            //     "1차>2차 [입고], 2차>1차 [출고]",
+            //     "1차>2차 [출고], 2차>1차 [입고]"
+            // });
 
-            _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 162, WeighingContentRight - WeighingColALabelX, "1차, 1회 계량시 최종 자료 읽어오기");
+            // _chkLoadLastOnFirst = AddCheckEdit(_grpWeighing, WeighingColALabelX, 162, WeighingContentRight - WeighingColALabelX, "1차, 1회 계량시 최종 자료 읽어오기");
 
-            _chkUseDispatch = AddCheckEdit(_grpWeighing, WeighingColALabelX, 186, WeighingCheckWidth, "배차 사용");
+            // _chkUseDispatch = AddCheckEdit(_grpWeighing, WeighingColALabelX, 186, WeighingCheckWidth, "배차 사용");
 
             _chkAutoLogin = AddCheckEdit(_grpWeighing, WeighingColALabelX, 210, WeighingCheckWidth, "자동 로그인 사용");
             _chkSaveLog = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 210, WeighingCheckWidth, "로그 데이터 저장");
@@ -247,132 +257,137 @@ namespace ColumbusWeighing.Forms
 
         #endregion
 
-        #region [카메라 설정]
-
-        private void BuildCameraSection()
-        {
-            AddLabel(_grpCamera, 10, 32, 70, "카메라수량");
-            _cboCameraCount = AddComboEdit(_grpCamera, 84, 29, 110);
-            _cboCameraCount.Properties.Items.AddRange(new object[] { "NONE", "1", "2", "3", "4" });
-
-            var btnFolder = new SimpleButton
-            {
-                Location = new Point(10, 62),
-                Size = new Size(110, 28),
-                Text = "사진 저장 폴더"
-            };
-            btnFolder.Click += (s, e) => ChoosePhotoFolder();
-            _grpCamera.Controls.Add(btnFolder);
-
-            _txtPhotoFolder = AddTextEdit(_grpCamera, 130, 65, 385);
-        }
-
-        private void ChoosePhotoFolder()
-        {
-            using (var dialog = new FolderBrowserDialog())
-            {
-                if (!string.IsNullOrEmpty(_txtPhotoFolder.Text) && System.IO.Directory.Exists(_txtPhotoFolder.Text))
-                {
-                    dialog.SelectedPath = _txtPhotoFolder.Text;
-                }
-
-                if (dialog.ShowDialog(this) == DialogResult.OK)
-                {
-                    _txtPhotoFolder.Text = dialog.SelectedPath.EndsWith("\\") ? dialog.SelectedPath : dialog.SelectedPath + "\\";
-                }
-            }
-        }
-
-        #endregion
-
-        #region [IP 카메라 설정]
-
-        // 좌측 여백을 줄이고(8) VNP/HTTP PORT 칸을 넓혀 값이 잘리지 않게 한 열 배치.
-        private const int IpCamRowLabelX = 8;
-        private const int IpCamIpX = 36;
-        private const int IpCamIpWidth = 95;
-        private const int IpCamVnpX = 135;
-        private const int IpCamVnpWidth = 85;
-        private const int IpCamHttpX = 224;
-        private const int IpCamHttpWidth = 70;
-        private const int IpCamIdX = 298;
-        private const int IpCamIdWidth = 55;
-        private const int IpCamPasswordX = 357;
-        private const int IpCamPasswordWidth = 55;
-        private const int IpCamModelX = 416;
-        private const int IpCamModelWidth = 90;
-
-        private void BuildIpCameraSection()
-        {
-            AddColumnHeader(_grpIpCamera, IpCamIpX, IpCamIpWidth, "IP");
-            AddColumnHeader(_grpIpCamera, IpCamVnpX, IpCamVnpWidth, "VNP PORT");
-            AddColumnHeader(_grpIpCamera, IpCamHttpX, IpCamHttpWidth, "HTTP PORT");
-            AddColumnHeader(_grpIpCamera, IpCamIdX, IpCamIdWidth, "ID");
-            AddColumnHeader(_grpIpCamera, IpCamPasswordX, IpCamPasswordWidth, "암호");
-            AddColumnHeader(_grpIpCamera, IpCamModelX, IpCamModelWidth, "MODEL");
-
-            for (var i = 0; i < IpCameraCount; i++)
-            {
-                var y = 52 + i * 28;
-
-                var rowLabel = new LabelControl
-                {
-                    Location = new Point(IpCamRowLabelX, y + 2),
-                    Size = new Size(26, 16),
-                    Text = string.Format("#{0}", i + 1),
-                    AutoSizeMode = LabelAutoSizeMode.None
-                };
-                _grpIpCamera.Controls.Add(rowLabel);
-
-                _txtCameraIp[i] = new TextEdit { Location = new Point(IpCamIpX, y), Size = new Size(IpCamIpWidth, 20) };
-                _grpIpCamera.Controls.Add(_txtCameraIp[i]);
-
-                _numCameraVnpPort[i] = new SpinEdit { Location = new Point(IpCamVnpX, y), Size = new Size(IpCamVnpWidth, 20) };
-                SetPortRange(_numCameraVnpPort[i]);
-                _grpIpCamera.Controls.Add(_numCameraVnpPort[i]);
-
-                _numCameraHttpPort[i] = new SpinEdit { Location = new Point(IpCamHttpX, y), Size = new Size(IpCamHttpWidth, 20) };
-                SetPortRange(_numCameraHttpPort[i]);
-                _grpIpCamera.Controls.Add(_numCameraHttpPort[i]);
-
-                _txtCameraId[i] = new TextEdit { Location = new Point(IpCamIdX, y), Size = new Size(IpCamIdWidth, 20) };
-                _grpIpCamera.Controls.Add(_txtCameraId[i]);
-
-                // 암호도 다른 입력란과 동일하게 평문으로 보이도록 마스킹하지 않는다.
-                _txtCameraPassword[i] = new TextEdit { Location = new Point(IpCamPasswordX, y), Size = new Size(IpCamPasswordWidth, 20) };
-                _grpIpCamera.Controls.Add(_txtCameraPassword[i]);
-
-                _cboCameraModel[i] = AddComboEdit(_grpIpCamera, IpCamModelX, y, IpCamModelWidth);
-                _cboCameraModel[i].Properties.Items.AddRange(IpCameraModels);
-            }
-        }
-
-        private static void SetPortRange(SpinEdit edit)
-        {
-            edit.Properties.MinValue = 0;
-            edit.Properties.MaxValue = 65535;
-            // "N0"는 천단위 구분 콤마가 붙어 좁은 칸에서 잘려 보이므로, 콤마 없는 고정소수점 마스크를 쓴다.
-            edit.Properties.Mask.EditMask = "f0";
-            edit.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric;
-            edit.Properties.Mask.UseMaskAsDisplayFormat = true;
-        }
-
-        private static void AddColumnHeader(GroupControl group, int x, int width, string text)
-        {
-            var label = new LabelControl
-            {
-                Location = new Point(x, 30),
-                Size = new Size(width, 16),
-                Text = text,
-                AutoSizeMode = LabelAutoSizeMode.None
-            };
-            label.Appearance.Font = new Font("맑은 고딕", 8F, FontStyle.Bold);
-            label.Appearance.Options.UseFont = true;
-            label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            group.Controls.Add(label);
-        }
-
-        #endregion
+        // #region [카메라 설정]
+        //
+        // 카메라 설정 / IP 카메라 설정: 계근장 CCTV·차량 사진 캡처 장비 연동용. 이 프로그램은
+        // 조회 전용이라 사진을 찍거나 표시하지 않아(WEIGH_RECORD 테이블에도 사진 컬럼이 없음)
+        // 두 섹션 모두 주석 처리했다. 화면 자체(_grpCamera/_grpIpCamera GroupControl)도
+        // Designer에서 부모 패널에 추가하지 않아 보이지 않는다.
+        //
+        // private void BuildCameraSection()
+        // {
+        //     AddLabel(_grpCamera, 10, 32, 70, "카메라수량");
+        //     _cboCameraCount = AddComboEdit(_grpCamera, 84, 29, 110);
+        //     _cboCameraCount.Properties.Items.AddRange(new object[] { "NONE", "1", "2", "3", "4" });
+        //
+        //     var btnFolder = new SimpleButton
+        //     {
+        //         Location = new Point(10, 62),
+        //         Size = new Size(110, 28),
+        //         Text = "사진 저장 폴더"
+        //     };
+        //     btnFolder.Click += (s, e) => ChoosePhotoFolder();
+        //     _grpCamera.Controls.Add(btnFolder);
+        //
+        //     _txtPhotoFolder = AddTextEdit(_grpCamera, 130, 65, 385);
+        // }
+        //
+        // private void ChoosePhotoFolder()
+        // {
+        //     using (var dialog = new FolderBrowserDialog())
+        //     {
+        //         if (!string.IsNullOrEmpty(_txtPhotoFolder.Text) && System.IO.Directory.Exists(_txtPhotoFolder.Text))
+        //         {
+        //             dialog.SelectedPath = _txtPhotoFolder.Text;
+        //         }
+        //
+        //         if (dialog.ShowDialog(this) == DialogResult.OK)
+        //         {
+        //             _txtPhotoFolder.Text = dialog.SelectedPath.EndsWith("\\") ? dialog.SelectedPath : dialog.SelectedPath + "\\";
+        //         }
+        //     }
+        // }
+        //
+        // #endregion
+        //
+        // #region [IP 카메라 설정]
+        //
+        // // 좌측 여백을 줄이고(8) VNP/HTTP PORT 칸을 넓혀 값이 잘리지 않게 한 열 배치.
+        // private const int IpCamRowLabelX = 8;
+        // private const int IpCamIpX = 36;
+        // private const int IpCamIpWidth = 95;
+        // private const int IpCamVnpX = 135;
+        // private const int IpCamVnpWidth = 85;
+        // private const int IpCamHttpX = 224;
+        // private const int IpCamHttpWidth = 70;
+        // private const int IpCamIdX = 298;
+        // private const int IpCamIdWidth = 55;
+        // private const int IpCamPasswordX = 357;
+        // private const int IpCamPasswordWidth = 55;
+        // private const int IpCamModelX = 416;
+        // private const int IpCamModelWidth = 90;
+        //
+        // private void BuildIpCameraSection()
+        // {
+        //     AddColumnHeader(_grpIpCamera, IpCamIpX, IpCamIpWidth, "IP");
+        //     AddColumnHeader(_grpIpCamera, IpCamVnpX, IpCamVnpWidth, "VNP PORT");
+        //     AddColumnHeader(_grpIpCamera, IpCamHttpX, IpCamHttpWidth, "HTTP PORT");
+        //     AddColumnHeader(_grpIpCamera, IpCamIdX, IpCamIdWidth, "ID");
+        //     AddColumnHeader(_grpIpCamera, IpCamPasswordX, IpCamPasswordWidth, "암호");
+        //     AddColumnHeader(_grpIpCamera, IpCamModelX, IpCamModelWidth, "MODEL");
+        //
+        //     for (var i = 0; i < IpCameraCount; i++)
+        //     {
+        //         var y = 52 + i * 28;
+        //
+        //         var rowLabel = new LabelControl
+        //         {
+        //             Location = new Point(IpCamRowLabelX, y + 2),
+        //             Size = new Size(26, 16),
+        //             Text = string.Format("#{0}", i + 1),
+        //             AutoSizeMode = LabelAutoSizeMode.None
+        //         };
+        //         _grpIpCamera.Controls.Add(rowLabel);
+        //
+        //         _txtCameraIp[i] = new TextEdit { Location = new Point(IpCamIpX, y), Size = new Size(IpCamIpWidth, 20) };
+        //         _grpIpCamera.Controls.Add(_txtCameraIp[i]);
+        //
+        //         _numCameraVnpPort[i] = new SpinEdit { Location = new Point(IpCamVnpX, y), Size = new Size(IpCamVnpWidth, 20) };
+        //         SetPortRange(_numCameraVnpPort[i]);
+        //         _grpIpCamera.Controls.Add(_numCameraVnpPort[i]);
+        //
+        //         _numCameraHttpPort[i] = new SpinEdit { Location = new Point(IpCamHttpX, y), Size = new Size(IpCamHttpWidth, 20) };
+        //         SetPortRange(_numCameraHttpPort[i]);
+        //         _grpIpCamera.Controls.Add(_numCameraHttpPort[i]);
+        //
+        //         _txtCameraId[i] = new TextEdit { Location = new Point(IpCamIdX, y), Size = new Size(IpCamIdWidth, 20) };
+        //         _grpIpCamera.Controls.Add(_txtCameraId[i]);
+        //
+        //         // 암호도 다른 입력란과 동일하게 평문으로 보이도록 마스킹하지 않는다.
+        //         _txtCameraPassword[i] = new TextEdit { Location = new Point(IpCamPasswordX, y), Size = new Size(IpCamPasswordWidth, 20) };
+        //         _grpIpCamera.Controls.Add(_txtCameraPassword[i]);
+        //
+        //         _cboCameraModel[i] = AddComboEdit(_grpIpCamera, IpCamModelX, y, IpCamModelWidth);
+        //         _cboCameraModel[i].Properties.Items.AddRange(IpCameraModels);
+        //     }
+        // }
+        //
+        // private static void SetPortRange(SpinEdit edit)
+        // {
+        //     edit.Properties.MinValue = 0;
+        //     edit.Properties.MaxValue = 65535;
+        //     // "N0"는 천단위 구분 콤마가 붙어 좁은 칸에서 잘려 보이므로, 콤마 없는 고정소수점 마스크를 쓴다.
+        //     edit.Properties.Mask.EditMask = "f0";
+        //     edit.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric;
+        //     edit.Properties.Mask.UseMaskAsDisplayFormat = true;
+        // }
+        //
+        // private static void AddColumnHeader(GroupControl group, int x, int width, string text)
+        // {
+        //     var label = new LabelControl
+        //     {
+        //         Location = new Point(x, 30),
+        //         Size = new Size(width, 16),
+        //         Text = text,
+        //         AutoSizeMode = LabelAutoSizeMode.None
+        //     };
+        //     label.Appearance.Font = new Font("맑은 고딕", 8F, FontStyle.Bold);
+        //     label.Appearance.Options.UseFont = true;
+        //     label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+        //     group.Controls.Add(label);
+        // }
+        //
+        // #endregion
 
         #region [Load / Save]
 
@@ -388,23 +403,23 @@ namespace ColumbusWeighing.Forms
             _txtPhone.Text = settings.Phone;
             _txtFax.Text = settings.Fax;
 
-            _numVehicleThreshold.Value = settings.VehicleRecognitionThreshold;
-            _numWeightDeviation.Value = settings.WeightJudgmentDeviation;
-            _chkUseBroadcast.Checked = settings.UseBroadcast;
-            _numStableSeconds.Value = settings.WeightStableSeconds;
-            _chkCopySecondToFirst.Checked = settings.CopySecondToFirst;
-            _chkMoveSecondToFirst.Checked = settings.MoveSecondToFirst;
-            _chkEditFirstOnMain.Checked = settings.EditFirstOnMainScreen;
-            _chkEditSecondOnMain.Checked = settings.EditSecondOnMainScreen;
+            // _numVehicleThreshold.Value = settings.VehicleRecognitionThreshold;
+            // _numWeightDeviation.Value = settings.WeightJudgmentDeviation;
+            // _chkUseBroadcast.Checked = settings.UseBroadcast;
+            // _numStableSeconds.Value = settings.WeightStableSeconds;
+            // _chkCopySecondToFirst.Checked = settings.CopySecondToFirst;
+            // _chkMoveSecondToFirst.Checked = settings.MoveSecondToFirst;
+            // _chkEditFirstOnMain.Checked = settings.EditFirstOnMainScreen;
+            // _chkEditSecondOnMain.Checked = settings.EditSecondOnMainScreen;
 
-            if (!string.IsNullOrEmpty(settings.InOutRule) && !_cboInOutRule.Properties.Items.Contains(settings.InOutRule))
-            {
-                _cboInOutRule.Properties.Items.Add(settings.InOutRule);
-            }
-            _cboInOutRule.Text = settings.InOutRule;
+            // if (!string.IsNullOrEmpty(settings.InOutRule) && !_cboInOutRule.Properties.Items.Contains(settings.InOutRule))
+            // {
+            //     _cboInOutRule.Properties.Items.Add(settings.InOutRule);
+            // }
+            // _cboInOutRule.Text = settings.InOutRule;
 
-            _chkLoadLastOnFirst.Checked = settings.LoadLastDataOnFirstWeighing;
-            _chkUseDispatch.Checked = settings.UseDispatch;
+            // _chkLoadLastOnFirst.Checked = settings.LoadLastDataOnFirstWeighing;
+            // _chkUseDispatch.Checked = settings.UseDispatch;
             _chkAutoLogin.Checked = settings.UseAutoLogin;
             _chkSaveLog.Checked = settings.SaveLogData;
             _numAdminAutoOffMinutes.Value = settings.AdminAutoOffMinutes;
@@ -424,25 +439,26 @@ namespace ColumbusWeighing.Forms
             }
             _cboReportPrinter.Text = settings.ReportPrinter;
 
-            _cboCameraCount.Text = settings.CameraCount <= 0 ? "NONE" : settings.CameraCount.ToString();
-            _txtPhotoFolder.Text = settings.PhotoSaveFolder;
-
-            for (var i = 0; i < IpCameraCount; i++)
-            {
-                var camera = i < settings.IpCameras.Count ? settings.IpCameras[i] : new IpCameraSetting();
-
-                _txtCameraIp[i].Text = camera.Ip;
-                _numCameraVnpPort[i].Value = camera.VnpPort;
-                _numCameraHttpPort[i].Value = camera.HttpPort;
-                _txtCameraId[i].Text = camera.UserId;
-                _txtCameraPassword[i].Text = camera.Password;
-
-                if (!string.IsNullOrEmpty(camera.Model) && !_cboCameraModel[i].Properties.Items.Contains(camera.Model))
-                {
-                    _cboCameraModel[i].Properties.Items.Add(camera.Model);
-                }
-                _cboCameraModel[i].Text = camera.Model;
-            }
+            // 카메라 설정 / IP 카메라 설정 항목 주석 처리(위 BuildCameraSection/BuildIpCameraSection 참고).
+            // _cboCameraCount.Text = settings.CameraCount <= 0 ? "NONE" : settings.CameraCount.ToString();
+            // _txtPhotoFolder.Text = settings.PhotoSaveFolder;
+            //
+            // for (var i = 0; i < IpCameraCount; i++)
+            // {
+            //     var camera = i < settings.IpCameras.Count ? settings.IpCameras[i] : new IpCameraSetting();
+            //
+            //     _txtCameraIp[i].Text = camera.Ip;
+            //     _numCameraVnpPort[i].Value = camera.VnpPort;
+            //     _numCameraHttpPort[i].Value = camera.HttpPort;
+            //     _txtCameraId[i].Text = camera.UserId;
+            //     _txtCameraPassword[i].Text = camera.Password;
+            //
+            //     if (!string.IsNullOrEmpty(camera.Model) && !_cboCameraModel[i].Properties.Items.Contains(camera.Model))
+            //     {
+            //         _cboCameraModel[i].Properties.Items.Add(camera.Model);
+            //     }
+            //     _cboCameraModel[i].Text = camera.Model;
+            // }
         }
 
         private void Save()
@@ -459,17 +475,18 @@ namespace ColumbusWeighing.Forms
                 Phone = _txtPhone.Text,
                 Fax = _txtFax.Text,
 
-                VehicleRecognitionThreshold = (int)_numVehicleThreshold.Value,
-                WeightJudgmentDeviation = (int)_numWeightDeviation.Value,
-                UseBroadcast = _chkUseBroadcast.Checked,
-                WeightStableSeconds = (int)_numStableSeconds.Value,
-                CopySecondToFirst = _chkCopySecondToFirst.Checked,
-                MoveSecondToFirst = _chkMoveSecondToFirst.Checked,
-                EditFirstOnMainScreen = _chkEditFirstOnMain.Checked,
-                EditSecondOnMainScreen = _chkEditSecondOnMain.Checked,
-                InOutRule = _cboInOutRule.Text,
-                LoadLastDataOnFirstWeighing = _chkLoadLastOnFirst.Checked,
-                UseDispatch = _chkUseDispatch.Checked,
+                // 실계량 입력/현장 장비 제어용 항목(위 BuildWeighingSection 참고) 주석 처리.
+                // VehicleRecognitionThreshold = (int)_numVehicleThreshold.Value,
+                // WeightJudgmentDeviation = (int)_numWeightDeviation.Value,
+                // UseBroadcast = _chkUseBroadcast.Checked,
+                // WeightStableSeconds = (int)_numStableSeconds.Value,
+                // CopySecondToFirst = _chkCopySecondToFirst.Checked,
+                // MoveSecondToFirst = _chkMoveSecondToFirst.Checked,
+                // EditFirstOnMainScreen = _chkEditFirstOnMain.Checked,
+                // EditSecondOnMainScreen = _chkEditSecondOnMain.Checked,
+                // InOutRule = _cboInOutRule.Text,
+                // LoadLastDataOnFirstWeighing = _chkLoadLastOnFirst.Checked,
+                // UseDispatch = _chkUseDispatch.Checked,
                 UseAutoLogin = _chkAutoLogin.Checked,
                 SaveLogData = _chkSaveLog.Checked,
                 AdminAutoOffMinutes = (int)_numAdminAutoOffMinutes.Value,
@@ -484,40 +501,41 @@ namespace ColumbusWeighing.Forms
                 ApprovalTitle4 = _txtApproval4.Text,
                 ReportPrinter = _cboReportPrinter.Text,
 
-                CameraCount = _cboCameraCount.Text == "NONE" ? 0 : ParseIntOrZero(_cboCameraCount.Text),
-                PhotoSaveFolder = _txtPhotoFolder.Text,
-
-                IpCameras = BuildIpCameraList()
+                // 카메라 설정 / IP 카메라 설정 항목(위 BuildCameraSection/BuildIpCameraSection 참고) 주석 처리.
+                // CameraCount = _cboCameraCount.Text == "NONE" ? 0 : ParseIntOrZero(_cboCameraCount.Text),
+                // PhotoSaveFolder = _txtPhotoFolder.Text,
+                //
+                // IpCameras = BuildIpCameraList()
             };
 
             _repository.Save(settings);
             ComnFunc.gp_PrintMessage("저장되었습니다.", "시스템 설정", MessageType.알림);
         }
 
-        private static int ParseIntOrZero(string text)
-        {
-            return int.TryParse(text, out var value) ? value : 0;
-        }
-
-        private List<IpCameraSetting> BuildIpCameraList()
-        {
-            var cameras = new List<IpCameraSetting>();
-            for (var i = 0; i < IpCameraCount; i++)
-            {
-                cameras.Add(new IpCameraSetting
-                {
-                    No = i + 1,
-                    Ip = _txtCameraIp[i].Text,
-                    VnpPort = (int)_numCameraVnpPort[i].Value,
-                    HttpPort = (int)_numCameraHttpPort[i].Value,
-                    UserId = _txtCameraId[i].Text,
-                    Password = _txtCameraPassword[i].Text,
-                    Model = _cboCameraModel[i].Text
-                });
-            }
-
-            return cameras;
-        }
+        // private static int ParseIntOrZero(string text)
+        // {
+        //     return int.TryParse(text, out var value) ? value : 0;
+        // }
+        //
+        // private List<IpCameraSetting> BuildIpCameraList()
+        // {
+        //     var cameras = new List<IpCameraSetting>();
+        //     for (var i = 0; i < IpCameraCount; i++)
+        //     {
+        //         cameras.Add(new IpCameraSetting
+        //         {
+        //             No = i + 1,
+        //             Ip = _txtCameraIp[i].Text,
+        //             VnpPort = (int)_numCameraVnpPort[i].Value,
+        //             HttpPort = (int)_numCameraHttpPort[i].Value,
+        //             UserId = _txtCameraId[i].Text,
+        //             Password = _txtCameraPassword[i].Text,
+        //             Model = _cboCameraModel[i].Text
+        //         });
+        //     }
+        //
+        //     return cameras;
+        // }
 
         #endregion
 

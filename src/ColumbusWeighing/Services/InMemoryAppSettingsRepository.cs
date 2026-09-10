@@ -39,17 +39,19 @@ namespace ColumbusWeighing.Services
                 Phone = "051-966-1472",
                 Fax = "051-966-1473",
 
-                VehicleRecognitionThreshold = 500,
-                WeightJudgmentDeviation = 0,
-                UseBroadcast = false,
-                WeightStableSeconds = 2,
-                CopySecondToFirst = false,
-                MoveSecondToFirst = false,
-                EditFirstOnMainScreen = false,
-                EditSecondOnMainScreen = false,
-                InOutRule = "1차>2차 [입고], 2차>1차 [출고]",
-                LoadLastDataOnFirstWeighing = false,
-                UseDispatch = false,
+                // AppSettings.cs에서 주석 처리한 실계량 입력/현장 장비 제어용 항목들의 기본값도
+                // 같이 주석 처리했다.
+                // VehicleRecognitionThreshold = 500,
+                // WeightJudgmentDeviation = 0,
+                // UseBroadcast = false,
+                // WeightStableSeconds = 2,
+                // CopySecondToFirst = false,
+                // MoveSecondToFirst = false,
+                // EditFirstOnMainScreen = false,
+                // EditSecondOnMainScreen = false,
+                // InOutRule = "1차>2차 [입고], 2차>1차 [출고]",
+                // LoadLastDataOnFirstWeighing = false,
+                // UseDispatch = false,
                 UseAutoLogin = false,
                 SaveLogData = false,
                 AdminAutoOffMinutes = 10,
@@ -64,16 +66,17 @@ namespace ColumbusWeighing.Services
                 ApprovalTitle4 = "결재1",
                 ReportPrinter = string.Empty,
 
-                CameraCount = 0,
-                PhotoSaveFolder = @"C:\ColumbusWeighing\IMAGE\",
-
-                IpCameras = new List<IpCameraSetting>
-                {
-                    new IpCameraSetting { No = 1, Ip = "192.168.0.150", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" },
-                    new IpCameraSetting { No = 2, Ip = "192.168.0.151", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" },
-                    new IpCameraSetting { No = 3, Ip = "192.168.0.152", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" },
-                    new IpCameraSetting { No = 4, Ip = "192.168.0.153", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" }
-                }
+                // 카메라 설정 / IP 카메라 설정 기본값도 AppSettings.cs와 함께 주석 처리했다.
+                // CameraCount = 0,
+                // PhotoSaveFolder = @"C:\ColumbusWeighing\IMAGE\",
+                //
+                // IpCameras = new List<IpCameraSetting>
+                // {
+                //     new IpCameraSetting { No = 1, Ip = "192.168.0.150", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" },
+                //     new IpCameraSetting { No = 2, Ip = "192.168.0.151", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" },
+                //     new IpCameraSetting { No = 3, Ip = "192.168.0.152", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" },
+                //     new IpCameraSetting { No = 4, Ip = "192.168.0.153", VnpPort = 4520, HttpPort = 80, UserId = "admin", Password = "4321", Model = "SNB-5000A" }
+                // }
             };
         }
     }

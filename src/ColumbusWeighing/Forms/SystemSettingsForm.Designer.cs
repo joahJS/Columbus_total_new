@@ -26,8 +26,10 @@ namespace ColumbusWeighing.Forms
         private DevExpress.XtraEditors.GroupControl _grpUser;
         private DevExpress.XtraEditors.GroupControl _grpWeighing;
         private DevExpress.XtraEditors.GroupControl _grpPrint;
-        private DevExpress.XtraEditors.GroupControl _grpCamera;
-        private DevExpress.XtraEditors.GroupControl _grpIpCamera;
+        // 카메라 설정 / IP 카메라 설정: 조회 전용 프로그램에는 불필요해 화면 자체를 주석 처리했다
+        // (SystemSettingsForm.cs의 BuildCameraSection/BuildIpCameraSection 참고).
+        // private DevExpress.XtraEditors.GroupControl _grpCamera;
+        // private DevExpress.XtraEditors.GroupControl _grpIpCamera;
 
         private void InitializeComponent()
         {
@@ -41,15 +43,15 @@ namespace ColumbusWeighing.Forms
             this._grpUser = new DevExpress.XtraEditors.GroupControl();
             this._grpWeighing = new DevExpress.XtraEditors.GroupControl();
             this._grpPrint = new DevExpress.XtraEditors.GroupControl();
-            this._grpCamera = new DevExpress.XtraEditors.GroupControl();
-            this._grpIpCamera = new DevExpress.XtraEditors.GroupControl();
+            // this._grpCamera = new DevExpress.XtraEditors.GroupControl();
+            // this._grpIpCamera = new DevExpress.XtraEditors.GroupControl();
             ((System.ComponentModel.ISupportInitialize)(this._topBar)).BeginInit();
             this._topBar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._grpUser)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._grpWeighing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._grpPrint)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._grpCamera)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._grpIpCamera)).BeginInit();
+            // ((System.ComponentModel.ISupportInitialize)(this._grpCamera)).BeginInit();
+            // ((System.ComponentModel.ISupportInitialize)(this._grpIpCamera)).BeginInit();
             this.SuspendLayout();
             //
             // _topBar
@@ -122,8 +124,8 @@ namespace ColumbusWeighing.Forms
             // _rightPanel
             //
             this._rightPanel.AutoScroll = true;
-            this._rightPanel.Controls.Add(this._grpIpCamera);
-            this._rightPanel.Controls.Add(this._grpCamera);
+            // this._rightPanel.Controls.Add(this._grpIpCamera);
+            // this._rightPanel.Controls.Add(this._grpCamera);
             this._rightPanel.Controls.Add(this._grpPrint);
             this._rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._rightPanel.Location = new System.Drawing.Point(450, 0);
@@ -161,25 +163,23 @@ namespace ColumbusWeighing.Forms
             this._grpPrint.TabIndex = 0;
             this._grpPrint.Text = "인쇄 설정";
             //
-            // _grpCamera
+            // _grpCamera / _grpIpCamera: 조회 전용 프로그램에는 불필요해 주석 처리했다.
             //
-            this._grpCamera.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
-            this._grpCamera.Appearance.Options.UseFont = true;
-            this._grpCamera.Location = new System.Drawing.Point(10, 160);
-            this._grpCamera.Name = "_grpCamera";
-            this._grpCamera.Size = new System.Drawing.Size(530, 120);
-            this._grpCamera.TabIndex = 1;
-            this._grpCamera.Text = "카메라 설정";
+            // this._grpCamera.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
+            // this._grpCamera.Appearance.Options.UseFont = true;
+            // this._grpCamera.Location = new System.Drawing.Point(10, 160);
+            // this._grpCamera.Name = "_grpCamera";
+            // this._grpCamera.Size = new System.Drawing.Size(530, 120);
+            // this._grpCamera.TabIndex = 1;
+            // this._grpCamera.Text = "카메라 설정";
             //
-            // _grpIpCamera
-            //
-            this._grpIpCamera.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
-            this._grpIpCamera.Appearance.Options.UseFont = true;
-            this._grpIpCamera.Location = new System.Drawing.Point(10, 290);
-            this._grpIpCamera.Name = "_grpIpCamera";
-            this._grpIpCamera.Size = new System.Drawing.Size(530, 190);
-            this._grpIpCamera.TabIndex = 2;
-            this._grpIpCamera.Text = "IP 카메라 설정";
+            // this._grpIpCamera.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
+            // this._grpIpCamera.Appearance.Options.UseFont = true;
+            // this._grpIpCamera.Location = new System.Drawing.Point(10, 290);
+            // this._grpIpCamera.Name = "_grpIpCamera";
+            // this._grpIpCamera.Size = new System.Drawing.Size(530, 190);
+            // this._grpIpCamera.TabIndex = 2;
+            // this._grpIpCamera.Text = "IP 카메라 설정";
             //
             // SystemSettingsForm
             //
@@ -197,8 +197,8 @@ namespace ColumbusWeighing.Forms
             ((System.ComponentModel.ISupportInitialize)(this._grpUser)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._grpWeighing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._grpPrint)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._grpCamera)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._grpIpCamera)).EndInit();
+            // ((System.ComponentModel.ISupportInitialize)(this._grpCamera)).EndInit();
+            // ((System.ComponentModel.ISupportInitialize)(this._grpIpCamera)).EndInit();
             this.ResumeLayout(false);
         }
 
