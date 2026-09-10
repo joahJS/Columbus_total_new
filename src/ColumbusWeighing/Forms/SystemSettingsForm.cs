@@ -197,7 +197,15 @@ namespace ColumbusWeighing.Forms
 
             // 위 항목들이 주석 처리되면서 생긴 빈 공간을 없애기 위해, 남은 항목들을 그룹 상단부터
             // 다시 채워 배치한다(그룹 높이도 Designer에서 함께 줄였다).
-            _chkAutoLogin = AddCheckEdit(_grpWeighing, WeighingColALabelX, 30, WeighingCheckWidth, "자동 로그인 사용");
+            // 도움말 버튼을 끼워 넣을 자리를 마련하기 위해, 이 체크박스만 컬럼 폭보다 좁게 둔다
+            // (컬럼 B가 WeighingColBLabelX=209에서 시작하므로 그 앞까지만 사용).
+            const int autoLoginCheckWidth = 130;
+            _chkAutoLogin = AddCheckEdit(_grpWeighing, WeighingColALabelX, 30, autoLoginCheckWidth, "자동 로그인 사용");
+            AddHelpButton(_grpWeighing, WeighingColALabelX + autoLoginCheckWidth + 4, 29,
+                "\"자동 로그인 사용\"은 \"접속정보 기억하기\" 체크와 무관하게 별도로 동작합니다.\r\n\r\n" +
+                "지금 막 이 항목을 처음 켜셨다면, 그 다음 로그인 1회는 로그인창을 통해 정상적으로\r\n" +
+                "로그인해야 그 정보가 저장되고, 그 이후부터 자동 로그인이 실제로 동작합니다.",
+                "자동 로그인 사용");
             _chkSaveLog = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 30, WeighingCheckWidth, "로그 데이터 저장");
 
             AddLabelLeft(_grpWeighing, WeighingColALabelX, 60, WeighingColALabelWidth, "관리자 자동오프(분)");
@@ -607,6 +615,20 @@ namespace ColumbusWeighing.Forms
             combo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             group.Controls.Add(combo);
             return combo;
+        }
+
+        /// <summary>체크박스 등 옆에 붙이는 작은 "?" 도움말 버튼. 클릭하면 설명 메세지박스를 띄운다.</summary>
+        private static SimpleButton AddHelpButton(GroupControl group, int x, int y, string message, string title)
+        {
+            var button = new SimpleButton
+            {
+                Location = new Point(x, y),
+                Size = new Size(20, 20),
+                Text = "?"
+            };
+            button.Click += (s, e) => ComnFunc.gp_PrintMessage(message, title, MessageType.알림);
+            group.Controls.Add(button);
+            return button;
         }
 
         #endregion
