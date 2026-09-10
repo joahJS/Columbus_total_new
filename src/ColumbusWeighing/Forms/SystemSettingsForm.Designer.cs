@@ -107,30 +107,28 @@ namespace ColumbusWeighing.Forms
             this._bodyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._bodyPanel.Location = new System.Drawing.Point(0, 42);
             this._bodyPanel.Name = "_bodyPanel";
-            this._bodyPanel.Size = new System.Drawing.Size(1010, 658);
+            this._bodyPanel.Size = new System.Drawing.Size(1010, 340);
             this._bodyPanel.TabIndex = 1;
             //
-            // _leftPanel
+            // _leftPanel: 1열 - 사용자 설정 하나만 담아 전체 높이를 차지하게 한다.
             //
             this._leftPanel.AutoScroll = true;
-            this._leftPanel.Controls.Add(this._grpWeighing);
             this._leftPanel.Controls.Add(this._grpUser);
             this._leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this._leftPanel.Location = new System.Drawing.Point(0, 0);
             this._leftPanel.Name = "_leftPanel";
-            this._leftPanel.Size = new System.Drawing.Size(450, 658);
+            this._leftPanel.Size = new System.Drawing.Size(450, 340);
             this._leftPanel.TabIndex = 0;
             //
-            // _rightPanel
+            // _rightPanel: 2열 - 1행 인쇄 설정, 2행 계량 설정 순으로 쌓는다.
             //
             this._rightPanel.AutoScroll = true;
-            // this._rightPanel.Controls.Add(this._grpIpCamera);
-            // this._rightPanel.Controls.Add(this._grpCamera);
+            this._rightPanel.Controls.Add(this._grpWeighing);
             this._rightPanel.Controls.Add(this._grpPrint);
             this._rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._rightPanel.Location = new System.Drawing.Point(450, 0);
             this._rightPanel.Name = "_rightPanel";
-            this._rightPanel.Size = new System.Drawing.Size(560, 658);
+            this._rightPanel.Size = new System.Drawing.Size(560, 340);
             this._rightPanel.TabIndex = 1;
             //
             // _grpUser
@@ -143,17 +141,7 @@ namespace ColumbusWeighing.Forms
             this._grpUser.TabIndex = 0;
             this._grpUser.Text = "사용자 설정";
             //
-            // _grpWeighing
-            //
-            this._grpWeighing.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
-            this._grpWeighing.Appearance.Options.UseFont = true;
-            this._grpWeighing.Location = new System.Drawing.Point(10, 260);
-            this._grpWeighing.Name = "_grpWeighing";
-            this._grpWeighing.Size = new System.Drawing.Size(430, 170);
-            this._grpWeighing.TabIndex = 1;
-            this._grpWeighing.Text = "계량 설정";
-            //
-            // _grpPrint
+            // _grpPrint (2열 1행)
             //
             this._grpPrint.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
             this._grpPrint.Appearance.Options.UseFont = true;
@@ -162,6 +150,16 @@ namespace ColumbusWeighing.Forms
             this._grpPrint.Size = new System.Drawing.Size(530, 140);
             this._grpPrint.TabIndex = 0;
             this._grpPrint.Text = "인쇄 설정";
+            //
+            // _grpWeighing (2열 2행 - _grpPrint 바로 아래: 10 + 140 + 10 = 160)
+            //
+            this._grpWeighing.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
+            this._grpWeighing.Appearance.Options.UseFont = true;
+            this._grpWeighing.Location = new System.Drawing.Point(10, 160);
+            this._grpWeighing.Name = "_grpWeighing";
+            this._grpWeighing.Size = new System.Drawing.Size(530, 170);
+            this._grpWeighing.TabIndex = 1;
+            this._grpWeighing.Text = "계량 설정";
             //
             // _grpCamera / _grpIpCamera: 조회 전용 프로그램에는 불필요해 주석 처리했다.
             //
@@ -183,7 +181,7 @@ namespace ColumbusWeighing.Forms
             //
             // SystemSettingsForm
             //
-            this.ClientSize = new System.Drawing.Size(1010, 700);
+            this.ClientSize = new System.Drawing.Size(1010, 382);
             this.Controls.Add(this._bodyPanel);
             this.Controls.Add(this._topBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;

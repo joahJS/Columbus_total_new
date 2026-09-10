@@ -35,7 +35,6 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.Panel _rightInfoPanel;
         private System.Windows.Forms.TextBox _logMemo;
         private System.Windows.Forms.Panel _userPanel;
-        private System.Windows.Forms.Panel _loginBarPanel;
         private DevExpress.XtraEditors.SimpleButton _btnLogin;
         private DevExpress.XtraEditors.LabelControl _companyLabel;
 
@@ -65,7 +64,6 @@ namespace ColumbusWeighing.Forms
             this._logMemo = new System.Windows.Forms.TextBox();
             this._userPanel = new System.Windows.Forms.Panel();
             this._companyLabel = new DevExpress.XtraEditors.LabelControl();
-            this._loginBarPanel = new System.Windows.Forms.Panel();
             this._btnLogin = new DevExpress.XtraEditors.SimpleButton();
 
             this._splitContainer = new DevExpress.XtraEditors.SplitContainerControl();
@@ -76,7 +74,6 @@ namespace ColumbusWeighing.Forms
             this._topInfoPanel.SuspendLayout();
             this._rightInfoPanel.SuspendLayout();
             this._userPanel.SuspendLayout();
-            this._loginBarPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
             this._splitContainer.SuspendLayout();
             this.SuspendLayout();
@@ -208,13 +205,12 @@ namespace ColumbusWeighing.Forms
             //
             // _userPanel
             //
+            // 버튼과 회사명을 각각 도킹으로 위/아래 칸에 나눠 담았던 이전 방식은 DevExpress
+            // LabelControl의 세로 중앙정렬 계산과 얽혀 텍스트가 잘려 보이는 문제가 있었다.
+            // 대신 이 패널 하나에 두 컨트롤을 직접 절대좌표로 배치하고, 각자 이 패널의
+            // 전체 높이(70) 안에서 스스로 세로 중앙에 오도록 좌표를 계산해 넣는다.
             this._userPanel.BackColor = System.Drawing.Color.WhiteSmoke;
-            // Dock=Fill인 _companyLabel을 Dock=Top인 _loginBarPanel보다 나중에 추가해야 한다.
-            // WinForms 도킹은 나중에 추가된 컨트롤이 먼저 자리를 차지하는 순서로 배치되므로,
-            // 순서가 반대이면 _companyLabel이 로그인 바 영역까지 포함한 전체 높이를 기준으로
-            // 중앙정렬을 계산해버려(그 위를 _loginBarPanel이 덮음) 보이는 흰 영역 안에서는
-            // 세로 중앙정렬이 아래로 치우쳐 보인다.
-            this._userPanel.Controls.Add(this._loginBarPanel);
+            this._userPanel.Controls.Add(this._btnLogin);
             this._userPanel.Controls.Add(this._companyLabel);
             this._userPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this._userPanel.Location = new System.Drawing.Point(944, 0);
@@ -222,29 +218,19 @@ namespace ColumbusWeighing.Forms
             this._userPanel.Size = new System.Drawing.Size(320, 70);
             this._userPanel.TabIndex = 1;
             //
-            // _loginBarPanel (LOGIN 버튼 전용 영역 - 회사명 영역과 분리)
-            //
-            this._loginBarPanel.BackColor = System.Drawing.Color.WhiteSmoke;
-            this._loginBarPanel.Controls.Add(this._btnLogin);
-            this._loginBarPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this._loginBarPanel.Location = new System.Drawing.Point(0, 0);
-            this._loginBarPanel.Name = "_loginBarPanel";
-            this._loginBarPanel.Size = new System.Drawing.Size(320, 36);
-            this._loginBarPanel.TabIndex = 0;
-            //
-            // _btnLogin
+            // _btnLogin (패널 높이 70 기준 세로 중앙: (70-28)/2 = 21)
             //
             this._btnLogin.Appearance.BackColor = System.Drawing.Color.FromArgb(41, 128, 225);
             this._btnLogin.Appearance.ForeColor = System.Drawing.Color.White;
             this._btnLogin.Appearance.Options.UseBackColor = true;
             this._btnLogin.Appearance.Options.UseForeColor = true;
-            this._btnLogin.Location = new System.Drawing.Point(12, 4);
+            this._btnLogin.Location = new System.Drawing.Point(218, 21);
             this._btnLogin.Name = "_btnLogin";
             this._btnLogin.Size = new System.Drawing.Size(90, 28);
             this._btnLogin.TabIndex = 0;
             this._btnLogin.Text = "LOGIN";
             //
-            // _companyLabel
+            // _companyLabel (버튼 왼쪽 영역 전체를 차지하며, 패널 전체 높이 안에서 세로 중앙정렬)
             //
             this._companyLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 15F, System.Drawing.FontStyle.Bold);
             this._companyLabel.Appearance.ForeColor = System.Drawing.Color.Black;
@@ -254,11 +240,10 @@ namespace ColumbusWeighing.Forms
             this._companyLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._companyLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.NoWrap;
             this._companyLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this._companyLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._companyLabel.Location = new System.Drawing.Point(0, 36);
+            this._companyLabel.Location = new System.Drawing.Point(0, 0);
             this._companyLabel.Name = "_companyLabel";
-            this._companyLabel.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this._companyLabel.Size = new System.Drawing.Size(320, 34);
+            this._companyLabel.Padding = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this._companyLabel.Size = new System.Drawing.Size(214, 70);
             this._companyLabel.TabIndex = 1;
             this._companyLabel.Text = "콜럼버스 주식회사";
             //
@@ -310,7 +295,6 @@ namespace ColumbusWeighing.Forms
             this._rightInfoPanel.ResumeLayout(false);
             this._rightInfoPanel.PerformLayout();
             this._userPanel.ResumeLayout(false);
-            this._loginBarPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).EndInit();
             this._splitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
