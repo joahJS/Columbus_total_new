@@ -18,6 +18,21 @@ namespace ColumbusWeighing.Forms
 
             _authService = authService;
             _btnOk.Click += BtnOk_Click;
+            Load += LoginForm_Load;
+        }
+
+        /// <summary>이전에 "접속정보 기억하기"로 저장해 둔 아이디/비밀번호가 있으면 미리 채워 넣는다.</summary>
+        private void LoginForm_Load(object sender, System.EventArgs e)
+        {
+            var remembered = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginRemember);
+            if (remembered != "True")
+            {
+                return;
+            }
+
+            _idEdit.Text = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId);
+            _pwEdit.Text = CredentialProtector.Unprotect(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw));
+            _chkRemember.Checked = true;
         }
 
         private void BtnOk_Click(object sender, System.EventArgs e)
@@ -44,6 +59,19 @@ namespace ColumbusWeighing.Forms
             UserId = displayName;
             LoginUser.UserId = userId;
             LoginUser.UserName = displayName;
+
+            IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginRemember, _chkRemember.Checked.ToString());
+            if (_chkRemember.Checked)
+            {
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId, userId);
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw, CredentialProtector.Protect(password));
+            }
+            else
+            {
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId, string.Empty);
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw, string.Empty);
+            }
+
             DialogResult = DialogResult.OK;
         }
     }
