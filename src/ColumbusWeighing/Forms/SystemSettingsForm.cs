@@ -195,21 +195,23 @@ namespace ColumbusWeighing.Forms
 
             // _chkUseDispatch = AddCheckEdit(_grpWeighing, WeighingColALabelX, 186, WeighingCheckWidth, "배차 사용");
 
-            _chkAutoLogin = AddCheckEdit(_grpWeighing, WeighingColALabelX, 210, WeighingCheckWidth, "자동 로그인 사용");
-            _chkSaveLog = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 210, WeighingCheckWidth, "로그 데이터 저장");
+            // 위 항목들이 주석 처리되면서 생긴 빈 공간을 없애기 위해, 남은 항목들을 그룹 상단부터
+            // 다시 채워 배치한다(그룹 높이도 Designer에서 함께 줄였다).
+            _chkAutoLogin = AddCheckEdit(_grpWeighing, WeighingColALabelX, 30, WeighingCheckWidth, "자동 로그인 사용");
+            _chkSaveLog = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 30, WeighingCheckWidth, "로그 데이터 저장");
 
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 240, WeighingColALabelWidth, "관리자 자동오프(분)");
-            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 237, WeighingFieldWidth, 0, 999);
+            AddLabelLeft(_grpWeighing, WeighingColALabelX, 60, WeighingColALabelWidth, "관리자 자동오프(분)");
+            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 57, WeighingFieldWidth, 0, 999);
 
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 268, WeighingColALabelWidth, "마감 기준 시간");
-            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 265, WeighingFieldWidth);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 268, WeighingColBLabelWidth, "메인화면 그리드 폰트");
-            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 265, WeighingFieldWidth, 6, 24);
+            AddLabelLeft(_grpWeighing, WeighingColALabelX, 88, WeighingColALabelWidth, "마감 기준 시간");
+            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 85, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 88, WeighingColBLabelWidth, "메인화면 그리드 폰트");
+            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 85, WeighingFieldWidth, 6, 24);
 
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 296, WeighingColALabelWidth, "중량 단위");
-            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 293, WeighingFieldWidth);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 296, WeighingColBLabelWidth, "금액 단위");
-            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 293, WeighingFieldWidth);
+            AddLabelLeft(_grpWeighing, WeighingColALabelX, 116, WeighingColALabelWidth, "중량 단위");
+            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 113, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 116, WeighingColBLabelWidth, "금액 단위");
+            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 113, WeighingFieldWidth);
         }
 
         #endregion

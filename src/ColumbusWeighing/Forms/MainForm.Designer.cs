@@ -209,8 +209,13 @@ namespace ColumbusWeighing.Forms
             // _userPanel
             //
             this._userPanel.BackColor = System.Drawing.Color.WhiteSmoke;
-            this._userPanel.Controls.Add(this._companyLabel);
+            // Dock=Fill인 _companyLabel을 Dock=Top인 _loginBarPanel보다 나중에 추가해야 한다.
+            // WinForms 도킹은 나중에 추가된 컨트롤이 먼저 자리를 차지하는 순서로 배치되므로,
+            // 순서가 반대이면 _companyLabel이 로그인 바 영역까지 포함한 전체 높이를 기준으로
+            // 중앙정렬을 계산해버려(그 위를 _loginBarPanel이 덮음) 보이는 흰 영역 안에서는
+            // 세로 중앙정렬이 아래로 치우쳐 보인다.
             this._userPanel.Controls.Add(this._loginBarPanel);
+            this._userPanel.Controls.Add(this._companyLabel);
             this._userPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this._userPanel.Location = new System.Drawing.Point(944, 0);
             this._userPanel.Name = "_userPanel";

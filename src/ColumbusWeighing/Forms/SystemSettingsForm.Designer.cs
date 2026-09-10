@@ -149,7 +149,7 @@ namespace ColumbusWeighing.Forms
             this._grpWeighing.Appearance.Options.UseFont = true;
             this._grpWeighing.Location = new System.Drawing.Point(10, 260);
             this._grpWeighing.Name = "_grpWeighing";
-            this._grpWeighing.Size = new System.Drawing.Size(430, 350);
+            this._grpWeighing.Size = new System.Drawing.Size(430, 170);
             this._grpWeighing.TabIndex = 1;
             this._grpWeighing.Text = "계량 설정";
             //
