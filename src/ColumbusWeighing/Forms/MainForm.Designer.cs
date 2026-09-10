@@ -23,6 +23,8 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataCustomer;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataVehicle;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataProduct;
+        private System.Windows.Forms.ToolStripSeparator _menuBaseDataSeparator;
+        private System.Windows.Forms.ToolStripMenuItem _menuBaseDataSystemSettings;
         private System.Windows.Forms.ToolStripMenuItem _menuStatus;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusDaily;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusPeriod;
@@ -50,6 +52,8 @@ namespace ColumbusWeighing.Forms
             this._menuBaseDataCustomer = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseDataVehicle = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseDataProduct = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuBaseDataSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this._menuBaseDataSystemSettings = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatus = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusDaily = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusPeriod = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,7 +110,9 @@ namespace ColumbusWeighing.Forms
             this._menuBaseData.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._menuBaseDataCustomer,
             this._menuBaseDataVehicle,
-            this._menuBaseDataProduct});
+            this._menuBaseDataProduct,
+            this._menuBaseDataSeparator,
+            this._menuBaseDataSystemSettings});
             this._menuBaseData.Name = "_menuBaseData";
             this._menuBaseData.Text = "기초자료(&I)";
             //
@@ -124,6 +130,15 @@ namespace ColumbusWeighing.Forms
             //
             this._menuBaseDataProduct.Name = "_menuBaseDataProduct";
             this._menuBaseDataProduct.Text = "제품 관리";
+            //
+            // _menuBaseDataSeparator
+            //
+            this._menuBaseDataSeparator.Name = "_menuBaseDataSeparator";
+            //
+            // _menuBaseDataSystemSettings
+            //
+            this._menuBaseDataSystemSettings.Name = "_menuBaseDataSystemSettings";
+            this._menuBaseDataSystemSettings.Text = "시스템 설정";
             //
             // _menuStatus
             //
@@ -162,7 +177,7 @@ namespace ColumbusWeighing.Forms
             this._topInfoPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._topInfoPanel.Location = new System.Drawing.Point(0, 24);
             this._topInfoPanel.Name = "_topInfoPanel";
-            this._topInfoPanel.Size = new System.Drawing.Size(1264, 60);
+            this._topInfoPanel.Size = new System.Drawing.Size(1264, 70);
             this._topInfoPanel.TabIndex = 1;
             //
             // _rightInfoPanel
@@ -173,7 +188,7 @@ namespace ColumbusWeighing.Forms
             this._rightInfoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._rightInfoPanel.Location = new System.Drawing.Point(0, 0);
             this._rightInfoPanel.Name = "_rightInfoPanel";
-            this._rightInfoPanel.Size = new System.Drawing.Size(1264, 60);
+            this._rightInfoPanel.Size = new System.Drawing.Size(1264, 70);
             this._rightInfoPanel.TabIndex = 1;
             //
             // _logMemo
@@ -188,7 +203,7 @@ namespace ColumbusWeighing.Forms
             this._logMemo.Name = "_logMemo";
             this._logMemo.ReadOnly = true;
             this._logMemo.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this._logMemo.Size = new System.Drawing.Size(1004, 60);
+            this._logMemo.Size = new System.Drawing.Size(944, 70);
             this._logMemo.TabIndex = 0;
             //
             // _userPanel
@@ -197,9 +212,9 @@ namespace ColumbusWeighing.Forms
             this._userPanel.Controls.Add(this._companyLabel);
             this._userPanel.Controls.Add(this._loginBarPanel);
             this._userPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this._userPanel.Location = new System.Drawing.Point(1004, 0);
+            this._userPanel.Location = new System.Drawing.Point(944, 0);
             this._userPanel.Name = "_userPanel";
-            this._userPanel.Size = new System.Drawing.Size(260, 60);
+            this._userPanel.Size = new System.Drawing.Size(320, 70);
             this._userPanel.TabIndex = 1;
             //
             // _loginBarPanel (LOGIN 버튼 전용 영역 - 회사명 영역과 분리)
@@ -209,7 +224,7 @@ namespace ColumbusWeighing.Forms
             this._loginBarPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._loginBarPanel.Location = new System.Drawing.Point(0, 0);
             this._loginBarPanel.Name = "_loginBarPanel";
-            this._loginBarPanel.Size = new System.Drawing.Size(260, 38);
+            this._loginBarPanel.Size = new System.Drawing.Size(320, 36);
             this._loginBarPanel.TabIndex = 0;
             //
             // _btnLogin
@@ -218,7 +233,7 @@ namespace ColumbusWeighing.Forms
             this._btnLogin.Appearance.ForeColor = System.Drawing.Color.White;
             this._btnLogin.Appearance.Options.UseBackColor = true;
             this._btnLogin.Appearance.Options.UseForeColor = true;
-            this._btnLogin.Location = new System.Drawing.Point(12, 6);
+            this._btnLogin.Location = new System.Drawing.Point(12, 4);
             this._btnLogin.Name = "_btnLogin";
             this._btnLogin.Size = new System.Drawing.Size(90, 28);
             this._btnLogin.TabIndex = 0;
@@ -232,13 +247,13 @@ namespace ColumbusWeighing.Forms
             this._companyLabel.Appearance.Options.UseForeColor = true;
             this._companyLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
             this._companyLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
-            this._companyLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            this._companyLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.NoWrap;
             this._companyLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this._companyLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._companyLabel.Location = new System.Drawing.Point(0, 38);
+            this._companyLabel.Location = new System.Drawing.Point(0, 36);
             this._companyLabel.Name = "_companyLabel";
             this._companyLabel.Padding = new System.Windows.Forms.Padding(0, 0, 12, 0);
-            this._companyLabel.Size = new System.Drawing.Size(260, 22);
+            this._companyLabel.Size = new System.Drawing.Size(320, 34);
             this._companyLabel.TabIndex = 1;
             this._companyLabel.Text = "콜럼버스 주식회사";
             //
@@ -246,13 +261,13 @@ namespace ColumbusWeighing.Forms
             //
             this._splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this._splitContainer.Horizontal = false;
-            this._splitContainer.Location = new System.Drawing.Point(0, 84);
+            this._splitContainer.Location = new System.Drawing.Point(0, 94);
             this._splitContainer.Name = "_splitContainer";
             this._splitContainer.Panel1.Controls.Add(this._firstWeighingControl);
             this._splitContainer.Panel1.Text = "Panel1";
             this._splitContainer.Panel2.Controls.Add(this._secondWeighingControl);
             this._splitContainer.Panel2.Text = "Panel2";
-            this._splitContainer.Size = new System.Drawing.Size(1264, 619);
+            this._splitContainer.Size = new System.Drawing.Size(1264, 609);
             this._splitContainer.SplitterPosition = 220;
             this._splitContainer.TabIndex = 2;
             //
