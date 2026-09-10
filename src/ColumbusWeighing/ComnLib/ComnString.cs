@@ -30,5 +30,13 @@ namespace ColumbusWeighing.ComnLib
         public static string IniKeyLoginId = "ID";
         public static string IniKeyLoginPw = "PW";
         public static string IniKeyLoginRemember = "REMEMBER";
+
+        /// <summary>
+        /// 시스템 설정의 "자동 로그인 사용"이 쓰는 별도의 저장 키. "접속정보 기억하기"(위 세 키)는
+        /// 로그인창에 아이디/비밀번호를 미리 채워주기만 하는 값이라 체크를 끄면 지워지는데,
+        /// 자동 로그인은 그 체크와 무관하게 동작해야 하므로 완전히 분리해서 저장한다.
+        /// </summary>
+        public static string IniKeyAutoLoginId = "AUTO_ID";
+        public static string IniKeyAutoLoginPw = "AUTO_PW";
     }
 }

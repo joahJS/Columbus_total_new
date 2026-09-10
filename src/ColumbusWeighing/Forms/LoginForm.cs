@@ -13,27 +13,23 @@ namespace ColumbusWeighing.Forms
         public string UserId { get; private set; }
 
         /// <summary>
-        /// 시스템 설정의 "자동 로그인 사용"이 켜져 있고 "접속정보 기억하기"로 저장해 둔 계정이
-        /// 있으면, 로그인창을 띄우지 않고 바로 인증을 시도한다. 성공하면 LoginForm의
-        /// BtnOk_Click과 동일하게 LoginUser를 채운다.
+        /// 시스템 설정의 "자동 로그인 사용"이 켜져 있으면(호출하는 쪽에서 미리 확인), 로그인창을
+        /// 띄우지 않고 바로 인증을 시도한다. "접속정보 기억하기" 체크와는 무관하게, 자동 로그인이
+        /// 켜진 상태에서 마지막으로 성공한 로그인 정보(IniKeyAutoLoginId/Pw)를 쓴다 — 그래야
+        /// 사용자가 "기억하기"를 체크하지 않아도 자동 로그인이 동작한다.
+        /// 성공하면 LoginForm의 BtnOk_Click과 동일하게 LoginUser를 채운다.
         /// </summary>
         public static bool TryAutoLogin(IAuthenticationService authService, out string displayName)
         {
             displayName = null;
 
-            var remembered = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginRemember);
-            if (remembered != "True")
-            {
-                return false;
-            }
-
-            var userId = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId);
+            var userId = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginId);
             if (string.IsNullOrEmpty(userId))
             {
                 return false;
             }
 
-            var password = CredentialProtector.Unprotect(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw));
+            var password = CredentialProtector.Unprotect(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginPw));
             if (!authService.TryLogin(userId, password, out displayName))
             {
                 return false;
@@ -102,6 +98,15 @@ namespace ColumbusWeighing.Forms
             {
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId, string.Empty);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw, string.Empty);
+            }
+
+            // "자동 로그인 사용"은 "접속정보 기억하기" 체크와 무관하게 동작해야 하므로, 그 설정이
+            // 켜져 있으면 이번에 성공한 로그인 정보를 별도 키에 저장해둔다. 설정이 꺼져 있으면
+            // 굳이 저장하지 않는다(사용자가 요청하지 않은 자격증명을 디스크에 남기지 않기 위함).
+            if (new IniAppSettingsRepository().Load().UseAutoLogin)
+            {
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginId, userId);
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginPw, CredentialProtector.Protect(password));
             }
 
             DialogResult = DialogResult.OK;

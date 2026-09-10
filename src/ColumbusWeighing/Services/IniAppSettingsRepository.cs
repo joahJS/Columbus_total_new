@@ -82,6 +82,15 @@ namespace ColumbusWeighing.Services
                 SetValue("ApprovalTitle3", settings.ApprovalTitle3);
                 SetValue("ApprovalTitle4", settings.ApprovalTitle4);
                 SetValue("ReportPrinter", settings.ReportPrinter);
+
+                // "자동 로그인 사용"을 끄면, LoginForm이 그동안 별도로 저장해 둔 자동 로그인용
+                // 자격증명(IniKeyAutoLoginId/Pw)도 같이 지운다 — 꺼둔 기능을 위한 비밀번호를
+                // 디스크에 남겨둘 이유가 없다.
+                if (!settings.UseAutoLogin)
+                {
+                    IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginId, string.Empty);
+                    IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginPw, string.Empty);
+                }
             }
             catch (System.Exception)
             {
