@@ -39,5 +39,23 @@ namespace ColumbusWeighing.ComnLib
             view.Appearance.SelectedRow.Options.UseBackColor = true;
             view.Appearance.SelectedRow.Options.UseForeColor = true;
         }
+
+        /// <summary>시스템 설정의 "메인화면 그리드 폰트"를 행/헤더 글자 크기에 반영한다.
+        /// 글꼴 종류·굵기는 GridStyleBasicSetting이 이미 정해둔 값을 그대로 유지하고 크기만 바꾼다.</summary>
+        public static void SetRowFontSize(GridView view, int size)
+        {
+            if (size <= 0)
+            {
+                return;
+            }
+
+            var rowFont = view.Appearance.Row.Font;
+            view.Appearance.Row.Font = new Font(rowFont.FontFamily, size, rowFont.Style);
+            view.Appearance.Row.Options.UseFont = true;
+
+            var headerFont = view.Appearance.HeaderPanel.Font;
+            view.Appearance.HeaderPanel.Font = new Font(headerFont.FontFamily, size, headerFont.Style);
+            view.Appearance.HeaderPanel.Options.UseFont = true;
+        }
     }
 }

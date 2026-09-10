@@ -17,6 +17,9 @@ namespace ColumbusWeighing.Controls
     {
         private IWeighingRepository _repository;
 
+        /// <summary>시스템 설정의 "중량 단위"를 중량 컬럼 표시에 반영하기 위한 값(예: "kg").</summary>
+        private string _weightUnit;
+
         /// <summary>2차 계량 대기 중인 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _pendingRecords = new BindingList<WeighingRecord>();
 
@@ -37,11 +40,21 @@ namespace ColumbusWeighing.Controls
             get { return _gridView.GetFocusedRow() as WeighingRecord; }
         }
 
-        public void Initialize(IWeighingRepository repository)
+        public void Initialize(IWeighingRepository repository, AppSettings settings)
         {
             _repository = repository;
             _repository.Records.ListChanged += (s, e) => RefreshPendingList();
+            ApplyDisplaySettings(settings);
             RefreshPendingList();
+        }
+
+        /// <summary>그리드 폰트 크기/중량 단위처럼 화면 표시에만 영향을 주는 설정을 다시 적용한다.
+        /// 시스템 설정 창을 닫은 직후에도 호출되므로, 조회 조건(날짜 등)은 건드리지 않는다.</summary>
+        public void ApplyDisplaySettings(AppSettings settings)
+        {
+            _weightUnit = settings.WeightUnit;
+            ComnGridFunc.SetRowFontSize(_gridView, settings.MainGridFontSize);
+            _gridControl.Refresh();
         }
 
         /// <summary>저장소 전체 목록에서 2차 계량 대기 중인 건만 다시 뽑아 그리드용 목록을 갱신한다.</summary>
@@ -110,6 +123,17 @@ namespace ColumbusWeighing.Controls
             {
                 e.DisplayText = branchCode.ToDisplayString();
             }
+            else if (e.Column.FieldName == "FirstWeight" && e.Value is decimal firstWeight)
+            {
+                e.DisplayText = FormatWeight(firstWeight);
+            }
+        }
+
+        /// <summary>중량 값에 시스템 설정의 중량 단위(예: "kg")를 붙여서 보여준다.</summary>
+        private string FormatWeight(decimal value)
+        {
+            var text = value.ToString("N0");
+            return string.IsNullOrEmpty(_weightUnit) ? text : text + " " + _weightUnit;
         }
 
         private void PrintFirstSlip()

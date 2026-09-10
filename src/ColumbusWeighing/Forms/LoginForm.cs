@@ -12,6 +12,38 @@ namespace ColumbusWeighing.Forms
         /// <summary>로그인 성공 시 화면에 표시할 사용자명.</summary>
         public string UserId { get; private set; }
 
+        /// <summary>
+        /// 시스템 설정의 "자동 로그인 사용"이 켜져 있고 "접속정보 기억하기"로 저장해 둔 계정이
+        /// 있으면, 로그인창을 띄우지 않고 바로 인증을 시도한다. 성공하면 LoginForm의
+        /// BtnOk_Click과 동일하게 LoginUser를 채운다.
+        /// </summary>
+        public static bool TryAutoLogin(IAuthenticationService authService, out string displayName)
+        {
+            displayName = null;
+
+            var remembered = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginRemember);
+            if (remembered != "True")
+            {
+                return false;
+            }
+
+            var userId = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return false;
+            }
+
+            var password = CredentialProtector.Unprotect(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw));
+            if (!authService.TryLogin(userId, password, out displayName))
+            {
+                return false;
+            }
+
+            LoginUser.UserId = userId;
+            LoginUser.UserName = displayName;
+            return true;
+        }
+
         public LoginForm(IAuthenticationService authService)
         {
             InitializeComponent();

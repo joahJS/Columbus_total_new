@@ -21,6 +21,15 @@ namespace ColumbusWeighing
 
             var authService = new FixedAuthenticationService();
 
+            // 시스템 설정의 "자동 로그인 사용"이 켜져 있고 "접속정보 기억하기"로 저장된 계정이
+            // 있으면 로그인창을 건너뛴다.
+            var settings = new IniAppSettingsRepository().Load();
+            if (settings.UseAutoLogin && LoginForm.TryAutoLogin(authService, out var autoLoginDisplayName))
+            {
+                Application.Run(new MainForm(authService, autoLoginDisplayName));
+                return;
+            }
+
             using (var loginForm = new LoginForm(authService))
             {
                 if (loginForm.ShowDialog() != DialogResult.OK)

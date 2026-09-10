@@ -1,3 +1,4 @@
+using System;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 
@@ -10,6 +11,22 @@ namespace ColumbusWeighing.ComnLib
     /// </summary>
     public static class ComnFunc
     {
+        /// <summary>
+        /// 시스템 설정의 "마감 기준 시간"을 반영한 오늘 날짜. 지금 시각이 그 시간보다 이르면
+        /// 아직 전날 영업일이 끝나지 않은 것으로 보고 하루 전 날짜를 돌려준다(예: 마감 06:00,
+        /// 지금 새벽 3시면 어제 날짜). 형식이 잘못됐거나 자정(00:00, 기본값)이면 일반적인
+        /// 오늘 날짜와 동일하다.
+        /// </summary>
+        public static DateTime GetBusinessToday(string closingTimeText)
+        {
+            if (!TimeSpan.TryParse(closingTimeText, out var closingTime))
+            {
+                return DateTime.Today;
+            }
+
+            return DateTime.Now.TimeOfDay < closingTime ? DateTime.Today.AddDays(-1) : DateTime.Today;
+        }
+
         /// <summary>확인형 메세지박스(알림/경고/오류).</summary>
         public static void gp_PrintMessage(string message, string title, MessageType messageType)
         {

@@ -124,7 +124,7 @@
     <Compile Include="Services\IVersionRepository.cs" />
     <Compile Include="Services\InMemoryVersionRepository.cs" />
     <Compile Include="Services\IAppSettingsRepository.cs" />
-    <Compile Include="Services\InMemoryAppSettingsRepository.cs" />
+    <Compile Include="Services\IniAppSettingsRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

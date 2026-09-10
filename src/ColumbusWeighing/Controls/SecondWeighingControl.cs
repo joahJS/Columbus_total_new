@@ -18,6 +18,9 @@ namespace ColumbusWeighing.Controls
     {
         private IWeighingRepository _repository;
 
+        /// <summary>시스템 설정의 "중량 단위"를 중량 컬럼 표시에 반영하기 위한 값(예: "kg").</summary>
+        private string _weightUnit;
+
         /// <summary>true인 동안은 날짜 편집기 값이 바뀌어도 ApplyDateFilter를 실행하지 않는다
         /// (시작일/종료일 두 값을 한꺼번에 세팅할 때 중간 상태로 DB를 두 번 조회하는 것을 막는다).</summary>
         private bool _suppressDateChangeEvents;
@@ -58,19 +61,32 @@ namespace ColumbusWeighing.Controls
             set { _dateEditTo.DateTime = value.Date; }
         }
 
-        public void Initialize(IWeighingRepository repository)
+        public void Initialize(IWeighingRepository repository, AppSettings settings)
         {
             _repository = repository;
             _repository.Records.ListChanged += (s, e) => RefreshCompletedList();
 
+            // 시스템 설정의 "마감 기준 시간"을 반영한 영업일 기준 오늘 날짜를 초기 조회기간으로 쓴다.
+            var businessToday = ComnFunc.GetBusinessToday(settings.ClosingTime);
+
             // 두 값을 세팅하는 동안은 ApplyDateFilter를 억제해, 중간 상태(시작일만 오늘로
             // 바뀐 상태 등)로 DB를 불필요하게 두 번 조회하지 않게 한다.
             _suppressDateChangeEvents = true;
-            _dateEditFrom.DateTime = DateTime.Today;
-            _dateEditTo.DateTime = DateTime.Today;
+            _dateEditFrom.DateTime = businessToday;
+            _dateEditTo.DateTime = businessToday;
             _suppressDateChangeEvents = false;
 
+            ApplyDisplaySettings(settings);
             ApplyDateFilter();
+        }
+
+        /// <summary>그리드 폰트 크기/중량 단위처럼 화면 표시에만 영향을 주는 설정을 다시 적용한다.
+        /// 시스템 설정 창을 닫은 직후에도 호출되므로, 현재 선택된 조회기간은 건드리지 않는다.</summary>
+        public void ApplyDisplaySettings(AppSettings settings)
+        {
+            _weightUnit = settings.WeightUnit;
+            ComnGridFunc.SetRowFontSize(_gridView, settings.MainGridFontSize);
+            _gridControl.Refresh();
         }
 
         public void ApplyDateFilter()
@@ -188,6 +204,18 @@ namespace ColumbusWeighing.Controls
             {
                 e.DisplayText = branchCode.ToDisplayString();
             }
+            else if ((e.Column.FieldName == "FirstWeight" || e.Column.FieldName == "SecondWeight" || e.Column.FieldName == "NetWeight")
+                && e.Value is decimal weight)
+            {
+                e.DisplayText = FormatWeight(weight);
+            }
+        }
+
+        /// <summary>중량 값에 시스템 설정의 중량 단위(예: "kg")를 붙여서 보여준다.</summary>
+        private string FormatWeight(decimal value)
+        {
+            var text = value.ToString("N0");
+            return string.IsNullOrEmpty(_weightUnit) ? text : text + " " + _weightUnit;
         }
 
         private void PrintSecondSlip()
