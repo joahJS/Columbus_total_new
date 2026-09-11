@@ -141,7 +141,7 @@ namespace ColumbusWeighing.Forms
             this._grpUser.Appearance.Options.UseFont = true;
             this._grpUser.Location = new System.Drawing.Point(10, 10);
             this._grpUser.Name = "_grpUser";
-            this._grpUser.Size = new System.Drawing.Size(430, 240);
+            this._grpUser.Size = new System.Drawing.Size(430, 320);
             this._grpUser.TabIndex = 0;
             this._grpUser.Text = "사용자 설정";
             //

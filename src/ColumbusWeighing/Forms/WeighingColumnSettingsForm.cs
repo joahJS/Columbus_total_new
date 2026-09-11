@@ -82,7 +82,8 @@ namespace ColumbusWeighing.Forms
             var row = new PanelControl
             {
                 Location = new Point(0, y),
-                Size = new Size(400, height),
+                Size = new Size(_bodyPanel.ClientSize.Width, height),
+                Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right,
                 Padding = new System.Windows.Forms.Padding(12, 4, 12, 4),
                 BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder
             };
