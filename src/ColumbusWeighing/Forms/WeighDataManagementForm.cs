@@ -308,27 +308,27 @@ namespace ColumbusWeighing.Forms
         {
             _gridView.Columns.Clear();
 
-            AddColumn("Id", "순번", 60);
-            AddColumn("FirstDateTime", "1차계량일", 85, "yyyy-MM-dd");
-            AddColumn("SecondDateTime", "2차계량일", 85, "yyyy-MM-dd");
-            AddColumn("WeighSeq", "계량순번", 60);
-            AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
-            AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
-            AddColumn("VehicleNo", "차량번호", 70);
-            AddColumn("OwnerCompany", "차량소속회사", 100);
-            AddColumn("DriverName", "운전자", 70);
-            AddColumn("CustomerName", "거래처명", 110);
-            AddColumn("ProductName", "제품명", 100);
-            AddColumn("FirstWeight", "1차중량", 75, "N0");
-            AddColumn("SecondWeight", "2차중량", 75, "N0");
-            AddColumn("NetWeight", "실중량", 75, "N0");
-            AddColumn("LossWeight", "감량", 70, "N0");
-            AddColumn("UnitPrice", "단가", 75, "N0");
-            AddColumn("Amount", "금액", 90, "N0");
+            AddColumn("Id", "순번", 65);
+            AddColumn("FirstDateTime", "1차계량일", 95, "yyyy-MM-dd");
+            AddColumn("SecondDateTime", "2차계량일", 95, "yyyy-MM-dd");
+            AddColumn("WeighSeq", "계량순번", 80);
+            AddColumn("FirstDateTime", "1차시간", 70, "HH:mm");
+            AddColumn("SecondDateTime", "2차시간", 70, "HH:mm");
+            AddColumn("VehicleNo", "차량번호", 85);
+            AddColumn("OwnerCompany", "차량소속회사", 120);
+            AddColumn("DriverName", "운전자", 80);
+            AddColumn("CustomerName", "거래처명", 120);
+            AddColumn("ProductName", "제품명", 110);
+            AddColumn("FirstWeight", "1차중량", 90, "N0");
+            AddColumn("SecondWeight", "2차중량", 90, "N0");
+            AddColumn("NetWeight", "실중량", 90, "N0");
+            AddColumn("LossWeight", "감량", 80, "N0");
+            AddColumn("UnitPrice", "단가", 85, "N0");
+            AddColumn("Amount", "금액", 100, "N0");
             AddInOutColumn();
             AddStatusColumn();
-            AddColumn("WeigherName", "계량자", 90);
-            AddColumn("Remark", "비고", 110);
+            AddColumn("WeigherName", "계량자", 100);
+            AddColumn("Remark", "비고", 150);
         }
 
         private GridColumn AddColumn(string fieldName, string caption, int width, string format = null)
