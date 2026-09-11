@@ -308,27 +308,27 @@ namespace ColumbusWeighing.Forms
         {
             _gridView.Columns.Clear();
 
-            AddColumn("Id", "순번", 65);
-            AddColumn("FirstDateTime", "1차계량일", 95, "yyyy-MM-dd");
-            AddColumn("SecondDateTime", "2차계량일", 95, "yyyy-MM-dd");
-            AddColumn("WeighSeq", "계량순번", 80);
-            AddColumn("FirstDateTime", "1차시간", 70, "HH:mm");
-            AddColumn("SecondDateTime", "2차시간", 70, "HH:mm");
-            AddColumn("VehicleNo", "차량번호", 85);
-            AddColumn("OwnerCompany", "차량소속회사", 120);
-            AddColumn("DriverName", "운전자", 80);
-            AddColumn("CustomerName", "거래처명", 120);
-            AddColumn("ProductName", "제품명", 110);
-            AddColumn("FirstWeight", "1차중량", 90, "N0");
-            AddColumn("SecondWeight", "2차중량", 90, "N0");
-            AddColumn("NetWeight", "실중량", 90, "N0");
-            AddColumn("LossWeight", "감량", 80, "N0");
-            AddColumn("UnitPrice", "단가", 85, "N0");
-            AddColumn("Amount", "금액", 100, "N0");
+            AddColumn("Id", "순번", 60);
+            AddColumn("FirstDateTime", "1차계량일", 88, "yyyy-MM-dd");
+            AddColumn("SecondDateTime", "2차계량일", 88, "yyyy-MM-dd");
+            AddColumn("WeighSeq", "계량순번", 75);
+            AddColumn("FirstDateTime", "1차시간", 65, "HH:mm");
+            AddColumn("SecondDateTime", "2차시간", 65, "HH:mm");
+            AddColumn("VehicleNo", "차량번호", 78);
+            AddColumn("OwnerCompany", "차량소속회사", 108);
+            AddColumn("DriverName", "운전자", 70);
+            AddColumn("CustomerName", "거래처명", 108);
+            AddColumn("ProductName", "제품명", 95);
+            AddColumn("FirstWeight", "1차중량", 82, "N0");
+            AddColumn("SecondWeight", "2차중량", 82, "N0");
+            AddColumn("NetWeight", "실중량", 82, "N0");
+            AddColumn("LossWeight", "감량", 65, "N0");
+            AddColumn("UnitPrice", "단가", 65, "N0");
+            AddColumn("Amount", "금액", 82, "N0");
             AddInOutColumn();
             AddStatusColumn();
-            AddColumn("WeigherName", "계량자", 100);
-            AddColumn("Remark", "비고", 150);
+            AddColumn("WeigherName", "계량자", 85);
+            AddColumn("Remark", "비고", 120);
         }
 
         private GridColumn AddColumn(string fieldName, string caption, int width, string format = null)
@@ -352,7 +352,7 @@ namespace ColumbusWeighing.Forms
         private void AddInOutColumn()
         {
             var column = _gridView.Columns.AddVisible("InOutType", "입/출고");
-            column.Width = 60;
+            column.Width = 72;
             column.OptionsColumn.AllowEdit = false;
         }
 
@@ -362,7 +362,7 @@ namespace ColumbusWeighing.Forms
         private void AddStatusColumn()
         {
             var column = _gridView.Columns.AddVisible("IsCompleted", "계량상태");
-            column.Width = 70;
+            column.Width = 82;
             column.OptionsColumn.AllowEdit = false;
 
             var textEdit = new DevExpress.XtraEditors.Repository.RepositoryItemTextEdit();

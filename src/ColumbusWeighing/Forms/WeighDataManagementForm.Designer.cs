@@ -60,7 +60,7 @@ namespace ColumbusWeighing.Forms
             this._headerPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._headerPanel.Location = new System.Drawing.Point(0, 0);
             this._headerPanel.Name = "_headerPanel";
-            this._headerPanel.Size = new System.Drawing.Size(1900, 34);
+            this._headerPanel.Size = new System.Drawing.Size(1600, 34);
             this._headerPanel.TabIndex = 0;
             //
             // _titleLabel
@@ -91,7 +91,7 @@ namespace ColumbusWeighing.Forms
             this._filterPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this._filterPanel.Location = new System.Drawing.Point(0, 34);
             this._filterPanel.Name = "_filterPanel";
-            this._filterPanel.Size = new System.Drawing.Size(1900, 76);
+            this._filterPanel.Size = new System.Drawing.Size(1600, 76);
             this._filterPanel.TabIndex = 1;
             //
             // _btnExcel
@@ -136,7 +136,7 @@ namespace ColumbusWeighing.Forms
             this._gridControl.Location = new System.Drawing.Point(0, 110);
             this._gridControl.MainView = this._gridView;
             this._gridControl.Name = "_gridControl";
-            this._gridControl.Size = new System.Drawing.Size(1900, 464);
+            this._gridControl.Size = new System.Drawing.Size(1600, 464);
             this._gridControl.TabIndex = 2;
             this._gridControl.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridView});
@@ -155,7 +155,7 @@ namespace ColumbusWeighing.Forms
             this._summaryPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this._summaryPanel.Location = new System.Drawing.Point(0, 574);
             this._summaryPanel.Name = "_summaryPanel";
-            this._summaryPanel.Size = new System.Drawing.Size(1900, 36);
+            this._summaryPanel.Size = new System.Drawing.Size(1600, 36);
             this._summaryPanel.TabIndex = 3;
             //
             // WeighDataManagementForm
@@ -163,7 +163,7 @@ namespace ColumbusWeighing.Forms
             // 시스템 DPI/글꼴 설정에 따른 자동 재스케일로 픽셀 단위 레이아웃이 어긋나는 것을
             // 막기 위해 None으로 끈다(계량 화면 설정 팝업과 같은 이유).
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(1900, 610);
+            this.ClientSize = new System.Drawing.Size(1600, 610);
             this.Controls.Add(this._gridControl);
             this.Controls.Add(this._summaryPanel);
             this.Controls.Add(this._filterPanel);
