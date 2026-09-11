@@ -21,6 +21,9 @@ namespace ColumbusWeighing.Forms
         private DevExpress.XtraEditors.PanelControl _filterPanel;
         private DevExpress.XtraEditors.LabelControl _searchLabel;
         private DevExpress.XtraEditors.TextEdit _searchEdit;
+        private DevExpress.XtraEditors.SimpleButton _btnAdd;
+        private DevExpress.XtraEditors.SimpleButton _btnEdit;
+        private DevExpress.XtraEditors.SimpleButton _btnDelete;
         private DevExpress.XtraEditors.SimpleButton _btnRetrieve;
         private DevExpress.XtraEditors.SimpleButton _btnClose;
         private DevExpress.XtraGrid.GridControl _gridControl;
@@ -33,6 +36,9 @@ namespace ColumbusWeighing.Forms
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
             this._btnClose = new DevExpress.XtraEditors.SimpleButton();
             this._btnRetrieve = new DevExpress.XtraEditors.SimpleButton();
+            this._btnDelete = new DevExpress.XtraEditors.SimpleButton();
+            this._btnEdit = new DevExpress.XtraEditors.SimpleButton();
+            this._btnAdd = new DevExpress.XtraEditors.SimpleButton();
             this._searchEdit = new DevExpress.XtraEditors.TextEdit();
             this._searchLabel = new DevExpress.XtraEditors.LabelControl();
             this._gridControl = new DevExpress.XtraGrid.GridControl();
@@ -81,6 +87,9 @@ namespace ColumbusWeighing.Forms
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._filterPanel.Controls.Add(this._btnClose);
             this._filterPanel.Controls.Add(this._btnRetrieve);
+            this._filterPanel.Controls.Add(this._btnDelete);
+            this._filterPanel.Controls.Add(this._btnEdit);
+            this._filterPanel.Controls.Add(this._btnAdd);
             this._filterPanel.Controls.Add(this._searchEdit);
             this._filterPanel.Controls.Add(this._searchLabel);
             this._filterPanel.Dock = System.Windows.Forms.DockStyle.Top;
@@ -106,13 +115,40 @@ namespace ColumbusWeighing.Forms
             this._searchEdit.Size = new System.Drawing.Size(220, 20);
             this._searchEdit.TabIndex = 1;
             //
+            // _btnAdd
+            //
+            this._btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnAdd.Location = new System.Drawing.Point(430, 6);
+            this._btnAdd.Name = "_btnAdd";
+            this._btnAdd.Size = new System.Drawing.Size(85, 28);
+            this._btnAdd.TabIndex = 2;
+            this._btnAdd.Text = "추가";
+            //
+            // _btnEdit
+            //
+            this._btnEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnEdit.Location = new System.Drawing.Point(521, 6);
+            this._btnEdit.Name = "_btnEdit";
+            this._btnEdit.Size = new System.Drawing.Size(85, 28);
+            this._btnEdit.TabIndex = 3;
+            this._btnEdit.Text = "수정";
+            //
+            // _btnDelete
+            //
+            this._btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnDelete.Location = new System.Drawing.Point(612, 6);
+            this._btnDelete.Name = "_btnDelete";
+            this._btnDelete.Size = new System.Drawing.Size(85, 28);
+            this._btnDelete.TabIndex = 4;
+            this._btnDelete.Text = "삭제";
+            //
             // _btnRetrieve
             //
             this._btnRetrieve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._btnRetrieve.Location = new System.Drawing.Point(703, 6);
             this._btnRetrieve.Name = "_btnRetrieve";
             this._btnRetrieve.Size = new System.Drawing.Size(85, 28);
-            this._btnRetrieve.TabIndex = 2;
+            this._btnRetrieve.TabIndex = 5;
             this._btnRetrieve.Text = "조회(F5)";
             //
             // _btnClose
@@ -121,7 +157,7 @@ namespace ColumbusWeighing.Forms
             this._btnClose.Location = new System.Drawing.Point(794, 6);
             this._btnClose.Name = "_btnClose";
             this._btnClose.Size = new System.Drawing.Size(85, 28);
-            this._btnClose.TabIndex = 3;
+            this._btnClose.TabIndex = 6;
             this._btnClose.Text = "종료(ESC)";
             //
             // _gridControl

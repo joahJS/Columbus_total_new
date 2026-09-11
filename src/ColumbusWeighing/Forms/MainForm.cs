@@ -167,7 +167,7 @@ namespace ColumbusWeighing.Forms
 
         private void ShowUserManagement()
         {
-            using (var form = new UserManagementForm(new SqlUserRepository()))
+            using (var form = new UserManagementForm(new SqlUserRepository(), _loggedInUserName))
             {
                 form.ShowDialog(this);
             }

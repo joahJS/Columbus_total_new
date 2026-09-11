@@ -56,8 +56,13 @@ namespace ColumbusWeighing.ComnLib
 
         public static int ExecuteNonQuery(string spName, List<Parameter> parameters)
         {
+            return ExecuteNonQuery(spName, parameters, CommandType.StoredProcedure);
+        }
+
+        public static int ExecuteNonQuery(string commandText, List<Parameter> parameters, CommandType commandType)
+        {
             using (var connection = new SqlConnection(ComnString.ConnectionString))
-            using (var command = new SqlCommand(spName, connection) { CommandType = CommandType.StoredProcedure })
+            using (var command = new SqlCommand(commandText, connection) { CommandType = commandType })
             {
                 foreach (var parameter in parameters)
                 {

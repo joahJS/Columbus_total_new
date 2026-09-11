@@ -9,10 +9,10 @@ using ColumbusWeighing.Models;
 namespace ColumbusWeighing.Services
 {
     /// <summary>
-    /// 통합 허브 DB(COLUMBUS_WEIGH_HUB)의 dbo.APP_USER 테이블을 조회하는 실제 구현체.
-    /// 이 프로그램은 조회 전용이므로 INSERT/UPDATE/DELETE는 하지 않는다(계정 추가/수정/비밀번호
-    /// 변경은 아직 이 화면에서 다루지 않는다 - 필요해지면 별도로 구현). 비밀번호 해시/솔트는
-    /// 화면에 보여줄 필요가 없으므로 SELECT 자체에서 제외한다.
+    /// 통합 허브 DB(COLUMBUS_WEIGH_HUB)의 dbo.APP_USER 테이블을 조회/추가/수정/삭제하는 실제
+    /// 구현체. 비밀번호는 PasswordHasher로 해시해서만 저장하고, 조회 SQL 자체에서 해시/솔트
+    /// 컬럼은 제외해 화면으로 나가지 않게 한다. 관리자 계정이 하나도 안 남는 상황(마지막
+    /// 관리자 삭제/권한 해제)은 로그인 자체가 막히므로 Update/Delete에서 막는다.
     /// </summary>
     public sealed class SqlUserRepository : IUserRepository
     {
@@ -90,6 +90,112 @@ ORDER BY USER_ID";
         private static string AsString(DataRow row, string column)
         {
             return row[column] == DBNull.Value ? null : row[column].ToString();
+        }
+
+        public void Add(UserAccount account, string password, string modifiedBy)
+        {
+            string hash, salt;
+            PasswordHasher.CreateHash(password, out hash, out salt);
+
+            const string sql = @"
+INSERT INTO dbo.APP_USER
+    (LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
+     PASSWORD_HASH, PASSWORD_SALT, MODIFIED_BY, MODIFIED_AT)
+VALUES
+    (@LoginId, @DisplayName, @Phone, @Remark, @CanPrint, @CanEdit, @CanDelete, @IsAdmin,
+     @PasswordHash, @PasswordSalt, @ModifiedBy, SYSDATETIME())";
+
+            var parameters = BuildAccountParameters(account, modifiedBy);
+            parameters.Add(new Parameter("PasswordHash", hash));
+            parameters.Add(new Parameter("PasswordSalt", salt));
+
+            ExecuteWrite(sql, parameters, account.LoginId);
+        }
+
+        public void Update(UserAccount account, string newPassword, string modifiedBy)
+        {
+            if (!account.IsAdmin && IsLastAdmin(account.Id))
+            {
+                throw new InvalidOperationException("마지막 관리자 계정의 관리자 권한은 해제할 수 없습니다.");
+            }
+
+            var parameters = BuildAccountParameters(account, modifiedBy);
+            parameters.Add(new Parameter("UserId", account.Id, SqlDbType.Int));
+
+            var setPasswordSql = string.Empty;
+            if (!string.IsNullOrEmpty(newPassword))
+            {
+                string hash, salt;
+                PasswordHasher.CreateHash(newPassword, out hash, out salt);
+                setPasswordSql = ", PASSWORD_HASH = @PasswordHash, PASSWORD_SALT = @PasswordSalt";
+                parameters.Add(new Parameter("PasswordHash", hash));
+                parameters.Add(new Parameter("PasswordSalt", salt));
+            }
+
+            var sql = string.Format(@"
+UPDATE dbo.APP_USER
+SET LOGIN_ID = @LoginId, DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
+    CAN_PRINT = @CanPrint, CAN_EDIT = @CanEdit, CAN_DELETE = @CanDelete, IS_ADMIN = @IsAdmin,
+    MODIFIED_BY = @ModifiedBy, MODIFIED_AT = SYSDATETIME(){0}
+WHERE USER_ID = @UserId", setPasswordSql);
+
+            ExecuteWrite(sql, parameters, account.LoginId);
+        }
+
+        public void Delete(int userId)
+        {
+            if (IsLastAdmin(userId))
+            {
+                throw new InvalidOperationException("마지막 관리자 계정은 삭제할 수 없습니다.");
+            }
+
+            const string sql = "DELETE FROM dbo.APP_USER WHERE USER_ID = @UserId";
+            DBConn.ExecuteNonQuery(sql, new List<Parameter> { new Parameter("UserId", userId, SqlDbType.Int) }, CommandType.Text);
+        }
+
+        private static List<Parameter> BuildAccountParameters(UserAccount account, string modifiedBy)
+        {
+            return new List<Parameter>
+            {
+                new Parameter("LoginId", account.LoginId),
+                new Parameter("DisplayName", account.DisplayName),
+                new Parameter("Phone", account.Phone),
+                new Parameter("Remark", account.Remark),
+                new Parameter("CanPrint", account.CanPrint, SqlDbType.Bit),
+                new Parameter("CanEdit", account.CanEdit, SqlDbType.Bit),
+                new Parameter("CanDelete", account.CanDelete, SqlDbType.Bit),
+                new Parameter("IsAdmin", account.IsAdmin, SqlDbType.Bit),
+                new Parameter("ModifiedBy", modifiedBy),
+            };
+        }
+
+        private static void ExecuteWrite(string sql, List<Parameter> parameters, string loginId)
+        {
+            try
+            {
+                DBConn.ExecuteNonQuery(sql, parameters, CommandType.Text);
+            }
+            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
+            {
+                throw new DuplicateLoginIdException(loginId);
+            }
+        }
+
+        /// <summary>userId가 관리자이면서, 그 계정을 뺀 나머지 중에는 관리자가 하나도 없는지 확인한다
+        /// (Update에서 관리자 권한을 해제하는 경우/Delete 모두 이 기준으로 마지막 관리자를 지킨다).</summary>
+        private static bool IsLastAdmin(int userId)
+        {
+            const string sql = @"
+SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.APP_USER WHERE USER_ID = @UserId AND IS_ADMIN = 1)
+             AND NOT EXISTS (SELECT 1 FROM dbo.APP_USER WHERE USER_ID <> @UserId AND IS_ADMIN = 1)
+        THEN 1 ELSE 0 END";
+
+            var table = DBConn.GetDataTable(
+                sql,
+                new List<Parameter> { new Parameter("UserId", userId, SqlDbType.Int) },
+                CommandType.Text);
+
+            return table.Rows.Count > 0 && Convert.ToInt32(table.Rows[0][0]) == 1;
         }
     }
 }
