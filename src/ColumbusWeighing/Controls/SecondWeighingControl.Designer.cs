@@ -24,6 +24,10 @@ namespace ColumbusWeighing.Controls
         private DevExpress.XtraEditors.DateEdit _dateEditFrom;
         private DevExpress.XtraEditors.LabelControl _dateRangeLabel;
         private DevExpress.XtraEditors.DateEdit _dateEditTo;
+        private DevExpress.XtraEditors.SimpleButton _btnShiftWeekBack;
+        private DevExpress.XtraEditors.SimpleButton _btnShiftDayBack;
+        private DevExpress.XtraEditors.SimpleButton _btnShiftDayForward;
+        private DevExpress.XtraEditors.SimpleButton _btnShiftWeekForward;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
 
@@ -33,6 +37,10 @@ namespace ColumbusWeighing.Controls
             this._btnSecondSlip = new DevExpress.XtraEditors.SimpleButton();
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
+            this._btnShiftWeekForward = new DevExpress.XtraEditors.SimpleButton();
+            this._btnShiftDayForward = new DevExpress.XtraEditors.SimpleButton();
+            this._btnShiftDayBack = new DevExpress.XtraEditors.SimpleButton();
+            this._btnShiftWeekBack = new DevExpress.XtraEditors.SimpleButton();
             this._dateEditTo = new DevExpress.XtraEditors.DateEdit();
             this._dateRangeLabel = new DevExpress.XtraEditors.LabelControl();
             this._dateEditFrom = new DevExpress.XtraEditors.DateEdit();
@@ -92,6 +100,10 @@ namespace ColumbusWeighing.Controls
             this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 251, 224);
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this._filterPanel.Controls.Add(this._btnShiftWeekForward);
+            this._filterPanel.Controls.Add(this._btnShiftDayForward);
+            this._filterPanel.Controls.Add(this._btnShiftDayBack);
+            this._filterPanel.Controls.Add(this._btnShiftWeekBack);
             this._filterPanel.Controls.Add(this._dateEditTo);
             this._filterPanel.Controls.Add(this._dateRangeLabel);
             this._filterPanel.Controls.Add(this._dateEditFrom);
@@ -137,6 +149,38 @@ namespace ColumbusWeighing.Controls
             this._dateEditTo.Properties.Mask.EditMask = "yyyy-MM-dd";
             this._dateEditTo.Size = new System.Drawing.Size(120, 20);
             this._dateEditTo.TabIndex = 3;
+            //
+            // _btnShiftWeekBack (조회기간 전체를 1주일 전으로 이동)
+            //
+            this._btnShiftWeekBack.Location = new System.Drawing.Point(341, 4);
+            this._btnShiftWeekBack.Name = "_btnShiftWeekBack";
+            this._btnShiftWeekBack.Size = new System.Drawing.Size(28, 22);
+            this._btnShiftWeekBack.TabIndex = 4;
+            this._btnShiftWeekBack.Text = "<<";
+            //
+            // _btnShiftDayBack (조회기간 전체를 하루 전으로 이동)
+            //
+            this._btnShiftDayBack.Location = new System.Drawing.Point(373, 4);
+            this._btnShiftDayBack.Name = "_btnShiftDayBack";
+            this._btnShiftDayBack.Size = new System.Drawing.Size(28, 22);
+            this._btnShiftDayBack.TabIndex = 5;
+            this._btnShiftDayBack.Text = "<";
+            //
+            // _btnShiftDayForward (조회기간 전체를 하루 후로 이동)
+            //
+            this._btnShiftDayForward.Location = new System.Drawing.Point(405, 4);
+            this._btnShiftDayForward.Name = "_btnShiftDayForward";
+            this._btnShiftDayForward.Size = new System.Drawing.Size(28, 22);
+            this._btnShiftDayForward.TabIndex = 6;
+            this._btnShiftDayForward.Text = ">";
+            //
+            // _btnShiftWeekForward (조회기간 전체를 1주일 후로 이동)
+            //
+            this._btnShiftWeekForward.Location = new System.Drawing.Point(437, 4);
+            this._btnShiftWeekForward.Name = "_btnShiftWeekForward";
+            this._btnShiftWeekForward.Size = new System.Drawing.Size(28, 22);
+            this._btnShiftWeekForward.TabIndex = 7;
+            this._btnShiftWeekForward.Text = ">>";
             //
             // _gridControl
             //

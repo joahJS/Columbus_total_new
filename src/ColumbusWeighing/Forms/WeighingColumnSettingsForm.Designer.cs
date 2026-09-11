@@ -104,12 +104,12 @@ namespace ColumbusWeighing.Forms
             this._bodyPanel.Location = new System.Drawing.Point(0, 56);
             this._bodyPanel.Name = "_bodyPanel";
             this._bodyPanel.Padding = new System.Windows.Forms.Padding(10);
-            this._bodyPanel.Size = new System.Drawing.Size(420, 326);
+            this._bodyPanel.Size = new System.Drawing.Size(420, 346);
             this._bodyPanel.TabIndex = 1;
             //
             // WeighingColumnSettingsForm
             //
-            this.ClientSize = new System.Drawing.Size(420, 382);
+            this.ClientSize = new System.Drawing.Size(420, 402);
             this.Controls.Add(this._bodyPanel);
             this.Controls.Add(this._topBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;

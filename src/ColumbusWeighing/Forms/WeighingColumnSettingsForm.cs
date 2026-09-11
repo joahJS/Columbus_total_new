@@ -97,6 +97,17 @@ namespace ColumbusWeighing.Forms
             check.Properties.Appearance.Font = new Font("맑은 고딕", 12F);
             check.Properties.Appearance.Options.UseFont = true;
 
+            // 항목 사이 구분을 위해 각 항목 아래쪽에 1px 경계선을 직접 그린다(테두리 있는
+            // 컨트롤을 감싸는 대신 Paint에서 그리면 Padding 영역까지 선이 꽉 차게 나온다).
+            var borderColor = Color.FromArgb(110, 150, 185);
+            row.Paint += (s, e) =>
+            {
+                using (var pen = new Pen(borderColor))
+                {
+                    e.Graphics.DrawLine(pen, 0, row.Height - 1, row.Width, row.Height - 1);
+                }
+            };
+
             row.Controls.Add(check);
             _bodyPanel.Controls.Add(row);
 

@@ -60,6 +60,10 @@ namespace ColumbusWeighing.Controls
             _dateEditFrom.EditValueChanged += (s, e) => ApplyDateFilter();
             _dateEditTo.EditValueChanged += (s, e) => ApplyDateFilter();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
+            _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);
+            _btnShiftDayBack.Click += (s, e) => ShiftDateRange(-1);
+            _btnShiftDayForward.Click += (s, e) => ShiftDateRange(1);
+            _btnShiftWeekForward.Click += (s, e) => ShiftDateRange(7);
         }
 
         public WeighingRecord SelectedRecord
@@ -145,6 +149,21 @@ namespace ColumbusWeighing.Controls
 
             _repository?.Refresh(from, to.AddDays(1));
             RefreshCompletedList();
+        }
+
+        /// <summary>조회기간(시작일~종료일)을 현재 기간 길이는 그대로 유지한 채 통째로 앞/뒤로
+        /// 옮긴다(예: -7이면 시작일/종료일 모두 1주일 전으로). 화살표(&lt;&lt;/&lt;/&gt;/&gt;&gt;) 버튼에서 호출.</summary>
+        private void ShiftDateRange(int days)
+        {
+            var from = FromDate.AddDays(days);
+            var to = ToDate.AddDays(days);
+
+            _suppressDateChangeEvents = true;
+            _dateEditFrom.DateTime = from;
+            _dateEditTo.DateTime = to;
+            _suppressDateChangeEvents = false;
+
+            ApplyDateFilter();
         }
 
         /// <summary>목록을 최신 데이터로 다시 표시(다른 화면에서 데이터가 갱신된 뒤 호출).</summary>
