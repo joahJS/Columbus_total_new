@@ -110,6 +110,12 @@ namespace ColumbusWeighing.Forms
                 return;
             }
 
+            if (string.Equals(account.LoginId, LoginUser.UserId, StringComparison.Ordinal))
+            {
+                ComnFunc.gp_PrintMessage("현재 로그인한 계정은 삭제할 수 없습니다.", "안내", MessageType.경고);
+                return;
+            }
+
             var confirmed = ComnFunc.gp_PrintQuestion(
                 string.Format("'{0}' 계정을 삭제하시겠습니까?", account.LoginId), "사용자 삭제", MessageType.경고);
             if (!confirmed)
