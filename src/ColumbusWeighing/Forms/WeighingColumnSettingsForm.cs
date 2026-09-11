@@ -56,8 +56,8 @@ namespace ColumbusWeighing.Forms
 
         private void BuildCheckboxRows()
         {
-            const int rowHeight = 38;
-            const int rowGap = 6;
+            const int rowHeight = 34;
+            const int rowGap = 0;
             var y = 0;
 
             _chkWeighSeq = AddRow(ref y, rowHeight, rowGap, "계량 순번");
@@ -78,12 +78,13 @@ namespace ColumbusWeighing.Forms
             var check = new CheckEdit
             {
                 Location = new Point(0, y),
-                Size = new Size(400, height)
+                Size = new Size(400, height),
+                Padding = new System.Windows.Forms.Padding(12, 4, 12, 4)
             };
             check.Properties.Caption = caption;
             check.Properties.Appearance.BackColor = Color.FromArgb(163, 204, 235);
             check.Properties.Appearance.Options.UseBackColor = true;
-            check.Properties.Appearance.Font = new Font("맑은 고딕", 10.5F);
+            check.Properties.Appearance.Font = new Font("맑은 고딕", 12F);
             check.Properties.Appearance.Options.UseFont = true;
             _bodyPanel.Controls.Add(check);
 
