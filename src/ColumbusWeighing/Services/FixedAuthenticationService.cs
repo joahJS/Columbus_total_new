@@ -3,8 +3,8 @@ using System;
 namespace ColumbusWeighing.Services
 {
     /// <summary>
-    /// TODO: DB 연동 후 사용자 테이블 조회(및 비밀번호 해시 검증)로 교체할 것.
-    /// 그 전까지는 아래 고정 계정으로만 로그인이 허용된다.
+    /// 실제 로그인은 SqlAuthenticationService(dbo.APP_USER 조회)로 대체되었다. 이 클래스는
+    /// MainForm의 VS 디자이너 전용 생성자에서 디자인 타임 로드를 위해서만 남아 있다.
     /// </summary>
     public sealed class FixedAuthenticationService : IAuthenticationService
     {

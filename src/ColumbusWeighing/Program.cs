@@ -19,7 +19,7 @@ namespace ColumbusWeighing
             // 참고 화면은 최신 플랫 스킨이 아닌 클래식한 Windows 스타일이므로 기본(Basic) 스킨을 사용한다.
             UserLookAndFeel.Default.SetSkinStyle("Basic");
 
-            var authService = new FixedAuthenticationService();
+            var authService = new SqlAuthenticationService();
 
             // 시스템 설정의 "자동 로그인 사용"이 켜져 있고 "접속정보 기억하기"로 저장된 계정이
             // 있으면 로그인창을 건너뛴다.

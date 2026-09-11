@@ -66,6 +66,7 @@
     <Compile Include="ComnLib\MainButtonInterface.cs" />
     <Compile Include="ComnLib\MessageType.cs" />
     <Compile Include="ComnLib\Parameter.cs" />
+    <Compile Include="ComnLib\PasswordHasher.cs" />
     <Compile Include="Controls\FirstWeighingControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -120,6 +121,12 @@
     <Compile Include="Forms\ProductManagementForm.Designer.cs">
       <DependentUpon>ProductManagementForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\UserManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UserManagementForm.Designer.cs">
+      <DependentUpon>UserManagementForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\BranchCodeExtensions.cs" />
     <Compile Include="Models\InOutType.cs" />
     <Compile Include="Models\WeighingRecord.cs" />
@@ -128,6 +135,7 @@
     <Compile Include="Models\IpCameraSetting.cs" />
     <Compile Include="Models\WeighingColumnSettings.cs" />
     <Compile Include="Models\ProductRecord.cs" />
+    <Compile Include="Models\UserAccount.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AppLogService.cs" />
@@ -143,6 +151,9 @@
     <Compile Include="Services\IniWeighingColumnSettingsRepository.cs" />
     <Compile Include="Services\IProductRepository.cs" />
     <Compile Include="Services\SqlProductRepository.cs" />
+    <Compile Include="Services\IUserRepository.cs" />
+    <Compile Include="Services\SqlUserRepository.cs" />
+    <Compile Include="Services\SqlAuthenticationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

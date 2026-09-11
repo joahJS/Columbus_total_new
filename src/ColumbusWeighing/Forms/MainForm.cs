@@ -87,6 +87,7 @@ namespace ColumbusWeighing.Forms
             _menuStatusDaily.Click += (s, e) => ShowNotReady("일일 계량현황");
             _menuStatusPeriod.Click += (s, e) => ShowNotReady("기간별 집계");
             _menuSystemVersion.Click += (s, e) => ShowVersionManagement();
+            _menuSystemUser.Click += (s, e) => ShowUserManagement();
 
             Load += (s, e) =>
             {
@@ -159,6 +160,14 @@ namespace ColumbusWeighing.Forms
         private void ShowProductManagement()
         {
             using (var form = new ProductManagementForm(new SqlProductRepository()))
+            {
+                form.ShowDialog(this);
+            }
+        }
+
+        private void ShowUserManagement()
+        {
+            using (var form = new UserManagementForm(new SqlUserRepository()))
             {
                 form.ShowDialog(this);
             }

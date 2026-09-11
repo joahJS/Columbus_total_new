@@ -30,6 +30,7 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuStatusDaily;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusPeriod;
         private System.Windows.Forms.ToolStripMenuItem _menuSystem;
+        private System.Windows.Forms.ToolStripMenuItem _menuSystemUser;
         private System.Windows.Forms.ToolStripMenuItem _menuSystemVersion;
 
         private System.Windows.Forms.Panel _topInfoPanel;
@@ -59,6 +60,7 @@ namespace ColumbusWeighing.Forms
             this._menuStatusDaily = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusPeriod = new System.Windows.Forms.ToolStripMenuItem();
             this._menuSystem = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuSystemUser = new System.Windows.Forms.ToolStripMenuItem();
             this._menuSystemVersion = new System.Windows.Forms.ToolStripMenuItem();
 
             this._topInfoPanel = new System.Windows.Forms.Panel();
@@ -166,9 +168,15 @@ namespace ColumbusWeighing.Forms
             // _menuSystem
             //
             this._menuSystem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._menuSystemUser,
             this._menuSystemVersion});
             this._menuSystem.Name = "_menuSystem";
             this._menuSystem.Text = "시스템관리(&Y)";
+            //
+            // _menuSystemUser
+            //
+            this._menuSystemUser.Name = "_menuSystemUser";
+            this._menuSystemUser.Text = "사용자 관리";
             //
             // _menuSystemVersion
             //
