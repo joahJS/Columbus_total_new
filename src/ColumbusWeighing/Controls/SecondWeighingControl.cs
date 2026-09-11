@@ -21,12 +21,34 @@ namespace ColumbusWeighing.Controls
         /// <summary>시스템 설정의 "중량 단위"를 중량 컬럼 표시에 반영하기 위한 값(예: "kg").</summary>
         private string _weightUnit;
 
+        /// <summary>시스템 설정의 "금액 단위"를 단가/금액 컬럼 표시에 반영하기 위한 값(예: "원").</summary>
+        private string _amountUnit;
+
         /// <summary>true인 동안은 날짜 편집기 값이 바뀌어도 ApplyDateFilter를 실행하지 않는다
         /// (시작일/종료일 두 값을 한꺼번에 세팅할 때 중간 상태로 DB를 두 번 조회하는 것을 막는다).</summary>
         private bool _suppressDateChangeEvents;
 
         /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
+
+        // "계량 화면 설정" 팝업에서 켜고 끄는 부가 컬럼들. 차량번호/1·2차중량/순중량/계량자/비고처럼
+        // 항상 보여주는 핵심 컬럼은 필드로 따로 들고 있지 않는다.
+        private GridColumn _colWeighSeq;
+        private GridColumn _colFirstTime;
+        private GridColumn _colSecondDate;
+        private GridColumn _colSecondTime;
+        private GridColumn _colOwnerCompany;
+        private GridColumn _colDriverName;
+        private GridColumn _colProductName;
+        private GridColumn _colCustomerName;
+        private GridColumn _colLossRate;
+        private GridColumn _colLossWeight;
+        private GridColumn _colUnitPrice;
+        private GridColumn _colAmount;
+        private GridColumn _colSpecificGravity;
+        private GridColumn _colConvertedWeight;
+        private GridColumn _colInOutType;
+        private GridColumn _colPersonInCharge;
 
         public SecondWeighingControl()
         {
@@ -85,8 +107,30 @@ namespace ColumbusWeighing.Controls
         public void ApplyDisplaySettings(AppSettings settings)
         {
             _weightUnit = settings.WeightUnit;
+            _amountUnit = settings.AmountUnit;
             ComnGridFunc.SetRowFontSize(_gridView, settings.MainGridFontSize);
             _gridControl.Refresh();
+        }
+
+        /// <summary>"계량 화면 설정" 팝업에서 고른 부가 컬럼 표시 여부를 그리드에 반영한다.</summary>
+        public void ApplyColumnSettings(WeighingColumnSettings settings)
+        {
+            _colWeighSeq.Visible = settings.ShowWeighSeq;
+            _colFirstTime.Visible = settings.ShowFirstDateTime;
+            _colSecondDate.Visible = settings.ShowSecondDateTime;
+            _colSecondTime.Visible = settings.ShowSecondDateTime;
+            _colOwnerCompany.Visible = settings.ShowOwnerCompany;
+            _colDriverName.Visible = settings.ShowDriverName;
+            _colProductName.Visible = settings.ShowProductName;
+            _colCustomerName.Visible = settings.ShowCustomerName;
+            _colLossRate.Visible = settings.ShowLossInfo;
+            _colLossWeight.Visible = settings.ShowLossInfo;
+            _colUnitPrice.Visible = settings.ShowPriceInfo;
+            _colAmount.Visible = settings.ShowPriceInfo;
+            _colSpecificGravity.Visible = settings.ShowSpecificGravity;
+            _colConvertedWeight.Visible = settings.ShowSpecificGravity;
+            _colInOutType.Visible = settings.ShowInOutType;
+            _colPersonInCharge.Visible = settings.ShowPersonInCharge;
         }
 
         public void ApplyDateFilter()
@@ -142,19 +186,28 @@ namespace ColumbusWeighing.Controls
         {
             _gridView.Columns.Clear();
 
-            AddColumn("SecondDateTime", "2차계량일", 90, "yyyy-MM-dd");
+            _colSecondDate = AddColumn("SecondDateTime", "2차계량일", 90, "yyyy-MM-dd");
             AddColumn("BranchCode", "지점", 60);
-            AddColumn("WeighSeq", "계량순번", 60);
-            AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
-            AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
+            _colWeighSeq = AddColumn("WeighSeq", "계량순번", 60);
+            _colFirstTime = AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
+            _colSecondTime = AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
             AddColumn("VehicleNo", "차량번호", 70);
-            AddColumn("CustomerName", "거래처명", 110);
-            AddColumn("ProductName", "제품명", 100);
+            _colOwnerCompany = AddColumn("OwnerCompany", "차량소속회사", 100);
+            _colDriverName = AddColumn("DriverName", "운전자", 80);
+            _colCustomerName = AddColumn("CustomerName", "거래처명", 110);
+            _colProductName = AddColumn("ProductName", "제품명", 100);
             AddColumn("FirstWeight", "1차중량", 80, "N0");
             AddColumn("SecondWeight", "2차중량", 80, "N0");
             AddColumn("NetWeight", "순중량", 80, "N0");
-            AddInOutColumn();
+            _colLossRate = AddColumn("LossRate", "감량률", 70, "N1");
+            _colLossWeight = AddColumn("LossWeight", "감량중량", 80, "N0");
+            _colUnitPrice = AddColumn("UnitPrice", "단가", 80, "N0");
+            _colAmount = AddColumn("Amount", "금액", 90, "N0");
+            _colSpecificGravity = AddColumn("SpecificGravity", "비중", 70, "N2");
+            _colConvertedWeight = AddColumn("ConvertedWeight", "환산중량", 90, "N0");
+            _colInOutType = AddInOutColumn();
             AddColumn("WeigherName", "계량자", 130);
+            _colPersonInCharge = AddColumn("PersonInCharge", "담당자", 90);
             AddColumn("Remark", "비고", 100);
         }
 
@@ -187,11 +240,12 @@ namespace ColumbusWeighing.Controls
             return column;
         }
 
-        private void AddInOutColumn()
+        private GridColumn AddInOutColumn()
         {
             var column = _gridView.Columns.AddVisible("InOutType", "입/출고");
             column.Width = 60;
             column.OptionsColumn.AllowEdit = false;
+            return column;
         }
 
         private void GridView_CustomColumnDisplayText(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e)
@@ -204,10 +258,18 @@ namespace ColumbusWeighing.Controls
             {
                 e.DisplayText = branchCode.ToDisplayString();
             }
-            else if ((e.Column.FieldName == "FirstWeight" || e.Column.FieldName == "SecondWeight" || e.Column.FieldName == "NetWeight")
-                && e.Value is decimal weight)
+            else if ((e.Column.FieldName == "FirstWeight" || e.Column.FieldName == "SecondWeight" || e.Column.FieldName == "NetWeight"
+                || e.Column.FieldName == "LossWeight" || e.Column.FieldName == "ConvertedWeight") && e.Value is decimal weight)
             {
                 e.DisplayText = FormatWeight(weight);
+            }
+            else if ((e.Column.FieldName == "UnitPrice" || e.Column.FieldName == "Amount") && e.Value is decimal money)
+            {
+                e.DisplayText = FormatAmount(money);
+            }
+            else if (e.Column.FieldName == "LossRate" && e.Value is decimal lossRate)
+            {
+                e.DisplayText = lossRate.ToString("N1") + "%";
             }
         }
 
@@ -216,6 +278,13 @@ namespace ColumbusWeighing.Controls
         {
             var text = value.ToString("N0");
             return string.IsNullOrEmpty(_weightUnit) ? text : text + " " + _weightUnit;
+        }
+
+        /// <summary>금액 값에 시스템 설정의 금액 단위(예: "원")를 붙여서 보여준다.</summary>
+        private string FormatAmount(decimal value)
+        {
+            var text = value.ToString("N0");
+            return string.IsNullOrEmpty(_amountUnit) ? text : text + " " + _amountUnit;
         }
 
         private void PrintSecondSlip()

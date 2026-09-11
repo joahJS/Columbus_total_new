@@ -35,6 +35,7 @@ namespace ColumbusWeighing.Forms
         private readonly IAuthenticationService _authService;
         private readonly IVersionRepository _versionRepository;
         private readonly IAppSettingsRepository _appSettingsRepository;
+        private readonly IWeighingColumnSettingsRepository _weighingColumnSettingsRepository;
         private readonly string _loggedInUserName;
         private readonly ActivityMessageFilter _activityFilter;
         private readonly Timer _idleTimer = new Timer { Interval = 15000 };
@@ -59,6 +60,7 @@ namespace ColumbusWeighing.Forms
             _authService = authService;
             _versionRepository = new InMemoryVersionRepository();
             _appSettingsRepository = new IniAppSettingsRepository();
+            _weighingColumnSettingsRepository = new IniWeighingColumnSettingsRepository();
             _loggedInUserName = loggedInUserName;
 
             _btnLogin.Text = loggedInUserName;
@@ -67,6 +69,7 @@ namespace ColumbusWeighing.Forms
             _firstWeighingControl.Initialize(_repository, settings);
             _secondWeighingControl.Initialize(_repository, settings);
             ApplyRuntimeSettings(settings);
+            ApplyColumnSettings(_weighingColumnSettingsRepository.Load());
 
             _activityFilter = new ActivityMessageFilter(() => _lastActivityUtc = DateTime.UtcNow);
             Application.AddMessageFilter(_activityFilter);
@@ -80,6 +83,7 @@ namespace ColumbusWeighing.Forms
             _menuBaseDataVehicle.Click += (s, e) => ShowNotReady("차량 관리");
             _menuBaseDataProduct.Click += (s, e) => ShowNotReady("제품 관리");
             _menuBaseDataSystemSettings.Click += (s, e) => ShowSystemSettings();
+            _menuBaseDataWeighingColumns.Click += (s, e) => ShowWeighingColumnSettings();
             _menuStatusDaily.Click += (s, e) => ShowNotReady("일일 계량현황");
             _menuStatusPeriod.Click += (s, e) => ShowNotReady("기간별 집계");
             _menuSystemVersion.Click += (s, e) => ShowVersionManagement();
@@ -140,6 +144,23 @@ namespace ColumbusWeighing.Forms
             // 저장 여부와 무관하게 현재 저장된 값을 다시 읽어 화면(그리드 폰트/중량 단위/로그 저장/
             // 관리자 자동오프)에 즉시 반영한다. 조회 중인 날짜 필터 등은 건드리지 않는다.
             ApplyRuntimeSettings(_appSettingsRepository.Load());
+        }
+
+        private void ShowWeighingColumnSettings()
+        {
+            using (var form = new WeighingColumnSettingsForm(_weighingColumnSettingsRepository))
+            {
+                form.ShowDialog(this);
+            }
+
+            ApplyColumnSettings(_weighingColumnSettingsRepository.Load());
+        }
+
+        /// <summary>"계량 화면 설정"에서 고른 부가 컬럼 표시 여부를 두 그리드에 반영한다.</summary>
+        private void ApplyColumnSettings(WeighingColumnSettings settings)
+        {
+            _firstWeighingControl.ApplyColumnSettings(settings);
+            _secondWeighingControl.ApplyColumnSettings(settings);
         }
 
         /// <summary>시스템 설정 값을 실제 동작(그리드 표시/로그 저장/관리자 자동오프)에 반영한다.</summary>

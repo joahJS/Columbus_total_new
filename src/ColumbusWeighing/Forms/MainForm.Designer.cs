@@ -25,6 +25,7 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataProduct;
         private System.Windows.Forms.ToolStripSeparator _menuBaseDataSeparator;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataSystemSettings;
+        private System.Windows.Forms.ToolStripMenuItem _menuBaseDataWeighingColumns;
         private System.Windows.Forms.ToolStripMenuItem _menuStatus;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusDaily;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusPeriod;
@@ -53,6 +54,7 @@ namespace ColumbusWeighing.Forms
             this._menuBaseDataProduct = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseDataSeparator = new System.Windows.Forms.ToolStripSeparator();
             this._menuBaseDataSystemSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuBaseDataWeighingColumns = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatus = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusDaily = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusPeriod = new System.Windows.Forms.ToolStripMenuItem();
@@ -109,7 +111,8 @@ namespace ColumbusWeighing.Forms
             this._menuBaseDataVehicle,
             this._menuBaseDataProduct,
             this._menuBaseDataSeparator,
-            this._menuBaseDataSystemSettings});
+            this._menuBaseDataSystemSettings,
+            this._menuBaseDataWeighingColumns});
             this._menuBaseData.Name = "_menuBaseData";
             this._menuBaseData.Text = "기초자료(&I)";
             //
@@ -136,6 +139,11 @@ namespace ColumbusWeighing.Forms
             //
             this._menuBaseDataSystemSettings.Name = "_menuBaseDataSystemSettings";
             this._menuBaseDataSystemSettings.Text = "시스템 설정";
+            //
+            // _menuBaseDataWeighingColumns
+            //
+            this._menuBaseDataWeighingColumns.Name = "_menuBaseDataWeighingColumns";
+            this._menuBaseDataWeighingColumns.Text = "계량 화면 설정";
             //
             // _menuStatus
             //
