@@ -52,7 +52,7 @@ namespace ColumbusWeighing.Forms
             //
             // _titleLabel
             //
-            this._titleLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold);
+            this._titleLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 10.5F, System.Drawing.FontStyle.Bold);
             this._titleLabel.Appearance.Options.UseFont = true;
             this._titleLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._titleLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;

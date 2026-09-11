@@ -73,20 +73,32 @@ namespace ColumbusWeighing.Forms
             // 감량률(%)/비중·환산중량/담당자 행은 연결할 실제 데이터가 없어 뺐다.
         }
 
+        /// <summary>체크박스 자체(CheckEdit)의 WinForms Padding은 owner-drawn 컨트롤이라 무시되므로,
+        /// 배경색 있는 PanelControl로 감싸고 그 Padding으로 상하좌우 여백을 실제로 반영한다.</summary>
         private CheckEdit AddRow(ref int y, int height, int gap, string caption)
         {
-            var check = new CheckEdit
+            var rowColor = Color.FromArgb(163, 204, 235);
+
+            var row = new PanelControl
             {
                 Location = new Point(0, y),
                 Size = new Size(400, height),
-                Padding = new System.Windows.Forms.Padding(12, 4, 12, 4)
+                Padding = new System.Windows.Forms.Padding(12, 4, 12, 4),
+                BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder
             };
+            row.Appearance.BackColor = rowColor;
+            row.Appearance.Options.UseBackColor = true;
+
+            var check = new CheckEdit { Dock = System.Windows.Forms.DockStyle.Fill };
             check.Properties.Caption = caption;
-            check.Properties.Appearance.BackColor = Color.FromArgb(163, 204, 235);
+            check.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            check.Properties.Appearance.BackColor = rowColor;
             check.Properties.Appearance.Options.UseBackColor = true;
             check.Properties.Appearance.Font = new Font("맑은 고딕", 12F);
             check.Properties.Appearance.Options.UseFont = true;
-            _bodyPanel.Controls.Add(check);
+
+            row.Controls.Add(check);
+            _bodyPanel.Controls.Add(row);
 
             y += height + gap;
             return check;
