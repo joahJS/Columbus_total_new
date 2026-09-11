@@ -81,7 +81,7 @@ namespace ColumbusWeighing.Forms
             _menuFileExit.Click += (s, e) => Close();
             _menuBaseDataCustomer.Click += (s, e) => ShowNotReady("거래처 관리");
             _menuBaseDataVehicle.Click += (s, e) => ShowNotReady("차량 관리");
-            _menuBaseDataProduct.Click += (s, e) => ShowNotReady("제품 관리");
+            _menuBaseDataProduct.Click += (s, e) => ShowProductManagement();
             _menuBaseDataSystemSettings.Click += (s, e) => ShowSystemSettings();
             _menuBaseDataWeighingColumns.Click += (s, e) => ShowWeighingColumnSettings();
             _menuStatusDaily.Click += (s, e) => ShowNotReady("일일 계량현황");
@@ -154,6 +154,14 @@ namespace ColumbusWeighing.Forms
             }
 
             ApplyColumnSettings(_weighingColumnSettingsRepository.Load());
+        }
+
+        private void ShowProductManagement()
+        {
+            using (var form = new ProductManagementForm(new SqlProductRepository()))
+            {
+                form.ShowDialog(this);
+            }
         }
 
         /// <summary>"계량 화면 설정"에서 고른 부가 컬럼 표시 여부를 두 그리드에 반영한다.</summary>
