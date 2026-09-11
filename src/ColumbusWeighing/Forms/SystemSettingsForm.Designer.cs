@@ -70,7 +70,7 @@ namespace ColumbusWeighing.Forms
             //
             // _titleLabel
             //
-            this._titleLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 11F, System.Drawing.FontStyle.Bold);
+            this._titleLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold);
             this._titleLabel.Appearance.Options.UseFont = true;
             this._titleLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._titleLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
@@ -85,6 +85,8 @@ namespace ColumbusWeighing.Forms
             // _btnSave
             //
             this._btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnSave.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9.5F);
+            this._btnSave.Appearance.Options.UseFont = true;
             this._btnSave.Location = new System.Drawing.Point(868, 7);
             this._btnSave.Name = "_btnSave";
             this._btnSave.Size = new System.Drawing.Size(64, 28);
@@ -94,6 +96,8 @@ namespace ColumbusWeighing.Forms
             // _btnClose
             //
             this._btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnClose.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9.5F);
+            this._btnClose.Appearance.Options.UseFont = true;
             this._btnClose.Location = new System.Drawing.Point(938, 7);
             this._btnClose.Name = "_btnClose";
             this._btnClose.Size = new System.Drawing.Size(64, 28);
@@ -133,7 +137,7 @@ namespace ColumbusWeighing.Forms
             //
             // _grpUser
             //
-            this._grpUser.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
+            this._grpUser.Appearance.Font = new System.Drawing.Font("맑은 고딕", 10F, System.Drawing.FontStyle.Bold);
             this._grpUser.Appearance.Options.UseFont = true;
             this._grpUser.Location = new System.Drawing.Point(10, 10);
             this._grpUser.Name = "_grpUser";
@@ -143,7 +147,7 @@ namespace ColumbusWeighing.Forms
             //
             // _grpPrint (2열 1행)
             //
-            this._grpPrint.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
+            this._grpPrint.Appearance.Font = new System.Drawing.Font("맑은 고딕", 10F, System.Drawing.FontStyle.Bold);
             this._grpPrint.Appearance.Options.UseFont = true;
             this._grpPrint.Location = new System.Drawing.Point(10, 10);
             this._grpPrint.Name = "_grpPrint";
@@ -153,7 +157,7 @@ namespace ColumbusWeighing.Forms
             //
             // _grpWeighing (2열 2행 - _grpPrint 바로 아래: 10 + 140 + 10 = 160)
             //
-            this._grpWeighing.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold);
+            this._grpWeighing.Appearance.Font = new System.Drawing.Font("맑은 고딕", 10F, System.Drawing.FontStyle.Bold);
             this._grpWeighing.Appearance.Options.UseFont = true;
             this._grpWeighing.Location = new System.Drawing.Point(10, 160);
             this._grpWeighing.Name = "_grpWeighing";

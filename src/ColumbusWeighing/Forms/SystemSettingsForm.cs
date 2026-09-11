@@ -231,11 +231,11 @@ namespace ColumbusWeighing.Forms
             var subLabel = new LabelControl
             {
                 Location = new Point(10, 30),
-                Size = new Size(150, 16),
+                Size = new Size(150, 18),
                 Text = "보고서 인쇄 설정",
                 AutoSizeMode = LabelAutoSizeMode.None
             };
-            subLabel.Appearance.Font = new Font("맑은 고딕", 9F, FontStyle.Bold);
+            subLabel.Appearance.Font = new Font("맑은 고딕", 10F, FontStyle.Bold);
             subLabel.Appearance.Options.UseFont = true;
             _grpPrint.Controls.Add(subLabel);
 
@@ -551,14 +551,20 @@ namespace ColumbusWeighing.Forms
 
         #region [공통 컨트롤 생성 헬퍼]
 
+        /// <summary>라벨/입력란/체크박스 등 이 화면의 모든 필드에 공통으로 쓰는 글자 크기.
+        /// 기본 스킨 글자가 작다는 피드백에 따라 9.5pt로 키웠다(그룹 제목은 별도로 10F).</summary>
+        private static readonly Font FieldFont = new Font("맑은 고딕", 9.5F);
+
         private static LabelControl AddLabel(GroupControl group, int x, int y, int width, string text)
         {
             var label = new LabelControl
             {
                 Location = new Point(x, y),
-                Size = new Size(width, 16),
+                Size = new Size(width, 18),
                 Text = text
             };
+            label.Appearance.Font = FieldFont;
+            label.Appearance.Options.UseFont = true;
             label.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
             // LabelControl은 AutoSizeMode가 기본값(Default)이면 텍스트 크기에 맞춰 스스로 줄어들어
             // HAlignment.Far를 줘도 정렬할 여유 공간이 없어 항상 좌측처럼 보인다. None으로 고정해야
@@ -574,45 +580,55 @@ namespace ColumbusWeighing.Forms
             var label = new LabelControl
             {
                 Location = new Point(x, y),
-                Size = new Size(width, 16),
+                Size = new Size(width, 18),
                 Text = text,
                 AutoSizeMode = LabelAutoSizeMode.None
             };
+            label.Appearance.Font = FieldFont;
+            label.Appearance.Options.UseFont = true;
             group.Controls.Add(label);
             return label;
         }
 
         private static TextEdit AddTextEdit(GroupControl group, int x, int y, int width)
         {
-            var edit = new TextEdit { Location = new Point(x, y), Size = new Size(width, 20) };
+            var edit = new TextEdit { Location = new Point(x, y), Size = new Size(width, 22) };
+            edit.Properties.Appearance.Font = FieldFont;
+            edit.Properties.Appearance.Options.UseFont = true;
             group.Controls.Add(edit);
             return edit;
         }
 
         private static SpinEdit AddSpinEdit(GroupControl group, int x, int y, int width, int min, int max)
         {
-            var edit = new SpinEdit { Location = new Point(x, y), Size = new Size(width, 20) };
+            var edit = new SpinEdit { Location = new Point(x, y), Size = new Size(width, 22) };
             edit.Properties.MinValue = min;
             edit.Properties.MaxValue = max;
             edit.Properties.Mask.EditMask = "N0";
             edit.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric;
             edit.Properties.Mask.UseMaskAsDisplayFormat = true;
+            edit.Properties.Appearance.Font = FieldFont;
+            edit.Properties.Appearance.Options.UseFont = true;
             group.Controls.Add(edit);
             return edit;
         }
 
         private static CheckEdit AddCheckEdit(GroupControl group, int x, int y, int width, string caption)
         {
-            var check = new CheckEdit { Location = new Point(x, y), Size = new Size(width, 19) };
+            var check = new CheckEdit { Location = new Point(x, y), Size = new Size(width, 21) };
             check.Properties.Caption = caption;
+            check.Properties.Appearance.Font = FieldFont;
+            check.Properties.Appearance.Options.UseFont = true;
             group.Controls.Add(check);
             return check;
         }
 
         private static ComboBoxEdit AddComboEdit(GroupControl group, int x, int y, int width)
         {
-            var combo = new ComboBoxEdit { Location = new Point(x, y), Size = new Size(width, 20) };
+            var combo = new ComboBoxEdit { Location = new Point(x, y), Size = new Size(width, 22) };
             combo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            combo.Properties.Appearance.Font = FieldFont;
+            combo.Properties.Appearance.Options.UseFont = true;
             group.Controls.Add(combo);
             return combo;
         }
@@ -623,9 +639,11 @@ namespace ColumbusWeighing.Forms
             var button = new SimpleButton
             {
                 Location = new Point(x, y),
-                Size = new Size(20, 20),
+                Size = new Size(22, 22),
                 Text = "?"
             };
+            button.Appearance.Font = new Font("맑은 고딕", 9.5F, FontStyle.Bold);
+            button.Appearance.Options.UseFont = true;
             button.Click += (s, e) => ComnFunc.gp_PrintMessage(message, title, MessageType.알림);
             group.Controls.Add(button);
             return button;
