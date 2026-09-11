@@ -22,11 +22,11 @@ namespace ColumbusWeighing.Forms
         private CheckEdit _chkProductName;
         private CheckEdit _chkCustomerName;
         private CheckEdit _chkDriverName;
-        private CheckEdit _chkLossInfo;
+        private CheckEdit _chkLossWeight;
         private CheckEdit _chkPriceInfo;
-        private CheckEdit _chkSpecificGravity;
         private CheckEdit _chkInOutType;
-        private CheckEdit _chkPersonInCharge;
+        // 감량률(%)/비중·환산중량/담당자는 연결할 실제 데이터가 없어 항목 자체를 숨겼다
+        // (WeighingColumnSettings.cs 참고).
 
         public WeighingColumnSettingsForm(IWeighingColumnSettingsRepository repository)
         {
@@ -67,11 +67,10 @@ namespace ColumbusWeighing.Forms
             _chkProductName = AddRow(ref y, rowHeight, rowGap, "제품");
             _chkCustomerName = AddRow(ref y, rowHeight, rowGap, "거래처");
             _chkDriverName = AddRow(ref y, rowHeight, rowGap, "운전자");
-            _chkLossInfo = AddRow(ref y, rowHeight, rowGap, "감량률(%) / 감량(kg)");
+            _chkLossWeight = AddRow(ref y, rowHeight, rowGap, "감량(kg)");
             _chkPriceInfo = AddRow(ref y, rowHeight, rowGap, "단가 / 금액");
-            _chkSpecificGravity = AddRow(ref y, rowHeight, rowGap, "비중 / 환산중량");
             _chkInOutType = AddRow(ref y, rowHeight, rowGap, "입·출고 구분");
-            _chkPersonInCharge = AddRow(ref y, rowHeight, rowGap, "담당자");
+            // 감량률(%)/비중·환산중량/담당자 행은 연결할 실제 데이터가 없어 뺐다.
         }
 
         private CheckEdit AddRow(ref int y, int height, int gap, string caption)
@@ -101,11 +100,9 @@ namespace ColumbusWeighing.Forms
             _chkProductName.Checked = settings.ShowProductName;
             _chkCustomerName.Checked = settings.ShowCustomerName;
             _chkDriverName.Checked = settings.ShowDriverName;
-            _chkLossInfo.Checked = settings.ShowLossInfo;
+            _chkLossWeight.Checked = settings.ShowLossWeight;
             _chkPriceInfo.Checked = settings.ShowPriceInfo;
-            _chkSpecificGravity.Checked = settings.ShowSpecificGravity;
             _chkInOutType.Checked = settings.ShowInOutType;
-            _chkPersonInCharge.Checked = settings.ShowPersonInCharge;
         }
 
         private void Save()
@@ -119,11 +116,9 @@ namespace ColumbusWeighing.Forms
                 ShowProductName = _chkProductName.Checked,
                 ShowCustomerName = _chkCustomerName.Checked,
                 ShowDriverName = _chkDriverName.Checked,
-                ShowLossInfo = _chkLossInfo.Checked,
+                ShowLossWeight = _chkLossWeight.Checked,
                 ShowPriceInfo = _chkPriceInfo.Checked,
-                ShowSpecificGravity = _chkSpecificGravity.Checked,
-                ShowInOutType = _chkInOutType.Checked,
-                ShowPersonInCharge = _chkPersonInCharge.Checked
+                ShowInOutType = _chkInOutType.Checked
             };
 
             _repository.Save(settings);

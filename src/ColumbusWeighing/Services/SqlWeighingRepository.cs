@@ -16,13 +16,23 @@ namespace ColumbusWeighing.Services
     /// </summary>
     public sealed class SqlWeighingRepository : IWeighingRepository
     {
+        // VEHICLE은 (BRANCH_CODE, SOURCE_CODE) 기준 UNIQUE라 VEHICLE_NO만으로는 지점 내에서도
+        // 여러 행이 나올 수 있다(예: 차량이 교체 등록된 경우). 그래서 LEFT JOIN 대신
+        // OUTER APPLY + TOP 1로 가장 최근 동기화된 한 행만 붙인다(계근 건이 중복 표시되는 것을 방지).
         private const string SelectSql = @"
-SELECT WEIGH_ID, BRANCH_CODE, WEIGH_SEQ, VEHICLE_NO, CUSTOMER_NAME, PRODUCT_NAME, IN_OUT_TYPE,
-       WEIGHER_NAME, UNIT_PRICE, REMARK, WEIGH_DATE, FIRST_DATETIME, FIRST_WEIGHT,
-       SECOND_DATETIME, SECOND_WEIGHT, LOSS_WEIGHT
-FROM dbo.WEIGH_RECORD
-WHERE WEIGH_DATE >= @FromDate AND WEIGH_DATE < @ToDate
-ORDER BY FIRST_DATETIME";
+SELECT w.WEIGH_ID, w.BRANCH_CODE, w.WEIGH_SEQ, w.VEHICLE_NO, w.CUSTOMER_NAME, w.PRODUCT_NAME, w.IN_OUT_TYPE,
+       w.WEIGHER_NAME, w.UNIT_PRICE, w.REMARK, w.WEIGH_DATE, w.FIRST_DATETIME, w.FIRST_WEIGHT,
+       w.SECOND_DATETIME, w.SECOND_WEIGHT, w.LOSS_WEIGHT,
+       veh.CARRIER_NAME, veh.DRIVER_NAME
+FROM dbo.WEIGH_RECORD w
+OUTER APPLY (
+    SELECT TOP 1 v.CARRIER_NAME, v.DRIVER_NAME
+    FROM dbo.VEHICLE v
+    WHERE v.BRANCH_CODE = w.BRANCH_CODE AND v.VEHICLE_NO = w.VEHICLE_NO
+    ORDER BY v.SYNCED_AT DESC
+) veh
+WHERE w.WEIGH_DATE >= @FromDate AND w.WEIGH_DATE < @ToDate
+ORDER BY w.FIRST_DATETIME";
 
         public BindingList<WeighingRecord> Records { get; } = new BindingList<WeighingRecord>();
 
@@ -113,6 +123,8 @@ ORDER BY FIRST_DATETIME";
                 SecondDateTime = AsNullableDateTime(row, "SECOND_DATETIME"),
                 SecondWeight = AsNullableDecimal(row, "SECOND_WEIGHT"),
                 LossWeight = AsNullableDecimal(row, "LOSS_WEIGHT"),
+                OwnerCompany = AsString(row, "CARRIER_NAME"),
+                DriverName = AsString(row, "DRIVER_NAME"),
             };
         }
 

@@ -15,10 +15,20 @@ namespace ColumbusWeighing.Models
         public bool ShowProductName { get; set; } = true;
         public bool ShowCustomerName { get; set; } = true;
         public bool ShowDriverName { get; set; }
-        public bool ShowLossInfo { get; set; }
+
+        /// <summary>감량중량(kg)만 다룬다. 감량률(%)은 계근 건이 아니라 품목 마스터에만 있는
+        /// 값이라 연결할 데이터가 없어 항목 자체를 숨겼다(계량 화면 설정 팝업/그리드 컬럼 모두).</summary>
+        public bool ShowLossWeight { get; set; }
+
         public bool ShowPriceInfo { get; set; }
-        public bool ShowSpecificGravity { get; set; }
+
+        // 비중/환산중량: MDB·허브 DB·코드 전체 어디에도 이 개념 자체가 없어 항목을 숨겼다.
+        // public bool ShowSpecificGravity { get; set; }
+
         public bool ShowInOutType { get; set; } = true;
-        public bool ShowPersonInCharge { get; set; }
+
+        // 담당자: 소스 MDB 어디에도 이 데이터가 없어(계근 시 남는 DAMDANG은 이미 "계량자"로
+        // 쓰이고 있음) 항목을 숨겼다.
+        // public bool ShowPersonInCharge { get; set; }
     }
 }

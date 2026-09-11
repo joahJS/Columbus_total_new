@@ -26,11 +26,11 @@ namespace ColumbusWeighing.Services
                     ShowProductName = GetBool(nameof(WeighingColumnSettings.ShowProductName), defaults.ShowProductName),
                     ShowCustomerName = GetBool(nameof(WeighingColumnSettings.ShowCustomerName), defaults.ShowCustomerName),
                     ShowDriverName = GetBool(nameof(WeighingColumnSettings.ShowDriverName), defaults.ShowDriverName),
-                    ShowLossInfo = GetBool(nameof(WeighingColumnSettings.ShowLossInfo), defaults.ShowLossInfo),
+                    ShowLossWeight = GetBool(nameof(WeighingColumnSettings.ShowLossWeight), defaults.ShowLossWeight),
                     ShowPriceInfo = GetBool(nameof(WeighingColumnSettings.ShowPriceInfo), defaults.ShowPriceInfo),
-                    ShowSpecificGravity = GetBool(nameof(WeighingColumnSettings.ShowSpecificGravity), defaults.ShowSpecificGravity),
-                    ShowInOutType = GetBool(nameof(WeighingColumnSettings.ShowInOutType), defaults.ShowInOutType),
-                    ShowPersonInCharge = GetBool(nameof(WeighingColumnSettings.ShowPersonInCharge), defaults.ShowPersonInCharge)
+                    // ShowSpecificGravity/ShowPersonInCharge: 항목 자체를 숨겨서(WeighingColumnSettings.cs
+                    // 참고) 더 이상 읽지 않는다.
+                    ShowInOutType = GetBool(nameof(WeighingColumnSettings.ShowInOutType), defaults.ShowInOutType)
                 };
             }
             catch (System.Exception)
@@ -50,11 +50,9 @@ namespace ColumbusWeighing.Services
                 SetValue(nameof(settings.ShowProductName), settings.ShowProductName);
                 SetValue(nameof(settings.ShowCustomerName), settings.ShowCustomerName);
                 SetValue(nameof(settings.ShowDriverName), settings.ShowDriverName);
-                SetValue(nameof(settings.ShowLossInfo), settings.ShowLossInfo);
+                SetValue(nameof(settings.ShowLossWeight), settings.ShowLossWeight);
                 SetValue(nameof(settings.ShowPriceInfo), settings.ShowPriceInfo);
-                SetValue(nameof(settings.ShowSpecificGravity), settings.ShowSpecificGravity);
                 SetValue(nameof(settings.ShowInOutType), settings.ShowInOutType);
-                SetValue(nameof(settings.ShowPersonInCharge), settings.ShowPersonInCharge);
             }
             catch (System.Exception)
             {

@@ -41,14 +41,12 @@ namespace ColumbusWeighing.Controls
         private GridColumn _colDriverName;
         private GridColumn _colProductName;
         private GridColumn _colCustomerName;
-        private GridColumn _colLossRate;
         private GridColumn _colLossWeight;
         private GridColumn _colUnitPrice;
         private GridColumn _colAmount;
-        private GridColumn _colSpecificGravity;
-        private GridColumn _colConvertedWeight;
         private GridColumn _colInOutType;
-        private GridColumn _colPersonInCharge;
+        // 감량률(%)/비중·환산중량/담당자 컬럼은 연결할 실제 데이터가 없어 뺐다
+        // (Models/WeighingColumnSettings.cs 참고).
 
         public SecondWeighingControl()
         {
@@ -123,14 +121,10 @@ namespace ColumbusWeighing.Controls
             _colDriverName.Visible = settings.ShowDriverName;
             _colProductName.Visible = settings.ShowProductName;
             _colCustomerName.Visible = settings.ShowCustomerName;
-            _colLossRate.Visible = settings.ShowLossInfo;
-            _colLossWeight.Visible = settings.ShowLossInfo;
+            _colLossWeight.Visible = settings.ShowLossWeight;
             _colUnitPrice.Visible = settings.ShowPriceInfo;
             _colAmount.Visible = settings.ShowPriceInfo;
-            _colSpecificGravity.Visible = settings.ShowSpecificGravity;
-            _colConvertedWeight.Visible = settings.ShowSpecificGravity;
             _colInOutType.Visible = settings.ShowInOutType;
-            _colPersonInCharge.Visible = settings.ShowPersonInCharge;
         }
 
         public void ApplyDateFilter()
@@ -199,15 +193,11 @@ namespace ColumbusWeighing.Controls
             AddColumn("FirstWeight", "1차중량", 80, "N0");
             AddColumn("SecondWeight", "2차중량", 80, "N0");
             AddColumn("NetWeight", "순중량", 80, "N0");
-            _colLossRate = AddColumn("LossRate", "감량률", 70, "N1");
             _colLossWeight = AddColumn("LossWeight", "감량중량", 80, "N0");
             _colUnitPrice = AddColumn("UnitPrice", "단가", 80, "N0");
             _colAmount = AddColumn("Amount", "금액", 90, "N0");
-            _colSpecificGravity = AddColumn("SpecificGravity", "비중", 70, "N2");
-            _colConvertedWeight = AddColumn("ConvertedWeight", "환산중량", 90, "N0");
             _colInOutType = AddInOutColumn();
             AddColumn("WeigherName", "계량자", 130);
-            _colPersonInCharge = AddColumn("PersonInCharge", "담당자", 90);
             AddColumn("Remark", "비고", 100);
         }
 
@@ -259,17 +249,13 @@ namespace ColumbusWeighing.Controls
                 e.DisplayText = branchCode.ToDisplayString();
             }
             else if ((e.Column.FieldName == "FirstWeight" || e.Column.FieldName == "SecondWeight" || e.Column.FieldName == "NetWeight"
-                || e.Column.FieldName == "LossWeight" || e.Column.FieldName == "ConvertedWeight") && e.Value is decimal weight)
+                || e.Column.FieldName == "LossWeight") && e.Value is decimal weight)
             {
                 e.DisplayText = FormatWeight(weight);
             }
             else if ((e.Column.FieldName == "UnitPrice" || e.Column.FieldName == "Amount") && e.Value is decimal money)
             {
                 e.DisplayText = FormatAmount(money);
-            }
-            else if (e.Column.FieldName == "LossRate" && e.Value is decimal lossRate)
-            {
-                e.DisplayText = lossRate.ToString("N1") + "%";
             }
         }
 
