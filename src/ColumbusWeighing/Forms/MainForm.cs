@@ -86,6 +86,7 @@ namespace ColumbusWeighing.Forms
             _menuBaseDataWeighingColumns.Click += (s, e) => ShowWeighingColumnSettings();
             _menuStatusDaily.Click += (s, e) => ShowNotReady("일일 계량현황");
             _menuStatusPeriod.Click += (s, e) => ShowNotReady("기간별 집계");
+            _menuStatusWeighData.Click += (s, e) => ShowWeighDataManagement();
             _menuSystemVersion.Click += (s, e) => ShowVersionManagement();
             _menuSystemUser.Click += (s, e) => ShowUserManagement();
 
@@ -168,6 +169,17 @@ namespace ColumbusWeighing.Forms
         private void ShowUserManagement()
         {
             using (var form = new UserManagementForm(new SqlUserRepository(), _loggedInUserName))
+            {
+                form.ShowDialog(this);
+            }
+        }
+
+        /// <summary>메인 화면의 1차/2차 계량 목록과 별도의 저장소 인스턴스를 새로 만들어 연다.
+        /// 같은 저장소를 공유하면 여기서 조회 조건을 좁힐 때마다 메인 화면의 목록까지 같이
+        /// 바뀌어버리기 때문이다(Records가 두 화면에서 공유되는 하나의 목록이라서).</summary>
+        private void ShowWeighDataManagement()
+        {
+            using (var form = new WeighDataManagementForm(new SqlWeighingRepository(), _appSettingsRepository.Load()))
             {
                 form.ShowDialog(this);
             }

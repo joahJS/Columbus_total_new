@@ -108,6 +108,10 @@ namespace ColumbusWeighing.Forms
             //
             // WeighingColumnSettingsForm
             //
+            // 시스템 DPI/글꼴 설정에 따라 WinForms가 좌표를 자동으로 다시 스케일링하면 픽셀
+            // 단위로 직접 계산한 레이아웃(각 항목 높이 등)이 맞지 않게 되어(스크롤이 생기거나
+            // 마지막 항목이 가려짐) None으로 꺼서 항상 지정한 픽셀 그대로 그리게 한다.
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(420, 362);
             this.Controls.Add(this._bodyPanel);
             this.Controls.Add(this._topBar);

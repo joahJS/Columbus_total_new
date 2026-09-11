@@ -29,6 +29,7 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuStatus;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusDaily;
         private System.Windows.Forms.ToolStripMenuItem _menuStatusPeriod;
+        private System.Windows.Forms.ToolStripMenuItem _menuStatusWeighData;
         private System.Windows.Forms.ToolStripMenuItem _menuSystem;
         private System.Windows.Forms.ToolStripMenuItem _menuSystemUser;
         private System.Windows.Forms.ToolStripMenuItem _menuSystemVersion;
@@ -59,6 +60,7 @@ namespace ColumbusWeighing.Forms
             this._menuStatus = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusDaily = new System.Windows.Forms.ToolStripMenuItem();
             this._menuStatusPeriod = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuStatusWeighData = new System.Windows.Forms.ToolStripMenuItem();
             this._menuSystem = new System.Windows.Forms.ToolStripMenuItem();
             this._menuSystemUser = new System.Windows.Forms.ToolStripMenuItem();
             this._menuSystemVersion = new System.Windows.Forms.ToolStripMenuItem();
@@ -151,7 +153,8 @@ namespace ColumbusWeighing.Forms
             //
             this._menuStatus.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._menuStatusDaily,
-            this._menuStatusPeriod});
+            this._menuStatusPeriod,
+            this._menuStatusWeighData});
             this._menuStatus.Name = "_menuStatus";
             this._menuStatus.Text = "계량현황 및 집계(&S)";
             //
@@ -164,6 +167,11 @@ namespace ColumbusWeighing.Forms
             //
             this._menuStatusPeriod.Name = "_menuStatusPeriod";
             this._menuStatusPeriod.Text = "기간별 집계";
+            //
+            // _menuStatusWeighData
+            //
+            this._menuStatusWeighData.Name = "_menuStatusWeighData";
+            this._menuStatusWeighData.Text = "계량 데이터 관리";
             //
             // _menuSystem
             //

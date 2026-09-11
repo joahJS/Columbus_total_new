@@ -34,7 +34,8 @@ namespace ColumbusWeighing.Forms
 
             _repository = repository;
 
-            BuildCheckboxRows();
+            var contentHeight = BuildCheckboxRows();
+            ResizeToContent(contentHeight);
             LoadFromSettings(_repository.Load());
 
             _btnReset.Click += (s, e) => LoadFromSettings(new WeighingColumnSettings());
@@ -54,7 +55,9 @@ namespace ColumbusWeighing.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void BuildCheckboxRows()
+        /// <summary>체크박스 행을 모두 만들고, 실제로 쌓인 총 높이(px)를 돌려준다. 이 값으로
+        /// 본문 패널/팝업 높이를 정확히 맞춰서(ResizeToContent) 스크롤이 생기지 않게 한다.</summary>
+        private int BuildCheckboxRows()
         {
             const int rowHeight = 34;
             const int rowGap = 0;
@@ -71,6 +74,17 @@ namespace ColumbusWeighing.Forms
             _chkPriceInfo = AddRow(ref y, rowHeight, rowGap, "단가 / 금액");
             _chkInOutType = AddRow(ref y, rowHeight, rowGap, "입·출고 구분");
             // 감량률(%)/비중·환산중량/담당자 행은 연결할 실제 데이터가 없어 뺐다.
+
+            return y;
+        }
+
+        /// <summary>팝업 전체 높이를 실제 항목 총 높이에 맞춘다. 디자이너에 적어둔 고정 수치와
+        /// 항목 수가 어긋나 스크롤이 생기거나 마지막 항목이 가려지는 것을 막기 위해, 하드코딩된
+        /// 값 대신 BuildCheckboxRows가 실제로 쌓은 높이를 그대로 쓴다. _bodyPanel은 Dock=Fill이라
+        /// 직접 크기를 지정해도 소용없으므로, 폼의 ClientSize를 바꿔 그 결과로 맞춘다.</summary>
+        private void ResizeToContent(int contentHeight)
+        {
+            ClientSize = new Size(ClientSize.Width, _topBar.Height + contentHeight);
         }
 
         /// <summary>체크박스 자체(CheckEdit)의 WinForms Padding은 owner-drawn 컨트롤이라 무시되므로,
@@ -83,7 +97,6 @@ namespace ColumbusWeighing.Forms
             {
                 Location = new Point(0, y),
                 Size = new Size(_bodyPanel.ClientSize.Width, height),
-                Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right,
                 Padding = new System.Windows.Forms.Padding(12, 4, 12, 4),
                 BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder
             };

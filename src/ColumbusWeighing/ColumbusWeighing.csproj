@@ -133,6 +133,12 @@
     <Compile Include="Forms\UserEditForm.Designer.cs">
       <DependentUpon>UserEditForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\WeighDataManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WeighDataManagementForm.Designer.cs">
+      <DependentUpon>WeighDataManagementForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\BranchCodeExtensions.cs" />
     <Compile Include="Models\InOutType.cs" />
     <Compile Include="Models\WeighingRecord.cs" />
