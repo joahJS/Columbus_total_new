@@ -43,6 +43,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -67,6 +68,7 @@
     <Compile Include="ComnLib\MessageType.cs" />
     <Compile Include="ComnLib\Parameter.cs" />
     <Compile Include="ComnLib\PasswordHasher.cs" />
+    <Compile Include="ComnLib\SimpleXlsxWriter.cs" />
     <Compile Include="Controls\FirstWeighingControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

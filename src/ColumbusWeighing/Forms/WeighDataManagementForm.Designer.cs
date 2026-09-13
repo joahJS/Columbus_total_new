@@ -97,16 +97,16 @@ namespace ColumbusWeighing.Forms
             // _btnExcel
             //
             this._btnExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnExcel.Location = new System.Drawing.Point(782, 24);
+            this._btnExcel.Location = new System.Drawing.Point(800, 24);
             this._btnExcel.Name = "_btnExcel";
-            this._btnExcel.Size = new System.Drawing.Size(85, 28);
+            this._btnExcel.Size = new System.Drawing.Size(110, 28);
             this._btnExcel.TabIndex = 10;
-            this._btnExcel.Text = "엑셀";
+            this._btnExcel.Text = "엑셀내보내기";
             //
             // _btnRetrieve
             //
             this._btnRetrieve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnRetrieve.Location = new System.Drawing.Point(873, 24);
+            this._btnRetrieve.Location = new System.Drawing.Point(916, 24);
             this._btnRetrieve.Name = "_btnRetrieve";
             this._btnRetrieve.Size = new System.Drawing.Size(85, 28);
             this._btnRetrieve.TabIndex = 11;
@@ -115,7 +115,7 @@ namespace ColumbusWeighing.Forms
             // _btnPrint
             //
             this._btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnPrint.Location = new System.Drawing.Point(964, 24);
+            this._btnPrint.Location = new System.Drawing.Point(1007, 24);
             this._btnPrint.Name = "_btnPrint";
             this._btnPrint.Size = new System.Drawing.Size(85, 28);
             this._btnPrint.TabIndex = 12;
@@ -124,7 +124,7 @@ namespace ColumbusWeighing.Forms
             // _btnClose
             //
             this._btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnClose.Location = new System.Drawing.Point(1055, 24);
+            this._btnClose.Location = new System.Drawing.Point(1098, 24);
             this._btnClose.Name = "_btnClose";
             this._btnClose.Size = new System.Drawing.Size(85, 28);
             this._btnClose.TabIndex = 13;

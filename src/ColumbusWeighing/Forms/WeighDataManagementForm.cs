@@ -1,8 +1,6 @@
 using System;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
@@ -68,7 +66,7 @@ namespace ColumbusWeighing.Forms
             _dateEditTo.DateTime = DateTime.Today;
 
             _btnToday.Click += (s, e) => SetToday();
-            _btnExcel.Click += (s, e) => ExportToCsv();
+            _btnExcel.Click += (s, e) => ExportToExcel();
             _btnPrint.Click += (s, e) => PrintList();
             _btnRetrieve.Click += (s, e) => Retrieve();
             _btnClose.Click += (s, e) => Close();
@@ -409,9 +407,26 @@ namespace ColumbusWeighing.Forms
             ComnFunc.gp_PrintMessage("계량 데이터 목록 인쇄는 준비 중입니다.", "계량 데이터 관리", MessageType.알림);
         }
 
-        /// <summary>Excel 전용 라이브러리 참조가 없어, Excel에서 바로 열리는 CSV로 내보낸다
-        /// (한글이 깨지지 않도록 BOM 있는 UTF-8로 저장).</summary>
-        private void ExportToCsv()
+        private static readonly string[] ExcelHeaders =
+        {
+            "순번", "1차계량일", "2차계량일", "계량순번", "차량번호", "차량소속회사", "운전자",
+            "거래처명", "제품명", "1차중량", "2차중량", "실중량", "감량", "단가", "금액",
+            "입출구분", "계량상태", "계량자", "비고"
+        };
+
+        /// <summary>ExcelHeaders와 순서를 맞춘 열 너비(대략 몇 글자가 들어가면 좋겠다는 값).
+        /// 1차/2차계량일처럼 날짜가 들어가는 열을 특히 넉넉하게 잡아서, 값이 잘려 "####"로
+        /// 보이지 않게 한다(사실 셀 자체를 텍스트로 쓰기 때문에 좁아도 "####"는 안 뜨지만,
+        /// 그래도 안 잘리고 다 보이는 게 좋다).</summary>
+        private static readonly int[] ExcelColumnWidths =
+        {
+            8, 13, 13, 10, 10, 16, 10, 16, 14, 12, 12, 12, 8, 8, 10, 8, 10, 14, 24
+        };
+
+        /// <summary>Excel 전용 라이브러리 참조가 없어, SimpleXlsxWriter로 직접 최소한의
+        /// .xlsx 파일을 만든다(모든 값을 텍스트로 쓰기 때문에 날짜/숫자 열이 좁아도 "####"로
+        /// 깨지지 않는다).</summary>
+        private void ExportToExcel()
         {
             if (_displayRecords.Count == 0)
             {
@@ -421,8 +436,8 @@ namespace ColumbusWeighing.Forms
 
             using (var dialog = new SaveFileDialog())
             {
-                dialog.Filter = "CSV 파일 (*.csv)|*.csv";
-                dialog.FileName = string.Format("계량데이터_{0:yyyyMMddHHmm}.csv", DateTime.Now);
+                dialog.Filter = "Excel 파일 (*.xlsx)|*.xlsx";
+                dialog.FileName = string.Format("계량데이터_{0:yyyyMMddHHmm}.xlsx", DateTime.Now);
 
                 if (dialog.ShowDialog(this) != DialogResult.OK)
                 {
@@ -431,7 +446,7 @@ namespace ColumbusWeighing.Forms
 
                 try
                 {
-                    WriteCsv(dialog.FileName);
+                    WriteExcel(dialog.FileName);
                     ComnFunc.gp_PrintMessage("저장되었습니다.\r\n" + dialog.FileName, "안내", MessageType.알림);
                 }
                 catch (Exception ex)
@@ -441,49 +456,32 @@ namespace ColumbusWeighing.Forms
             }
         }
 
-        private void WriteCsv(string filePath)
+        private void WriteExcel(string filePath)
         {
-            using (var writer = new StreamWriter(filePath, false, new UTF8Encoding(true)))
+            var rows = _displayRecords.Select(r => new[]
             {
-                writer.WriteLine(string.Join(",", new[]
-                {
-                    "순번", "1차계량일", "2차계량일", "계량순번", "차량번호", "차량소속회사", "운전자",
-                    "거래처명", "제품명", "1차중량", "2차중량", "실중량", "감량", "단가", "금액",
-                    "입출구분", "계량상태", "계량자", "비고"
-                }.Select(CsvField)));
+                r.Id.ToString(),
+                r.FirstDateTime.ToString("yyyy-MM-dd"),
+                r.SecondDateTime.HasValue ? r.SecondDateTime.Value.ToString("yyyy-MM-dd") : string.Empty,
+                r.WeighSeq.ToString(),
+                r.VehicleNo,
+                r.OwnerCompany,
+                r.DriverName,
+                r.CustomerName,
+                r.ProductName,
+                r.FirstWeight.ToString("N0"),
+                r.SecondWeight.HasValue ? r.SecondWeight.Value.ToString("N0") : string.Empty,
+                r.NetWeight.HasValue ? r.NetWeight.Value.ToString("N0") : string.Empty,
+                r.LossWeight.HasValue ? r.LossWeight.Value.ToString("N0") : string.Empty,
+                r.UnitPrice.HasValue ? r.UnitPrice.Value.ToString("N0") : string.Empty,
+                r.Amount.HasValue ? r.Amount.Value.ToString("N0") : string.Empty,
+                r.InOutType.ToDisplayString(),
+                r.IsCompleted ? "2차 완료" : "1차 대기",
+                r.WeigherName,
+                r.Remark,
+            });
 
-                foreach (var r in _displayRecords)
-                {
-                    writer.WriteLine(string.Join(",", new[]
-                    {
-                        CsvField(r.Id.ToString()),
-                        CsvField(r.FirstDateTime.ToString("yyyy-MM-dd")),
-                        CsvField(r.SecondDateTime.HasValue ? r.SecondDateTime.Value.ToString("yyyy-MM-dd") : string.Empty),
-                        CsvField(r.WeighSeq.ToString()),
-                        CsvField(r.VehicleNo),
-                        CsvField(r.OwnerCompany),
-                        CsvField(r.DriverName),
-                        CsvField(r.CustomerName),
-                        CsvField(r.ProductName),
-                        CsvField(r.FirstWeight.ToString("N0")),
-                        CsvField(r.SecondWeight.HasValue ? r.SecondWeight.Value.ToString("N0") : string.Empty),
-                        CsvField(r.NetWeight.HasValue ? r.NetWeight.Value.ToString("N0") : string.Empty),
-                        CsvField(r.LossWeight.HasValue ? r.LossWeight.Value.ToString("N0") : string.Empty),
-                        CsvField(r.UnitPrice.HasValue ? r.UnitPrice.Value.ToString("N0") : string.Empty),
-                        CsvField(r.Amount.HasValue ? r.Amount.Value.ToString("N0") : string.Empty),
-                        CsvField(r.InOutType.ToDisplayString()),
-                        CsvField(r.IsCompleted ? "2차 완료" : "1차 대기"),
-                        CsvField(r.WeigherName),
-                        CsvField(r.Remark),
-                    }));
-                }
-            }
-        }
-
-        private static string CsvField(string value)
-        {
-            value = value ?? string.Empty;
-            return "\"" + value.Replace("\"", "\"\"") + "\"";
+            SimpleXlsxWriter.Write(filePath, "계량데이터", ExcelHeaders, rows, ExcelColumnWidths);
         }
     }
 }
