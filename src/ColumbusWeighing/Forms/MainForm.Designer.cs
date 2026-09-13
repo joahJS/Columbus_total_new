@@ -21,7 +21,6 @@ namespace ColumbusWeighing.Forms
         private System.Windows.Forms.ToolStripMenuItem _menuFileExit;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseData;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataCustomer;
-        private System.Windows.Forms.ToolStripMenuItem _menuBaseDataVehicle;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataProduct;
         private System.Windows.Forms.ToolStripSeparator _menuBaseDataSeparator;
         private System.Windows.Forms.ToolStripMenuItem _menuBaseDataSystemSettings;
@@ -52,7 +51,6 @@ namespace ColumbusWeighing.Forms
             this._menuFileExit = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseData = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseDataCustomer = new System.Windows.Forms.ToolStripMenuItem();
-            this._menuBaseDataVehicle = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseDataProduct = new System.Windows.Forms.ToolStripMenuItem();
             this._menuBaseDataSeparator = new System.Windows.Forms.ToolStripSeparator();
             this._menuBaseDataSystemSettings = new System.Windows.Forms.ToolStripMenuItem();
@@ -112,7 +110,6 @@ namespace ColumbusWeighing.Forms
             //
             this._menuBaseData.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._menuBaseDataCustomer,
-            this._menuBaseDataVehicle,
             this._menuBaseDataProduct,
             this._menuBaseDataSeparator,
             this._menuBaseDataSystemSettings,
@@ -124,11 +121,6 @@ namespace ColumbusWeighing.Forms
             //
             this._menuBaseDataCustomer.Name = "_menuBaseDataCustomer";
             this._menuBaseDataCustomer.Text = "거래처 관리";
-            //
-            // _menuBaseDataVehicle
-            //
-            this._menuBaseDataVehicle.Name = "_menuBaseDataVehicle";
-            this._menuBaseDataVehicle.Text = "차량 관리";
             //
             // _menuBaseDataProduct
             //

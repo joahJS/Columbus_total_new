@@ -141,6 +141,12 @@
     <Compile Include="Forms\WeighDataManagementForm.Designer.cs">
       <DependentUpon>WeighDataManagementForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\CustomerManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CustomerManagementForm.Designer.cs">
+      <DependentUpon>CustomerManagementForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\BranchCodeExtensions.cs" />
     <Compile Include="Models\InOutType.cs" />
     <Compile Include="Models\WeighingRecord.cs" />
@@ -150,6 +156,7 @@
     <Compile Include="Models\WeighingColumnSettings.cs" />
     <Compile Include="Models\ProductRecord.cs" />
     <Compile Include="Models\UserAccount.cs" />
+    <Compile Include="Models\CustomerRecord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AppLogService.cs" />
@@ -169,6 +176,8 @@
     <Compile Include="Services\SqlUserRepository.cs" />
     <Compile Include="Services\SqlAuthenticationService.cs" />
     <Compile Include="Services\DuplicateLoginIdException.cs" />
+    <Compile Include="Services\ICustomerRepository.cs" />
+    <Compile Include="Services\SqlCustomerRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -79,8 +79,7 @@ namespace ColumbusWeighing.Forms
 
             _btnLogin.Click += BtnLogin_Click;
             _menuFileExit.Click += (s, e) => Close();
-            _menuBaseDataCustomer.Click += (s, e) => ShowNotReady("거래처 관리");
-            _menuBaseDataVehicle.Click += (s, e) => ShowNotReady("차량 관리");
+            _menuBaseDataCustomer.Click += (s, e) => ShowCustomerManagement();
             _menuBaseDataProduct.Click += (s, e) => ShowProductManagement();
             _menuBaseDataSystemSettings.Click += (s, e) => ShowSystemSettings();
             _menuBaseDataWeighingColumns.Click += (s, e) => ShowWeighingColumnSettings();
@@ -161,6 +160,14 @@ namespace ColumbusWeighing.Forms
         private void ShowProductManagement()
         {
             using (var form = new ProductManagementForm(new SqlProductRepository()))
+            {
+                form.ShowDialog(this);
+            }
+        }
+
+        private void ShowCustomerManagement()
+        {
+            using (var form = new CustomerManagementForm(new SqlCustomerRepository()))
             {
                 form.ShowDialog(this);
             }
