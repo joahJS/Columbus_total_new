@@ -151,6 +151,8 @@ namespace ColumbusWeighing.Forms
         {
             using (var form = new WeighingColumnSettingsForm(_weighingColumnSettingsRepository))
             {
+                // 팝업을 닫기 전에 저장 버튼만 눌러도 바로 메인화면 그리드에 반영되게 한다.
+                form.Saved += ApplyColumnSettings;
                 form.ShowDialog(this);
             }
 

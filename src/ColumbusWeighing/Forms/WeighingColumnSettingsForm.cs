@@ -28,6 +28,10 @@ namespace ColumbusWeighing.Forms
         // 감량률(%)/비중·환산중량/담당자는 연결할 실제 데이터가 없어 항목 자체를 숨겼다
         // (WeighingColumnSettings.cs 참고).
 
+        /// <summary>저장 버튼을 누를 때마다(팝업을 닫지 않아도) 발생한다. MainForm이 이 이벤트를
+        /// 구독해서 팝업이 열려있는 동안에도 메인화면 그리드에 바로 반영되게 한다.</summary>
+        public event System.Action<WeighingColumnSettings> Saved;
+
         public WeighingColumnSettingsForm(IWeighingColumnSettingsRepository repository)
         {
             InitializeComponent();
@@ -160,6 +164,7 @@ namespace ColumbusWeighing.Forms
             };
 
             _repository.Save(settings);
+            Saved?.Invoke(settings);
             ComnFunc.gp_PrintMessage("저장되었습니다.", "계량 화면 설정", MessageType.알림);
         }
     }
