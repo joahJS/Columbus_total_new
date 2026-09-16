@@ -55,9 +55,9 @@ namespace ColumbusSync.BranchBC.Source
         public string PumNo { get; set; }
         public string PumNm { get; set; }
         public DateTime? FirstDateTime { get; set; }   // DATE1 + TIME1
-        public decimal? FirstWeight { get; set; }       // OVTOTWT
+        public decimal? FirstWeight { get; set; }       // ONEWT
         public DateTime? SecondDateTime { get; set; }   // DATE2 + TIME2
-        public decimal? SecondWeight { get; set; }      // OVNETWT
+        public decimal? SecondWeight { get; set; }      // TWOWT
         public decimal? LossWeight { get; set; }        // LOSSWT
         public decimal? UnitPrice { get; set; }          // DANKA
         public string WeigherName { get; set; }          // DAMDANG
