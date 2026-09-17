@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColumbusSync.BranchBC", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColumbusSync.BranchBC.Launcher", "src\ColumbusSync.BranchBC.Launcher\ColumbusSync.BranchBC.Launcher.csproj", "{5C88897F-1839-4B7A-9147-10585F981914}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Columbus_total_Weighing", "Columbus_total_Weighing\Columbus_total_Weighing.vdproj", "{60DB75AB-8F19-4D37-A30A-6504E69309D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,12 @@ Global
 		{5C88897F-1839-4B7A-9147-10585F981914}.Release|x64.Build.0 = Release|Any CPU
 		{5C88897F-1839-4B7A-9147-10585F981914}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C88897F-1839-4B7A-9147-10585F981914}.Release|x86.Build.0 = Release|Any CPU
+		{60DB75AB-8F19-4D37-A30A-6504E69309D5}.Debug|Any CPU.ActiveCfg = Debug
+		{60DB75AB-8F19-4D37-A30A-6504E69309D5}.Debug|x64.ActiveCfg = Debug
+		{60DB75AB-8F19-4D37-A30A-6504E69309D5}.Debug|x86.ActiveCfg = Debug
+		{60DB75AB-8F19-4D37-A30A-6504E69309D5}.Release|Any CPU.ActiveCfg = Release
+		{60DB75AB-8F19-4D37-A30A-6504E69309D5}.Release|x64.ActiveCfg = Release
+		{60DB75AB-8F19-4D37-A30A-6504E69309D5}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
