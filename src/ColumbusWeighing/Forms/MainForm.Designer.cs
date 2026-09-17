@@ -150,15 +150,17 @@ namespace ColumbusWeighing.Forms
             this._menuStatus.Name = "_menuStatus";
             this._menuStatus.Text = "계량현황 및 집계(&S)";
             //
-            // _menuStatusDaily
+            // _menuStatusDaily (아직 구현 전이라 메뉴에서 숨김 - ShowNotReady 연결은 남겨둠)
             //
             this._menuStatusDaily.Name = "_menuStatusDaily";
             this._menuStatusDaily.Text = "일일 계량현황";
+            this._menuStatusDaily.Visible = false;
             //
-            // _menuStatusPeriod
+            // _menuStatusPeriod (아직 구현 전이라 메뉴에서 숨김 - ShowNotReady 연결은 남겨둠)
             //
             this._menuStatusPeriod.Name = "_menuStatusPeriod";
             this._menuStatusPeriod.Text = "기간별 집계";
+            this._menuStatusPeriod.Visible = false;
             //
             // _menuStatusWeighData
             //
