@@ -206,16 +206,17 @@ namespace ColumbusWeighing.Controls
             //
             this._branchCombo.Location = new System.Drawing.Point(519, 5);
             this._branchCombo.Name = "_branchCombo";
+            this._branchCombo.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this._branchCombo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             this._branchCombo.Size = new System.Drawing.Size(90, 20);
             this._branchCombo.TabIndex = 9;
             //
             // _btnQuery (조회 버튼)
             //
-            this._btnQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnQuery.Location = new System.Drawing.Point(1098, 3);
+            this._btnQuery.Location = new System.Drawing.Point(619, 3);
             this._btnQuery.Name = "_btnQuery";
-            this._btnQuery.Size = new System.Drawing.Size(90, 26);
+            this._btnQuery.Size = new System.Drawing.Size(70, 26);
             this._btnQuery.TabIndex = 10;
             this._btnQuery.Text = "조회";
             //
