@@ -153,9 +153,11 @@ WHEN NOT MATCHED THEN INSERT
             });
         }
 
-        /// <summary>TS2020 로그인 계정(TB_USER) 1건을 dbo.APP_USER에 적재한다. (BRANCH_CODE, LOGIN_ID)
-        /// 조합으로 있으면 갱신, 없으면 삽입한다 - B/C지점이 같은 ID를 써도 지점이 다르면 별개
-        /// 계정으로 취급된다(dbo.APP_USER의 UQ_APP_USER_BRANCH_LOGIN_ID 제약과 일치).
+        /// <summary>TS2020 로그인 계정(TB_USER) 1건을 dbo.APP_USER에 적재한다. 로그인 ID는
+        /// 지점과 무관하게 전체에서 유일해야 하므로(UQ_APP_USER_LOGIN_ID), LOGIN_ID만으로
+        /// 매칭한다 - B/C지점이 같은 ID(예: "1", "admin")를 쓰면 나중에 동기화되는 지점이
+        /// 그 계정을 덮어쓴다(현재는 지점별 구분 없이 하나의 계정으로 취급하기로 함).
+        /// BRANCH_CODE는 참고용으로 "마지막으로 이 계정을 동기화한 지점"만 기록해둔다.
         /// PASS1은 평문이므로 매 동기화마다 PasswordHasher로 새로 해시해서만 저장한다.</summary>
         public void UpsertUser(RawUserRow u)
         {
@@ -164,10 +166,10 @@ WHEN NOT MATCHED THEN INSERT
 
             const string sql = @"
 MERGE dbo.APP_USER AS target
-USING (SELECT @BranchCode AS BRANCH_CODE, @LoginId AS LOGIN_ID) AS src
-    ON target.BRANCH_CODE = src.BRANCH_CODE AND target.LOGIN_ID = src.LOGIN_ID
+USING (SELECT @LoginId AS LOGIN_ID) AS src
+    ON target.LOGIN_ID = src.LOGIN_ID
 WHEN MATCHED THEN UPDATE SET
-    DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
+    BRANCH_CODE = @BranchCode, DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
     CAN_PRINT = @CanPrint, CAN_EDIT = @CanEdit, CAN_DELETE = @CanDelete, IS_ADMIN = @IsAdmin,
     PASSWORD_HASH = @PasswordHash, PASSWORD_SALT = @PasswordSalt,
     MODIFIED_BY = @ModifiedBy, MODIFIED_AT = SYSDATETIME()

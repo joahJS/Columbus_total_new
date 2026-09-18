@@ -148,7 +148,9 @@ namespace ColumbusWeighing.Forms
         {
             _gridView.Columns.Clear();
 
-            AddColumn("BranchCode", "지점", 70);
+            // 지점 선택 기능은 보류되어 목록에도 일단 숨긴다(컬럼 자체는 남겨둔다 - 나중에
+            // 다시 쓸 수도 있어서).
+            AddColumn("BranchCode", "지점", 70).Visible = false;
             AddColumn("LoginId", "ID", 90);
             AddColumn("DisplayName", "사용자", 110);
             AddColumn("Phone", "전화번호", 110);

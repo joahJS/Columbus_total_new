@@ -45,11 +45,13 @@ namespace ColumbusWeighing.Forms
             //
             // _branchLabel
             //
+            // 지점 선택 기능은 보류되어 일단 숨긴다(코드는 남겨둔다 - 나중에 다시 쓸 수도 있어서).
             this._branchLabel.Location = new System.Drawing.Point(24, 28);
             this._branchLabel.Name = "_branchLabel";
             this._branchLabel.Size = new System.Drawing.Size(24, 13);
             this._branchLabel.TabIndex = 0;
             this._branchLabel.Text = "지점";
+            this._branchLabel.Visible = false;
             //
             // _branchCombo
             //
@@ -58,10 +60,11 @@ namespace ColumbusWeighing.Forms
             this._branchCombo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             this._branchCombo.Size = new System.Drawing.Size(180, 20);
             this._branchCombo.TabIndex = 1;
+            this._branchCombo.Visible = false;
             //
             // _idLabel
             //
-            this._idLabel.Location = new System.Drawing.Point(24, 64);
+            this._idLabel.Location = new System.Drawing.Point(24, 28);
             this._idLabel.Name = "_idLabel";
             this._idLabel.Size = new System.Drawing.Size(42, 13);
             this._idLabel.TabIndex = 2;
@@ -69,7 +72,7 @@ namespace ColumbusWeighing.Forms
             //
             // _pwLabel
             //
-            this._pwLabel.Location = new System.Drawing.Point(24, 100);
+            this._pwLabel.Location = new System.Drawing.Point(24, 64);
             this._pwLabel.Name = "_pwLabel";
             this._pwLabel.Size = new System.Drawing.Size(42, 13);
             this._pwLabel.TabIndex = 3;
@@ -77,14 +80,14 @@ namespace ColumbusWeighing.Forms
             //
             // _idEdit
             //
-            this._idEdit.Location = new System.Drawing.Point(90, 61);
+            this._idEdit.Location = new System.Drawing.Point(90, 25);
             this._idEdit.Name = "_idEdit";
             this._idEdit.Size = new System.Drawing.Size(180, 20);
             this._idEdit.TabIndex = 4;
             //
             // _pwEdit
             //
-            this._pwEdit.Location = new System.Drawing.Point(90, 97);
+            this._pwEdit.Location = new System.Drawing.Point(90, 61);
             this._pwEdit.Name = "_pwEdit";
             this._pwEdit.Properties.PasswordChar = '*';
             this._pwEdit.Properties.UseSystemPasswordChar = true;
@@ -93,7 +96,7 @@ namespace ColumbusWeighing.Forms
             //
             // _chkRemember
             //
-            this._chkRemember.Location = new System.Drawing.Point(90, 124);
+            this._chkRemember.Location = new System.Drawing.Point(90, 88);
             this._chkRemember.Name = "_chkRemember";
             this._chkRemember.Properties.Caption = "접속정보 기억하기";
             this._chkRemember.Size = new System.Drawing.Size(150, 19);
@@ -101,7 +104,7 @@ namespace ColumbusWeighing.Forms
             //
             // _btnOk
             //
-            this._btnOk.Location = new System.Drawing.Point(90, 154);
+            this._btnOk.Location = new System.Drawing.Point(90, 118);
             this._btnOk.Name = "_btnOk";
             this._btnOk.Size = new System.Drawing.Size(85, 28);
             this._btnOk.TabIndex = 7;
@@ -110,7 +113,7 @@ namespace ColumbusWeighing.Forms
             // _btnCancel
             //
             this._btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this._btnCancel.Location = new System.Drawing.Point(185, 154);
+            this._btnCancel.Location = new System.Drawing.Point(185, 118);
             this._btnCancel.Name = "_btnCancel";
             this._btnCancel.Size = new System.Drawing.Size(85, 28);
             this._btnCancel.TabIndex = 8;
@@ -120,7 +123,7 @@ namespace ColumbusWeighing.Forms
             //
             this.AcceptButton = this._btnOk;
             this.CancelButton = this._btnCancel;
-            this.ClientSize = new System.Drawing.Size(294, 208);
+            this.ClientSize = new System.Drawing.Size(294, 172);
             this.Controls.Add(this._btnCancel);
             this.Controls.Add(this._btnOk);
             this.Controls.Add(this._chkRemember);

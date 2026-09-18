@@ -91,11 +91,13 @@ namespace ColumbusWeighing.Forms
             //
             // _branchLabel
             //
+            // 지점 선택 기능은 보류되어 일단 숨긴다(코드는 남겨둔다 - 나중에 다시 쓸 수도 있어서).
             this._branchLabel.Location = new System.Drawing.Point(24, 64);
             this._branchLabel.Name = "_branchLabel";
             this._branchLabel.Size = new System.Drawing.Size(24, 13);
             this._branchLabel.TabIndex = 2;
             this._branchLabel.Text = "지점";
+            this._branchLabel.Visible = false;
             //
             // _branchCombo
             //
@@ -104,10 +106,11 @@ namespace ColumbusWeighing.Forms
             this._branchCombo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             this._branchCombo.Size = new System.Drawing.Size(200, 20);
             this._branchCombo.TabIndex = 3;
+            this._branchCombo.Visible = false;
             //
             // _displayNameLabel
             //
-            this._displayNameLabel.Location = new System.Drawing.Point(24, 100);
+            this._displayNameLabel.Location = new System.Drawing.Point(24, 64);
             this._displayNameLabel.Name = "_displayNameLabel";
             this._displayNameLabel.Size = new System.Drawing.Size(30, 13);
             this._displayNameLabel.TabIndex = 4;
@@ -115,14 +118,14 @@ namespace ColumbusWeighing.Forms
             //
             // _displayNameEdit
             //
-            this._displayNameEdit.Location = new System.Drawing.Point(120, 97);
+            this._displayNameEdit.Location = new System.Drawing.Point(120, 61);
             this._displayNameEdit.Name = "_displayNameEdit";
             this._displayNameEdit.Size = new System.Drawing.Size(200, 20);
             this._displayNameEdit.TabIndex = 5;
             //
             // _phoneLabel
             //
-            this._phoneLabel.Location = new System.Drawing.Point(24, 136);
+            this._phoneLabel.Location = new System.Drawing.Point(24, 100);
             this._phoneLabel.Name = "_phoneLabel";
             this._phoneLabel.Size = new System.Drawing.Size(42, 13);
             this._phoneLabel.TabIndex = 6;
@@ -130,14 +133,14 @@ namespace ColumbusWeighing.Forms
             //
             // _phoneEdit
             //
-            this._phoneEdit.Location = new System.Drawing.Point(120, 133);
+            this._phoneEdit.Location = new System.Drawing.Point(120, 97);
             this._phoneEdit.Name = "_phoneEdit";
             this._phoneEdit.Size = new System.Drawing.Size(200, 20);
             this._phoneEdit.TabIndex = 7;
             //
             // _remarkLabel
             //
-            this._remarkLabel.Location = new System.Drawing.Point(24, 172);
+            this._remarkLabel.Location = new System.Drawing.Point(24, 136);
             this._remarkLabel.Name = "_remarkLabel";
             this._remarkLabel.Size = new System.Drawing.Size(18, 13);
             this._remarkLabel.TabIndex = 8;
@@ -145,14 +148,14 @@ namespace ColumbusWeighing.Forms
             //
             // _remarkEdit
             //
-            this._remarkEdit.Location = new System.Drawing.Point(120, 169);
+            this._remarkEdit.Location = new System.Drawing.Point(120, 133);
             this._remarkEdit.Name = "_remarkEdit";
             this._remarkEdit.Size = new System.Drawing.Size(200, 20);
             this._remarkEdit.TabIndex = 9;
             //
             // _chkCanPrint
             //
-            this._chkCanPrint.Location = new System.Drawing.Point(24, 208);
+            this._chkCanPrint.Location = new System.Drawing.Point(24, 172);
             this._chkCanPrint.Name = "_chkCanPrint";
             this._chkCanPrint.Properties.Caption = "인쇄";
             this._chkCanPrint.Size = new System.Drawing.Size(75, 20);
@@ -160,7 +163,7 @@ namespace ColumbusWeighing.Forms
             //
             // _chkCanEdit
             //
-            this._chkCanEdit.Location = new System.Drawing.Point(190, 208);
+            this._chkCanEdit.Location = new System.Drawing.Point(190, 172);
             this._chkCanEdit.Name = "_chkCanEdit";
             this._chkCanEdit.Properties.Caption = "편집";
             this._chkCanEdit.Size = new System.Drawing.Size(75, 20);
@@ -168,7 +171,7 @@ namespace ColumbusWeighing.Forms
             //
             // _chkCanDelete
             //
-            this._chkCanDelete.Location = new System.Drawing.Point(24, 240);
+            this._chkCanDelete.Location = new System.Drawing.Point(24, 204);
             this._chkCanDelete.Name = "_chkCanDelete";
             this._chkCanDelete.Properties.Caption = "삭제";
             this._chkCanDelete.Size = new System.Drawing.Size(75, 20);
@@ -176,7 +179,7 @@ namespace ColumbusWeighing.Forms
             //
             // _chkIsAdmin
             //
-            this._chkIsAdmin.Location = new System.Drawing.Point(190, 240);
+            this._chkIsAdmin.Location = new System.Drawing.Point(190, 204);
             this._chkIsAdmin.Name = "_chkIsAdmin";
             this._chkIsAdmin.Properties.Caption = "관리자";
             this._chkIsAdmin.Size = new System.Drawing.Size(75, 20);
@@ -184,7 +187,7 @@ namespace ColumbusWeighing.Forms
             //
             // _passwordLabel
             //
-            this._passwordLabel.Location = new System.Drawing.Point(24, 280);
+            this._passwordLabel.Location = new System.Drawing.Point(24, 244);
             this._passwordLabel.Name = "_passwordLabel";
             this._passwordLabel.Size = new System.Drawing.Size(48, 13);
             this._passwordLabel.TabIndex = 14;
@@ -192,7 +195,7 @@ namespace ColumbusWeighing.Forms
             //
             // _passwordEdit
             //
-            this._passwordEdit.Location = new System.Drawing.Point(120, 277);
+            this._passwordEdit.Location = new System.Drawing.Point(120, 241);
             this._passwordEdit.Name = "_passwordEdit";
             this._passwordEdit.Properties.UseSystemPasswordChar = true;
             this._passwordEdit.Size = new System.Drawing.Size(200, 20);
@@ -200,7 +203,7 @@ namespace ColumbusWeighing.Forms
             //
             // _passwordConfirmLabel
             //
-            this._passwordConfirmLabel.Location = new System.Drawing.Point(24, 316);
+            this._passwordConfirmLabel.Location = new System.Drawing.Point(24, 280);
             this._passwordConfirmLabel.Name = "_passwordConfirmLabel";
             this._passwordConfirmLabel.Size = new System.Drawing.Size(72, 13);
             this._passwordConfirmLabel.TabIndex = 16;
@@ -208,7 +211,7 @@ namespace ColumbusWeighing.Forms
             //
             // _passwordConfirmEdit
             //
-            this._passwordConfirmEdit.Location = new System.Drawing.Point(120, 313);
+            this._passwordConfirmEdit.Location = new System.Drawing.Point(120, 277);
             this._passwordConfirmEdit.Name = "_passwordConfirmEdit";
             this._passwordConfirmEdit.Properties.UseSystemPasswordChar = true;
             this._passwordConfirmEdit.Size = new System.Drawing.Size(200, 20);
@@ -218,7 +221,7 @@ namespace ColumbusWeighing.Forms
             //
             this._passwordHintLabel.Appearance.ForeColor = System.Drawing.Color.DimGray;
             this._passwordHintLabel.Appearance.Options.UseForeColor = true;
-            this._passwordHintLabel.Location = new System.Drawing.Point(120, 340);
+            this._passwordHintLabel.Location = new System.Drawing.Point(120, 304);
             this._passwordHintLabel.Name = "_passwordHintLabel";
             this._passwordHintLabel.Size = new System.Drawing.Size(200, 26);
             this._passwordHintLabel.TabIndex = 18;
@@ -226,7 +229,7 @@ namespace ColumbusWeighing.Forms
             //
             // _btnSave
             //
-            this._btnSave.Location = new System.Drawing.Point(120, 376);
+            this._btnSave.Location = new System.Drawing.Point(120, 340);
             this._btnSave.Name = "_btnSave";
             this._btnSave.Size = new System.Drawing.Size(95, 32);
             this._btnSave.TabIndex = 19;
@@ -234,7 +237,7 @@ namespace ColumbusWeighing.Forms
             //
             // _btnCancel
             //
-            this._btnCancel.Location = new System.Drawing.Point(225, 376);
+            this._btnCancel.Location = new System.Drawing.Point(225, 340);
             this._btnCancel.Name = "_btnCancel";
             this._btnCancel.Size = new System.Drawing.Size(95, 32);
             this._btnCancel.TabIndex = 20;
@@ -244,7 +247,7 @@ namespace ColumbusWeighing.Forms
             //
             this.AcceptButton = this._btnSave;
             this.CancelButton = this._btnCancel;
-            this.ClientSize = new System.Drawing.Size(360, 432);
+            this.ClientSize = new System.Drawing.Size(360, 396);
             this.Controls.Add(this._btnCancel);
             this.Controls.Add(this._btnSave);
             this.Controls.Add(this._passwordHintLabel);

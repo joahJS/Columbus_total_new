@@ -110,7 +110,7 @@ VALUES
             parameters.Add(new Parameter("PasswordHash", hash));
             parameters.Add(new Parameter("PasswordSalt", salt));
 
-            ExecuteWrite(sql, parameters, account.BranchCode, account.LoginId);
+            ExecuteWrite(sql, parameters, account.LoginId);
         }
 
         public void Update(UserAccount account, string newPassword, string modifiedBy)
@@ -140,7 +140,7 @@ SET BRANCH_CODE = @BranchCode, LOGIN_ID = @LoginId, DISPLAY_NAME = @DisplayName,
     MODIFIED_BY = @ModifiedBy, MODIFIED_AT = SYSDATETIME(){0}
 WHERE USER_ID = @UserId", setPasswordSql);
 
-            ExecuteWrite(sql, parameters, account.BranchCode, account.LoginId);
+            ExecuteWrite(sql, parameters, account.LoginId);
         }
 
         public void Delete(int userId)
@@ -171,7 +171,7 @@ WHERE USER_ID = @UserId", setPasswordSql);
             };
         }
 
-        private static void ExecuteWrite(string sql, List<Parameter> parameters, string branchCode, string loginId)
+        private static void ExecuteWrite(string sql, List<Parameter> parameters, string loginId)
         {
             try
             {
@@ -179,7 +179,7 @@ WHERE USER_ID = @UserId", setPasswordSql);
             }
             catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
             {
-                throw new DuplicateLoginIdException(branchCode, loginId);
+                throw new DuplicateLoginIdException(loginId);
             }
         }
 
