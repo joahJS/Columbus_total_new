@@ -165,7 +165,7 @@
     <Compile Include="Services\IWeighingRepository.cs" />
     <Compile Include="Services\SqlWeighingRepository.cs" />
     <Compile Include="Services\IVersionRepository.cs" />
-    <Compile Include="Services\InMemoryVersionRepository.cs" />
+    <Compile Include="Services\SqlVersionRepository.cs" />
     <Compile Include="Services\IAppSettingsRepository.cs" />
     <Compile Include="Services\IniAppSettingsRepository.cs" />
     <Compile Include="Services\IWeighingColumnSettingsRepository.cs" />

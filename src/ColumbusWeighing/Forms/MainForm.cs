@@ -58,7 +58,7 @@ namespace ColumbusWeighing.Forms
             _repository = new SqlWeighingRepository();
             _logService = new AppLogService();
             _authService = authService;
-            _versionRepository = new InMemoryVersionRepository();
+            _versionRepository = new SqlVersionRepository();
             _appSettingsRepository = new IniAppSettingsRepository();
             _weighingColumnSettingsRepository = new IniWeighingColumnSettingsRepository();
             _loggedInUserName = loggedInUserName;

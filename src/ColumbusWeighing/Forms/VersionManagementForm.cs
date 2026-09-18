@@ -57,6 +57,7 @@ namespace ColumbusWeighing.Forms
 
         private void Retrieve()
         {
+            _repository.Refresh();
             _gridView.RefreshData();
         }
 
