@@ -13,6 +13,9 @@ namespace ColumbusWeighing.Services
     /// (HASHBYTES('SHA2_256', 평문))으로 검증한다 - MES는 평문을 어디에도 남기지 않아서
     /// PBKDF2로 재해시할 방법이 없기 때문이다(ColumbusSync.BranchA/Hub/HubWriter.cs 참고).
     /// 평문 비밀번호는 어디에도 남기지 않는다.
+    /// dbo.APP_USER의 주 비밀번호(PASSWORD_HASH/SALT/ALGORITHM)가 안 맞으면 dbo.APP_USER_PASSWORD에
+    /// 등록된 추가 비밀번호도 확인한다 - 서로 다른 두 곳(예: 기존 admin 계정과 지점 동기화 계정)의
+    /// 아이디가 같아서 하나로 합쳐졌을 때, 두 비밀번호 모두로 로그인할 수 있게 하기 위함이다.
     /// 이 테이블/서비스가 생기기 전까지 쓰이던 고정 계정(FixedAuthenticationService)은 이제
     /// VS 디자이너 전용 생성자에서만 쓰인다.
     /// 로그인은 지점과 무관하게 LOGIN_ID 하나로만 판단한다(지점 선택 UI는 일단 숨김 처리 -
@@ -22,9 +25,14 @@ namespace ColumbusWeighing.Services
     public sealed class SqlAuthenticationService : IAuthenticationService
     {
         private const string SelectSql = @"
-SELECT DISPLAY_NAME, PASSWORD_HASH, PASSWORD_SALT, PASSWORD_ALGORITHM
+SELECT USER_ID, DISPLAY_NAME, PASSWORD_HASH, PASSWORD_SALT, PASSWORD_ALGORITHM
 FROM dbo.APP_USER
 WHERE LOGIN_ID = @LoginId";
+
+        private const string ExtraPasswordsSql = @"
+SELECT PASSWORD_HASH, PASSWORD_SALT, PASSWORD_ALGORITHM
+FROM dbo.APP_USER_PASSWORD
+WHERE USER_ID = @UserId";
 
         public bool TryLogin(string branchCode, string userId, string password, out string displayName)
         {
@@ -60,10 +68,13 @@ WHERE LOGIN_ID = @LoginId";
             }
 
             var row = table.Rows[0];
-            var algorithm = row["PASSWORD_ALGORITHM"].ToString();
-            var isValid = string.Equals(algorithm, "SHA256", StringComparison.OrdinalIgnoreCase)
-                ? VerifyMesSha256Password(password, row["PASSWORD_HASH"].ToString())
-                : PasswordHasher.Verify(password, row["PASSWORD_HASH"].ToString(), row["PASSWORD_SALT"].ToString());
+            var isValid = VerifyPassword(row["PASSWORD_ALGORITHM"].ToString(), password,
+                row["PASSWORD_HASH"].ToString(), row["PASSWORD_SALT"].ToString());
+
+            if (!isValid)
+            {
+                isValid = TryExtraPasswords(Convert.ToInt32(row["USER_ID"]), password);
+            }
 
             if (!isValid)
             {
@@ -72,6 +83,33 @@ WHERE LOGIN_ID = @LoginId";
 
             displayName = row["DISPLAY_NAME"].ToString();
             return true;
+        }
+
+        /// <summary>dbo.APP_USER_PASSWORD에 등록된 이 계정의 추가 비밀번호 중 하나라도 맞으면 true.</summary>
+        private static bool TryExtraPasswords(int userId, string password)
+        {
+            var table = DBConn.GetDataTable(
+                ExtraPasswordsSql,
+                new List<Parameter> { new Parameter("UserId", userId, SqlDbType.Int) },
+                CommandType.Text);
+
+            foreach (DataRow row in table.Rows)
+            {
+                if (VerifyPassword(row["PASSWORD_ALGORITHM"].ToString(), password,
+                        row["PASSWORD_HASH"].ToString(), row["PASSWORD_SALT"].ToString()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool VerifyPassword(string algorithm, string password, string hash, string salt)
+        {
+            return string.Equals(algorithm, "SHA256", StringComparison.OrdinalIgnoreCase)
+                ? VerifyMesSha256Password(password, hash)
+                : PasswordHasher.Verify(password, hash, salt);
         }
 
         /// <summary>A지점(MES)에서 동기화된 계정을 MES와 같은 방식으로 검증한다. MES는
