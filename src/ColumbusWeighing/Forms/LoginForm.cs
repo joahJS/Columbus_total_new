@@ -7,6 +7,28 @@ namespace ColumbusWeighing.Forms
 {
     public partial class LoginForm : XtraForm
     {
+        /// <summary>지점 선택 콤보에 나열할 항목 1개. Code가 null이면 특정 지점에 속하지 않는
+        /// 전사 공용 계정(예: admin)이다.</summary>
+        private sealed class BranchOption
+        {
+            public string Code;
+            public string Display;
+
+            public BranchOption(string code, string display)
+            {
+                Code = code;
+                Display = display;
+            }
+        }
+
+        private static readonly BranchOption[] BranchOptions =
+        {
+            new BranchOption(null, "공용"),
+            new BranchOption("A", "영천"),
+            new BranchOption("B", "생곡"),
+            new BranchOption("C", "녹산"),
+        };
+
         private readonly IAuthenticationService _authService;
 
         /// <summary>로그인 성공 시 화면에 표시할 사용자명.</summary>
@@ -15,7 +37,7 @@ namespace ColumbusWeighing.Forms
         /// <summary>
         /// 시스템 설정의 "자동 로그인 사용"이 켜져 있으면(호출하는 쪽에서 미리 확인), 로그인창을
         /// 띄우지 않고 바로 인증을 시도한다. "접속정보 기억하기" 체크와는 무관하게, 자동 로그인이
-        /// 켜진 상태에서 마지막으로 성공한 로그인 정보(IniKeyAutoLoginId/Pw)를 쓴다 — 그래야
+        /// 켜진 상태에서 마지막으로 성공한 로그인 정보(IniKeyAutoLoginId/Pw/Branch)를 쓴다 — 그래야
         /// 사용자가 "기억하기"를 체크하지 않아도 자동 로그인이 동작한다.
         /// 성공하면 LoginForm의 BtnOk_Click과 동일하게 LoginUser를 채운다.
         /// </summary>
@@ -29,12 +51,14 @@ namespace ColumbusWeighing.Forms
                 return false;
             }
 
+            var branchCode = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginBranch);
             var password = CredentialProtector.Unprotect(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginPw));
-            if (!authService.TryLogin(userId, password, out displayName))
+            if (!authService.TryLogin(branchCode, userId, password, out displayName))
             {
                 return false;
             }
 
+            LoginUser.BranchCode = string.IsNullOrEmpty(branchCode) ? null : branchCode;
             LoginUser.UserId = userId;
             LoginUser.UserName = displayName;
             return true;
@@ -45,11 +69,42 @@ namespace ColumbusWeighing.Forms
             InitializeComponent();
 
             _authService = authService;
+
+            foreach (var option in BranchOptions)
+            {
+                _branchCombo.Properties.Items.Add(option.Display);
+            }
+
+            _branchCombo.SelectedIndex = 0;
+
             _btnOk.Click += BtnOk_Click;
             Load += LoginForm_Load;
         }
 
-        /// <summary>이전에 "접속정보 기억하기"로 저장해 둔 아이디/비밀번호가 있으면 미리 채워 넣는다.</summary>
+        private string SelectedBranchCode
+        {
+            get
+            {
+                var index = _branchCombo.SelectedIndex;
+                return index >= 0 && index < BranchOptions.Length ? BranchOptions[index].Code : null;
+            }
+        }
+
+        private void SetSelectedBranchCode(string branchCode)
+        {
+            for (var i = 0; i < BranchOptions.Length; i++)
+            {
+                if (string.Equals(BranchOptions[i].Code, branchCode))
+                {
+                    _branchCombo.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            _branchCombo.SelectedIndex = 0;
+        }
+
+        /// <summary>이전에 "접속정보 기억하기"로 저장해 둔 지점/아이디/비밀번호가 있으면 미리 채워 넣는다.</summary>
         private void LoginForm_Load(object sender, System.EventArgs e)
         {
             var remembered = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginRemember);
@@ -58,6 +113,7 @@ namespace ColumbusWeighing.Forms
                 return;
             }
 
+            SetSelectedBranchCode(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginBranch));
             _idEdit.Text = IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId);
             _pwEdit.Text = CredentialProtector.Unprotect(IniHelper.GetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw));
             _chkRemember.Checked = true;
@@ -65,6 +121,7 @@ namespace ColumbusWeighing.Forms
 
         private void BtnOk_Click(object sender, System.EventArgs e)
         {
+            var branchCode = SelectedBranchCode;
             var userId = _idEdit.Text.Trim();
             var password = _pwEdit.Text;
 
@@ -75,7 +132,7 @@ namespace ColumbusWeighing.Forms
                 return;
             }
 
-            if (!_authService.TryLogin(userId, password, out var displayName))
+            if (!_authService.TryLogin(branchCode, userId, password, out var displayName))
             {
                 ComnFunc.gp_PrintMessage("아이디 또는 비밀번호가 올바르지 않습니다.", "로그인", MessageType.경고);
                 _pwEdit.Text = string.Empty;
@@ -85,17 +142,20 @@ namespace ColumbusWeighing.Forms
             }
 
             UserId = displayName;
+            LoginUser.BranchCode = branchCode;
             LoginUser.UserId = userId;
             LoginUser.UserName = displayName;
 
             IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginRemember, _chkRemember.Checked.ToString());
             if (_chkRemember.Checked)
             {
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginBranch, branchCode ?? string.Empty);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId, userId);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw, CredentialProtector.Protect(password));
             }
             else
             {
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginBranch, string.Empty);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginId, string.Empty);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyLoginPw, string.Empty);
             }
@@ -105,6 +165,7 @@ namespace ColumbusWeighing.Forms
             // 굳이 저장하지 않는다(사용자가 요청하지 않은 자격증명을 디스크에 남기지 않기 위함).
             if (new IniAppSettingsRepository().Load().UseAutoLogin)
             {
+                IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginBranch, branchCode ?? string.Empty);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginId, userId);
                 IniHelper.SetValue(ComnString.IniSectionLogin, ComnString.IniKeyAutoLoginPw, CredentialProtector.Protect(password));
             }

@@ -99,6 +99,36 @@ namespace ColumbusSync.BranchBC.Source
             return list;
         }
 
+        /// <summary>TS2020 로그인 계정 전체 조회 (TB_USER). B/C지점은 같은 프로그램을 쓰기 때문에
+        /// "1", "admin" 같은 단순한 ID가 두 지점 mdb에 똑같이 존재할 수 있다 — 지점별로 유일한
+        /// 계정이 되도록, 이 값을 허브에 올릴 때는 반드시 지점 코드를 함께 키로 써야 한다
+        /// (HubWriter.UpsertUser 참고).</summary>
+        public List<RawUserRow> GetUsers()
+        {
+            const string sql = "SELECT [ID1], [USER1], [PASS1], [TEL], [REM1], [C_PRINT], [C_MODIFY], [C_DELETE], [C_ADMINISTRATOR] FROM [TB_USER]";
+
+            var table = OleDbHelper.GetDataTable(_connectionString, sql, new OleDbParam[0]);
+
+            var list = new List<RawUserRow>();
+            foreach (DataRow row in table.Rows)
+            {
+                list.Add(new RawUserRow
+                {
+                    LoginId = AsString(row, "ID1"),
+                    DisplayName = AsString(row, "USER1"),
+                    Password = AsString(row, "PASS1"),
+                    Phone = AsString(row, "TEL"),
+                    Remark = AsString(row, "REM1"),
+                    CanPrint = AsBoolean(row, "C_PRINT"),
+                    CanEdit = AsBoolean(row, "C_MODIFY"),
+                    CanDelete = AsBoolean(row, "C_DELETE"),
+                    IsAdmin = AsBoolean(row, "C_ADMINISTRATOR"),
+                });
+            }
+
+            return list;
+        }
+
         /// <summary>
         /// 지정한 기간의 계근 데이터 조회 (TB_WEIGH). DATE1(1차계량일, Text 10)이 "yyyy-mm-dd"
         /// 형식으로 저장되어 있어 문자열 범위 비교로도 날짜순 비교가 정확히 맞는다.
@@ -186,6 +216,11 @@ ORDER BY [DATE1], [BUNHO]";
             var text = AsString(row, column);
             decimal value;
             return text != null && decimal.TryParse(text, out value) ? value : (decimal?)null;
+        }
+
+        private static bool AsBoolean(DataRow row, string column)
+        {
+            return row.Table.Columns.Contains(column) && row[column] != DBNull.Value && Convert.ToBoolean(row[column]);
         }
     }
 }

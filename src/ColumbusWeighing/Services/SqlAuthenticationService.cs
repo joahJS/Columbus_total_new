@@ -16,9 +16,9 @@ namespace ColumbusWeighing.Services
         private const string SelectSql = @"
 SELECT DISPLAY_NAME, PASSWORD_HASH, PASSWORD_SALT
 FROM dbo.APP_USER
-WHERE LOGIN_ID = @LoginId";
+WHERE LOGIN_ID = @LoginId AND ISNULL(BRANCH_CODE, '') = ISNULL(@BranchCode, '')";
 
-        public bool TryLogin(string userId, string password, out string displayName)
+        public bool TryLogin(string branchCode, string userId, string password, out string displayName)
         {
             displayName = null;
 
@@ -32,7 +32,11 @@ WHERE LOGIN_ID = @LoginId";
             {
                 table = DBConn.GetDataTable(
                     SelectSql,
-                    new List<Parameter> { new Parameter("LoginId", userId) },
+                    new List<Parameter>
+                    {
+                        new Parameter("LoginId", userId),
+                        new Parameter("BranchCode", string.IsNullOrEmpty(branchCode) ? null : branchCode),
+                    },
                     CommandType.Text);
             }
             catch (SqlException ex)

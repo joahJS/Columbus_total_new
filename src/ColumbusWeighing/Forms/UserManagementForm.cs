@@ -28,6 +28,7 @@ namespace ColumbusWeighing.Forms
             ComnGridFunc.GridStyleBasicSetting(_gridView);
             _gridView.OptionsView.ShowGroupPanel = false;
             _gridView.OptionsBehavior.Editable = false;
+            _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
 
             _gridControl.DataSource = _repository.Records;
 
@@ -110,7 +111,8 @@ namespace ColumbusWeighing.Forms
                 return;
             }
 
-            if (string.Equals(account.LoginId, LoginUser.UserId, StringComparison.Ordinal))
+            if (string.Equals(account.LoginId, LoginUser.UserId, StringComparison.Ordinal)
+                && string.Equals(account.BranchCode ?? string.Empty, LoginUser.BranchCode ?? string.Empty, StringComparison.Ordinal))
             {
                 ComnFunc.gp_PrintMessage("현재 로그인한 계정은 삭제할 수 없습니다.", "안내", MessageType.경고);
                 return;
@@ -146,6 +148,7 @@ namespace ColumbusWeighing.Forms
         {
             _gridView.Columns.Clear();
 
+            AddColumn("BranchCode", "지점", 70);
             AddColumn("LoginId", "ID", 90);
             AddColumn("DisplayName", "사용자", 110);
             AddColumn("Phone", "전화번호", 110);
@@ -156,6 +159,15 @@ namespace ColumbusWeighing.Forms
             AddColumn("IsAdmin", "관리자", 55);
             AddColumn("ModifiedBy", "수정자", 80);
             AddColumn("ModifiedAt", "수정일", 140, "yyyy-MM-dd HH:mm");
+        }
+
+        private void GridView_CustomColumnDisplayText(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e)
+        {
+            if (e.Column.FieldName == "BranchCode")
+            {
+                var branchCode = e.Value as string;
+                e.DisplayText = string.IsNullOrEmpty(branchCode) ? "공용" : branchCode.ToDisplayString();
+            }
         }
 
         private GridColumn AddColumn(string fieldName, string caption, int width, string format = null)

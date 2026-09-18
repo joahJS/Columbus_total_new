@@ -1,4 +1,5 @@
 using System;
+using ColumbusWeighing.Models;
 
 namespace ColumbusWeighing.Services
 {
@@ -6,8 +7,10 @@ namespace ColumbusWeighing.Services
     /// UNIQUE 제약 위반을 사용자에게 보여줄 메시지로 변환한 것).</summary>
     public sealed class DuplicateLoginIdException : Exception
     {
-        public DuplicateLoginIdException(string loginId)
-            : base(string.Format("이미 사용 중인 아이디입니다: {0}", loginId))
+        public DuplicateLoginIdException(string branchCode, string loginId)
+            : base(string.IsNullOrEmpty(branchCode)
+                ? string.Format("이미 사용 중인 아이디입니다: {0}", loginId)
+                : string.Format("{0}지점에 이미 사용 중인 아이디입니다: {1}", branchCode.ToDisplayString(), loginId))
         {
         }
     }

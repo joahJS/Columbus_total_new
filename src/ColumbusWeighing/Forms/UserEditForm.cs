@@ -13,6 +13,28 @@ namespace ColumbusWeighing.Forms
     /// </summary>
     public partial class UserEditForm : XtraForm
     {
+        /// <summary>지점 선택 콤보에 나열할 항목 1개. Code가 null이면 특정 지점에 속하지 않는
+        /// 전사 공용 계정(예: admin)이다.</summary>
+        private sealed class BranchOption
+        {
+            public string Code;
+            public string Display;
+
+            public BranchOption(string code, string display)
+            {
+                Code = code;
+                Display = display;
+            }
+        }
+
+        private static readonly BranchOption[] BranchOptions =
+        {
+            new BranchOption(null, "공용"),
+            new BranchOption("A", "영천"),
+            new BranchOption("B", "생곡"),
+            new BranchOption("C", "녹산"),
+        };
+
         private readonly IUserRepository _repository;
         private readonly UserAccount _editingAccount;
         private readonly string _modifiedBy;
@@ -25,12 +47,20 @@ namespace ColumbusWeighing.Forms
             _editingAccount = editingAccount;
             _modifiedBy = modifiedBy;
 
+            foreach (var option in BranchOptions)
+            {
+                _branchCombo.Properties.Items.Add(option.Display);
+            }
+
+            _branchCombo.SelectedIndex = 0;
+
             var isEditMode = _editingAccount != null;
             Text = isEditMode ? "사용자 수정" : "사용자 추가";
             _passwordHintLabel.Visible = isEditMode;
 
             if (isEditMode)
             {
+                SetSelectedBranchCode(_editingAccount.BranchCode);
                 _loginIdEdit.Text = _editingAccount.LoginId ?? string.Empty;
                 _displayNameEdit.Text = _editingAccount.DisplayName ?? string.Empty;
                 _phoneEdit.Text = _editingAccount.Phone ?? string.Empty;
@@ -45,6 +75,29 @@ namespace ColumbusWeighing.Forms
             _btnCancel.Click += (s, e) => Close();
 
             KeyPreview = true;
+        }
+
+        private string SelectedBranchCode
+        {
+            get
+            {
+                var index = _branchCombo.SelectedIndex;
+                return index >= 0 && index < BranchOptions.Length ? BranchOptions[index].Code : null;
+            }
+        }
+
+        private void SetSelectedBranchCode(string branchCode)
+        {
+            for (var i = 0; i < BranchOptions.Length; i++)
+            {
+                if (string.Equals(BranchOptions[i].Code, branchCode))
+                {
+                    _branchCombo.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            _branchCombo.SelectedIndex = 0;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -97,6 +150,7 @@ namespace ColumbusWeighing.Forms
             var account = new UserAccount
             {
                 Id = isEditMode ? _editingAccount.Id : 0,
+                BranchCode = SelectedBranchCode,
                 LoginId = loginId,
                 DisplayName = displayName,
                 Phone = _phoneEdit.Text.Trim(),

@@ -17,7 +17,7 @@ namespace ColumbusWeighing.Services
     public sealed class SqlUserRepository : IUserRepository
     {
         private const string SelectSql = @"
-SELECT USER_ID, LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
+SELECT USER_ID, BRANCH_CODE, LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
        MODIFIED_BY, MODIFIED_AT
 FROM dbo.APP_USER
 WHERE (@Search = '' OR LOGIN_ID LIKE '%' + @Search + '%' OR DISPLAY_NAME LIKE '%' + @Search + '%')
@@ -74,6 +74,7 @@ ORDER BY USER_ID";
             return new UserAccount
             {
                 Id = Convert.ToInt32(row["USER_ID"]),
+                BranchCode = AsString(row, "BRANCH_CODE"),
                 LoginId = AsString(row, "LOGIN_ID"),
                 DisplayName = AsString(row, "DISPLAY_NAME"),
                 Phone = AsString(row, "PHONE"),
@@ -99,17 +100,17 @@ ORDER BY USER_ID";
 
             const string sql = @"
 INSERT INTO dbo.APP_USER
-    (LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
+    (BRANCH_CODE, LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
      PASSWORD_HASH, PASSWORD_SALT, MODIFIED_BY, MODIFIED_AT)
 VALUES
-    (@LoginId, @DisplayName, @Phone, @Remark, @CanPrint, @CanEdit, @CanDelete, @IsAdmin,
+    (@BranchCode, @LoginId, @DisplayName, @Phone, @Remark, @CanPrint, @CanEdit, @CanDelete, @IsAdmin,
      @PasswordHash, @PasswordSalt, @ModifiedBy, SYSDATETIME())";
 
             var parameters = BuildAccountParameters(account, modifiedBy);
             parameters.Add(new Parameter("PasswordHash", hash));
             parameters.Add(new Parameter("PasswordSalt", salt));
 
-            ExecuteWrite(sql, parameters, account.LoginId);
+            ExecuteWrite(sql, parameters, account.BranchCode, account.LoginId);
         }
 
         public void Update(UserAccount account, string newPassword, string modifiedBy)
@@ -134,12 +135,12 @@ VALUES
 
             var sql = string.Format(@"
 UPDATE dbo.APP_USER
-SET LOGIN_ID = @LoginId, DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
+SET BRANCH_CODE = @BranchCode, LOGIN_ID = @LoginId, DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
     CAN_PRINT = @CanPrint, CAN_EDIT = @CanEdit, CAN_DELETE = @CanDelete, IS_ADMIN = @IsAdmin,
     MODIFIED_BY = @ModifiedBy, MODIFIED_AT = SYSDATETIME(){0}
 WHERE USER_ID = @UserId", setPasswordSql);
 
-            ExecuteWrite(sql, parameters, account.LoginId);
+            ExecuteWrite(sql, parameters, account.BranchCode, account.LoginId);
         }
 
         public void Delete(int userId)
@@ -157,6 +158,7 @@ WHERE USER_ID = @UserId", setPasswordSql);
         {
             return new List<Parameter>
             {
+                new Parameter("BranchCode", string.IsNullOrEmpty(account.BranchCode) ? null : account.BranchCode),
                 new Parameter("LoginId", account.LoginId),
                 new Parameter("DisplayName", account.DisplayName),
                 new Parameter("Phone", account.Phone),
@@ -169,7 +171,7 @@ WHERE USER_ID = @UserId", setPasswordSql);
             };
         }
 
-        private static void ExecuteWrite(string sql, List<Parameter> parameters, string loginId)
+        private static void ExecuteWrite(string sql, List<Parameter> parameters, string branchCode, string loginId)
         {
             try
             {
@@ -177,7 +179,7 @@ WHERE USER_ID = @UserId", setPasswordSql);
             }
             catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
             {
-                throw new DuplicateLoginIdException(loginId);
+                throw new DuplicateLoginIdException(branchCode, loginId);
             }
         }
 

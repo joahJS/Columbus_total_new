@@ -29,6 +29,7 @@ namespace ColumbusWeighing.ComnLib
         public static string IniSectionLogin = "LOGIN";
         public static string IniKeyLoginId = "ID";
         public static string IniKeyLoginPw = "PW";
+        public static string IniKeyLoginBranch = "BRANCH";
         public static string IniKeyLoginRemember = "REMEMBER";
 
         /// <summary>
@@ -38,5 +39,6 @@ namespace ColumbusWeighing.ComnLib
         /// </summary>
         public static string IniKeyAutoLoginId = "AUTO_ID";
         public static string IniKeyAutoLoginPw = "AUTO_PW";
+        public static string IniKeyAutoLoginBranch = "AUTO_BRANCH";
     }
 }

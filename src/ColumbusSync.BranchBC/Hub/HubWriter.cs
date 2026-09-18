@@ -153,6 +153,48 @@ WHEN NOT MATCHED THEN INSERT
             });
         }
 
+        /// <summary>TS2020 로그인 계정(TB_USER) 1건을 dbo.APP_USER에 적재한다. (BRANCH_CODE, LOGIN_ID)
+        /// 조합으로 있으면 갱신, 없으면 삽입한다 - B/C지점이 같은 ID를 써도 지점이 다르면 별개
+        /// 계정으로 취급된다(dbo.APP_USER의 UQ_APP_USER_BRANCH_LOGIN_ID 제약과 일치).
+        /// PASS1은 평문이므로 매 동기화마다 PasswordHasher로 새로 해시해서만 저장한다.</summary>
+        public void UpsertUser(RawUserRow u)
+        {
+            string hash, salt;
+            PasswordHasher.CreateHash(u.Password, out hash, out salt);
+
+            const string sql = @"
+MERGE dbo.APP_USER AS target
+USING (SELECT @BranchCode AS BRANCH_CODE, @LoginId AS LOGIN_ID) AS src
+    ON target.BRANCH_CODE = src.BRANCH_CODE AND target.LOGIN_ID = src.LOGIN_ID
+WHEN MATCHED THEN UPDATE SET
+    DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
+    CAN_PRINT = @CanPrint, CAN_EDIT = @CanEdit, CAN_DELETE = @CanDelete, IS_ADMIN = @IsAdmin,
+    PASSWORD_HASH = @PasswordHash, PASSWORD_SALT = @PasswordSalt,
+    MODIFIED_BY = @ModifiedBy, MODIFIED_AT = SYSDATETIME()
+WHEN NOT MATCHED THEN INSERT
+    (BRANCH_CODE, LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
+     PASSWORD_HASH, PASSWORD_SALT, MODIFIED_BY)
+    VALUES
+    (@BranchCode, @LoginId, @DisplayName, @Phone, @Remark, @CanPrint, @CanEdit, @CanDelete, @IsAdmin,
+     @PasswordHash, @PasswordSalt, @ModifiedBy);";
+
+            SqlHelper.ExecuteNonQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", _branchCode),
+                new SqlParam("@LoginId", u.LoginId),
+                new SqlParam("@DisplayName", u.DisplayName),
+                new SqlParam("@Phone", u.Phone),
+                new SqlParam("@Remark", u.Remark),
+                new SqlParam("@CanPrint", u.CanPrint, SqlDbType.Bit),
+                new SqlParam("@CanEdit", u.CanEdit, SqlDbType.Bit),
+                new SqlParam("@CanDelete", u.CanDelete, SqlDbType.Bit),
+                new SqlParam("@IsAdmin", u.IsAdmin, SqlDbType.Bit),
+                new SqlParam("@PasswordHash", hash),
+                new SqlParam("@PasswordSalt", salt),
+                new SqlParam("@ModifiedBy", "sync:" + _branchCode),
+            });
+        }
+
         public void WriteSyncLog(DateTime startedAt, DateTime finishedAt, bool success, int inserted, int updated, string errorMessage)
         {
             const string sql = @"

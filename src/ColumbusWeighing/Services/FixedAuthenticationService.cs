@@ -12,7 +12,7 @@ namespace ColumbusWeighing.Services
         private const string FixedPassword = "1234";
         private const string FixedDisplayName = "관리자";
 
-        public bool TryLogin(string userId, string password, out string displayName)
+        public bool TryLogin(string branchCode, string userId, string password, out string displayName)
         {
             var isValid = string.Equals(userId, FixedUserId, StringComparison.Ordinal)
                 && string.Equals(password, FixedPassword, StringComparison.Ordinal);
