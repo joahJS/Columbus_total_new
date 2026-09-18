@@ -149,6 +149,43 @@ WHEN NOT MATCHED THEN INSERT
             });
         }
 
+        /// <summary>MES 로그인 계정(zUSRLST) 1건을 dbo.APP_USER에 적재한다. B/C지점과 마찬가지로
+        /// LOGIN_ID만으로 매칭한다(로그인 ID는 지점과 무관하게 전체에서 유일해야 함 -
+        /// UQ_APP_USER_LOGIN_ID). MES는 비밀번호를 HASHBYTES('SHA2_256', 평문)로만 저장하고
+        /// 평문을 알 방법이 없으므로, PBKDF2로 재해시하지 않고 그 SHA-256 해시 바이트를 그대로
+        /// 복사해서 저장한다. PASSWORD_ALGORITHM = 'SHA256'으로 표시해두면 로그인 시
+        /// SqlAuthenticationService가 PBKDF2 대신 같은 방식(HASHBYTES SHA2_256)으로 검증한다.
+        /// 이후 ColumbusWeighing 관리자가 이 계정 비밀번호를 직접 재설정하면, 그때부터는
+        /// PBKDF2로 전환된다(SqlUserRepository 참고).</summary>
+        public void UpsertUser(RawUserRow u)
+        {
+            const string sql = @"
+MERGE dbo.APP_USER AS target
+USING (SELECT @LoginId AS LOGIN_ID) AS src
+    ON target.LOGIN_ID = src.LOGIN_ID
+WHEN MATCHED THEN UPDATE SET
+    BRANCH_CODE = @BranchCode, DISPLAY_NAME = @DisplayName, PHONE = @Phone, REMARK = @Remark,
+    PASSWORD_HASH = @PasswordHash, PASSWORD_SALT = '', PASSWORD_ALGORITHM = 'SHA256',
+    MODIFIED_BY = @ModifiedBy, MODIFIED_AT = SYSDATETIME()
+WHEN NOT MATCHED THEN INSERT
+    (BRANCH_CODE, LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
+     PASSWORD_HASH, PASSWORD_SALT, PASSWORD_ALGORITHM, MODIFIED_BY)
+    VALUES
+    (@BranchCode, @LoginId, @DisplayName, @Phone, @Remark, 0, 0, 0, 0,
+     @PasswordHash, '', 'SHA256', @ModifiedBy);";
+
+            SqlHelper.ExecuteNonQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", BranchCode),
+                new SqlParam("@LoginId", u.LoginId),
+                new SqlParam("@DisplayName", u.DisplayName),
+                new SqlParam("@Phone", u.Phone),
+                new SqlParam("@Remark", u.Remark),
+                new SqlParam("@PasswordHash", Convert.ToBase64String(u.PasswordHashSha256)),
+                new SqlParam("@ModifiedBy", "sync:" + BranchCode),
+            });
+        }
+
         public void WriteSyncLog(DateTime startedAt, DateTime finishedAt, bool success, int inserted, int updated, string errorMessage)
         {
             const string sql = @"

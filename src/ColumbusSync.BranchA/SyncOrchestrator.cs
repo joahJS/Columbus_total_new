@@ -51,6 +51,13 @@ namespace ColumbusSync.BranchA
                     upserted++;
                 }
 
+                // MES 로그인 계정도 B/C지점과 같은 방식으로 매 주기 계속 동기화한다.
+                foreach (var user in _source.GetUsers())
+                {
+                    _hub.UpsertUser(user);
+                    upserted++;
+                }
+
                 // 계근 데이터는 최근 N일치를 매번 다시 훑는다. MEASURE_RETR이 계량일자(TDATE)로만
                 // 조회 조건을 받고 수정일시 기준 필터를 지원하지 않기 때문에, 검수/수정이 늦게
                 // 들어온 건도 놓치지 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다.

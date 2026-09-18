@@ -46,6 +46,21 @@ namespace ColumbusSync.BranchA.Source
         public string Remark { get; set; }
     }
 
+    /// <summary>MES 로그인 계정(zUSRLST) 1건. DP_CM002F00의 'UserInfo_Retr'(목록)+'USER_DIALOG'
+    /// (상세, PASSWD 포함) 두 CMD를 조합해서 만든다 - 목록 CMD는 비밀번호 해시를 주지 않는다.
+    /// MES는 비밀번호를 평문으로 저장하지 않고 HASHBYTES('SHA2_256', 평문) 결과만 저장하므로
+    /// (usp_Comn_Login 참고), 평문을 알 방법이 없다. 대신 이 해시 바이트를 그대로 복사해서
+    /// 허브 dbo.APP_USER에 저장해두고, 로그인 시 같은 방식(SHA2_256)으로 재검증한다
+    /// (HubWriter.UpsertUser / SqlAuthenticationService 참고).</summary>
+    public class RawUserRow
+    {
+        public string LoginId { get; set; }             // USRID
+        public string DisplayName { get; set; }          // USRNM
+        public byte[] PasswordHashSha256 { get; set; }    // PASSWD (HASHBYTES('SHA2_256', ...) 결과, 32바이트)
+        public string Phone { get; set; }                  // MOBLNO
+        public string Remark { get; set; }                   // RK
+    }
+
     /// <summary>MES SA015F00 화면이 사용하는 프로시저 DP_SA015F00 'MEASURE_RETR' 조회 결과 1행.
     /// 컬럼명은 SA015F00.cs의 SetData()/삭제 로직에서 실제 바인딩되는 컬럼을 그대로 따랐다.</summary>
     public class RawWeighRow

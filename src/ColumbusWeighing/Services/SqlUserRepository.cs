@@ -101,10 +101,10 @@ ORDER BY USER_ID";
             const string sql = @"
 INSERT INTO dbo.APP_USER
     (BRANCH_CODE, LOGIN_ID, DISPLAY_NAME, PHONE, REMARK, CAN_PRINT, CAN_EDIT, CAN_DELETE, IS_ADMIN,
-     PASSWORD_HASH, PASSWORD_SALT, MODIFIED_BY, MODIFIED_AT)
+     PASSWORD_HASH, PASSWORD_SALT, PASSWORD_ALGORITHM, MODIFIED_BY, MODIFIED_AT)
 VALUES
     (@BranchCode, @LoginId, @DisplayName, @Phone, @Remark, @CanPrint, @CanEdit, @CanDelete, @IsAdmin,
-     @PasswordHash, @PasswordSalt, @ModifiedBy, SYSDATETIME())";
+     @PasswordHash, @PasswordSalt, 'PBKDF2', @ModifiedBy, SYSDATETIME())";
 
             var parameters = BuildAccountParameters(account, modifiedBy);
             parameters.Add(new Parameter("PasswordHash", hash));
@@ -128,7 +128,10 @@ VALUES
             {
                 string hash, salt;
                 PasswordHasher.CreateHash(newPassword, out hash, out salt);
-                setPasswordSql = ", PASSWORD_HASH = @PasswordHash, PASSWORD_SALT = @PasswordSalt";
+                // 관리자가 직접 새 비밀번호를 넣으면, 이 계정이 A지점(MES) 동기화로 들어와
+                // PASSWORD_ALGORITHM='SHA256'이었더라도 이 시점부터는 우리 자체 PBKDF2 해시로
+                // 전환한다.
+                setPasswordSql = ", PASSWORD_HASH = @PasswordHash, PASSWORD_SALT = @PasswordSalt, PASSWORD_ALGORITHM = 'PBKDF2'";
                 parameters.Add(new Parameter("PasswordHash", hash));
                 parameters.Add(new Parameter("PasswordSalt", salt));
             }
