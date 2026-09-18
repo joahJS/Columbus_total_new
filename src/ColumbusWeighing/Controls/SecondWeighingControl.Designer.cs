@@ -28,6 +28,9 @@ namespace ColumbusWeighing.Controls
         private DevExpress.XtraEditors.SimpleButton _btnShiftDayBack;
         private DevExpress.XtraEditors.SimpleButton _btnShiftDayForward;
         private DevExpress.XtraEditors.SimpleButton _btnShiftWeekForward;
+        private DevExpress.XtraEditors.LabelControl _branchLabel;
+        private DevExpress.XtraEditors.ComboBoxEdit _branchCombo;
+        private DevExpress.XtraEditors.SimpleButton _btnQuery;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
 
@@ -37,6 +40,9 @@ namespace ColumbusWeighing.Controls
             this._btnSecondSlip = new DevExpress.XtraEditors.SimpleButton();
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
+            this._btnQuery = new DevExpress.XtraEditors.SimpleButton();
+            this._branchCombo = new DevExpress.XtraEditors.ComboBoxEdit();
+            this._branchLabel = new DevExpress.XtraEditors.LabelControl();
             this._btnShiftWeekForward = new DevExpress.XtraEditors.SimpleButton();
             this._btnShiftDayForward = new DevExpress.XtraEditors.SimpleButton();
             this._btnShiftDayBack = new DevExpress.XtraEditors.SimpleButton();
@@ -51,6 +57,7 @@ namespace ColumbusWeighing.Controls
             this._headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._filterPanel)).BeginInit();
             this._filterPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._branchCombo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditTo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditFrom.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridControl)).BeginInit();
@@ -100,6 +107,9 @@ namespace ColumbusWeighing.Controls
             this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 251, 224);
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this._filterPanel.Controls.Add(this._btnQuery);
+            this._filterPanel.Controls.Add(this._branchCombo);
+            this._filterPanel.Controls.Add(this._branchLabel);
             this._filterPanel.Controls.Add(this._btnShiftWeekForward);
             this._filterPanel.Controls.Add(this._btnShiftDayForward);
             this._filterPanel.Controls.Add(this._btnShiftDayBack);
@@ -182,6 +192,33 @@ namespace ColumbusWeighing.Controls
             this._btnShiftWeekForward.TabIndex = 7;
             this._btnShiftWeekForward.Text = ">>";
             //
+            // _branchLabel
+            //
+            this._branchLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9.5F, System.Drawing.FontStyle.Bold);
+            this._branchLabel.Appearance.Options.UseFont = true;
+            this._branchLabel.Location = new System.Drawing.Point(485, 9);
+            this._branchLabel.Name = "_branchLabel";
+            this._branchLabel.Size = new System.Drawing.Size(28, 16);
+            this._branchLabel.TabIndex = 8;
+            this._branchLabel.Text = "지점";
+            //
+            // _branchCombo
+            //
+            this._branchCombo.Location = new System.Drawing.Point(519, 5);
+            this._branchCombo.Name = "_branchCombo";
+            this._branchCombo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            this._branchCombo.Size = new System.Drawing.Size(90, 20);
+            this._branchCombo.TabIndex = 9;
+            //
+            // _btnQuery (조회 버튼)
+            //
+            this._btnQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnQuery.Location = new System.Drawing.Point(1098, 3);
+            this._btnQuery.Name = "_btnQuery";
+            this._btnQuery.Size = new System.Drawing.Size(90, 26);
+            this._btnQuery.TabIndex = 10;
+            this._btnQuery.Text = "조회";
+            //
             // _gridControl
             //
             this._gridControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -213,6 +250,7 @@ namespace ColumbusWeighing.Controls
             ((System.ComponentModel.ISupportInitialize)(this._filterPanel)).EndInit();
             this._filterPanel.ResumeLayout(false);
             this._filterPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._branchCombo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditTo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditFrom.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridControl)).EndInit();

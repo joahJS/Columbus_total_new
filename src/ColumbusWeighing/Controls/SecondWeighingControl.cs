@@ -16,6 +16,27 @@ namespace ColumbusWeighing.Controls
     /// </summary>
     public partial class SecondWeighingControl : XtraUserControl
     {
+        /// <summary>지점 선택 콤보에 나열할 항목 1개. Code가 null이면 지점 구분 없이 전체를 본다.</summary>
+        private sealed class BranchFilterOption
+        {
+            public string Code;
+            public string Display;
+
+            public BranchFilterOption(string code, string display)
+            {
+                Code = code;
+                Display = display;
+            }
+        }
+
+        private static readonly BranchFilterOption[] BranchFilterOptions =
+        {
+            new BranchFilterOption(null, "전체"),
+            new BranchFilterOption("A", "영천"),
+            new BranchFilterOption("B", "생곡"),
+            new BranchFilterOption("C", "녹산"),
+        };
+
         private IWeighingRepository _repository;
 
         /// <summary>시스템 설정의 "중량 단위"를 중량 컬럼 표시에 반영하기 위한 값(예: "kg").</summary>
@@ -54,11 +75,14 @@ namespace ColumbusWeighing.Controls
             BuildColumns();
             ComnGridFunc.GridStyleBasicSetting(_gridView);
             SetupDateEditCalendarButton();
+            SetupBranchCombo();
 
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _dateEditFrom.EditValueChanged += (s, e) => ApplyDateFilter();
             _dateEditTo.EditValueChanged += (s, e) => ApplyDateFilter();
+            _branchCombo.SelectedIndexChanged += (s, e) => ApplyDateFilter();
+            _btnQuery.Click += (s, e) => ApplyDateFilter();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
             _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);
             _btnShiftDayBack.Click += (s, e) => ShiftDateRange(-1);
@@ -182,11 +206,13 @@ namespace ColumbusWeighing.Controls
 
             var start = FromDate;
             var end = ToDate.AddDays(1);
+            var branchCode = SelectedBranchCode;
 
             _completedRecords.RaiseListChangedEvents = false;
             _completedRecords.Clear();
             foreach (var record in _repository.Records
-                .Where(r => r.IsCompleted && r.SecondDateTime.Value >= start && r.SecondDateTime.Value < end))
+                .Where(r => r.IsCompleted && r.SecondDateTime.Value >= start && r.SecondDateTime.Value < end
+                    && (branchCode == null || r.BranchCode == branchCode)))
             {
                 _completedRecords.Add(record);
             }
@@ -228,6 +254,26 @@ namespace ColumbusWeighing.Controls
                 dateEdit.Properties.Buttons.Clear();
                 dateEdit.Properties.Buttons.Add(new DevExpress.XtraEditors.Controls.EditorButton(
                     DevExpress.XtraEditors.Controls.ButtonPredefines.Combo));
+            }
+        }
+
+        private void SetupBranchCombo()
+        {
+            foreach (var option in BranchFilterOptions)
+            {
+                _branchCombo.Properties.Items.Add(option.Display);
+            }
+
+            _branchCombo.SelectedIndex = 0;
+        }
+
+        /// <summary>조회기간 옆 지점 콤보에서 선택한 지점 코드('A'/'B'/'C'). "전체"를 선택했으면 null.</summary>
+        private string SelectedBranchCode
+        {
+            get
+            {
+                var index = _branchCombo.SelectedIndex;
+                return index >= 0 && index < BranchFilterOptions.Length ? BranchFilterOptions[index].Code : null;
             }
         }
 
