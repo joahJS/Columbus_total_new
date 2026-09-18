@@ -24,6 +24,7 @@ namespace ColumbusSync.BranchA.Source
         private const string CustomerProcedureId = "DP_CM001F00";
         private const string VehicleProcedureId = "DP_CM009F00";
         private const string ProductProcedureId = "DP_CM003F00";
+        private const string UserProcedureId = "DP_CM002F00";
         private readonly string _connectionString;
 
         public MesSourceReader(string connectionString)
@@ -116,6 +117,62 @@ namespace ColumbusSync.BranchA.Source
                     ItNam = AsString(row, "ITNAM"),
                     Unit = AsString(row, "DANWI"),
                     UnitPrice = AsDecimal(row, "OCOST"),
+                    Remark = AsString(row, "RK"),
+                });
+            }
+
+            return list;
+        }
+
+        /// <summary>로그인 계정 전체 조회 (DP_CM002F00). 'UserInfo_Retr'(USE_GB='A')로 전체 목록
+        /// (USRCD 포함)을 받은 뒤, 목록 CMD가 주지 않는 비밀번호 해시(PASSWD)를 얻으려고 각
+        /// USRCD마다 'USER_DIALOG'를 한 번씩 더 호출한다 - 사용자 수가 많지 않은 사내 계정이라
+        /// N+1 호출이어도 문제없다. 시스템 계정(USRCD='00000')은 UserInfo_Retr 자체에서 이미
+        /// 제외된다.</summary>
+        public List<RawUserRow> GetUsers()
+        {
+            var listTable = SqlHelper.GetDataTable(_connectionString, UserProcedureId, new[]
+            {
+                new SqlParam("CMD", "UserInfo_Retr"),
+                new SqlParam("USE_GB", "A"),
+            });
+
+            var list = new List<RawUserRow>();
+            foreach (DataRow listRow in listTable.Rows)
+            {
+                var usrCd = AsString(listRow, "USRCD");
+                if (string.IsNullOrEmpty(usrCd))
+                {
+                    continue;
+                }
+
+                var detailTable = SqlHelper.GetDataTable(_connectionString, UserProcedureId, new[]
+                {
+                    new SqlParam("CMD", "USER_DIALOG"),
+                    new SqlParam("USRCD", usrCd),
+                });
+
+                if (detailTable.Rows.Count == 0)
+                {
+                    continue;
+                }
+
+                var row = detailTable.Rows[0];
+                var passwordHash = row.Table.Columns.Contains("PASSWD") && row["PASSWD"] != DBNull.Value
+                    ? (byte[])row["PASSWD"]
+                    : null;
+
+                if (string.IsNullOrEmpty(AsString(row, "USRID")) || passwordHash == null)
+                {
+                    continue;
+                }
+
+                list.Add(new RawUserRow
+                {
+                    LoginId = AsString(row, "USRID"),
+                    DisplayName = AsString(row, "USRNM"),
+                    PasswordHashSha256 = passwordHash,
+                    Phone = AsString(row, "MOBLNO"),
                     Remark = AsString(row, "RK"),
                 });
             }

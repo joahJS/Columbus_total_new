@@ -43,6 +43,22 @@ namespace ColumbusSync.BranchBC.Source
         public string Remark { get; set; }
     }
 
+    /// <summary>TSDB.mdb TB_USER 조회 결과 1행. TS2020 프로그램 자체 로그인 계정 정보다.
+    /// PASS1은 평문으로 저장되어 있어(고정 길이가 아니라 값마다 길이가 다른 것으로 확인)
+    /// 허브에 올릴 때 반드시 해시해야 한다 - HubWriter.UpsertUser 참고.</summary>
+    public class RawUserRow
+    {
+        public string LoginId { get; set; }      // ID1
+        public string DisplayName { get; set; }  // USER1
+        public string Password { get; set; }     // PASS1 (평문)
+        public string Phone { get; set; }         // TEL
+        public string Remark { get; set; }         // REM1
+        public bool CanPrint { get; set; }          // C_PRINT
+        public bool CanEdit { get; set; }            // C_MODIFY
+        public bool CanDelete { get; set; }           // C_DELETE
+        public bool IsAdmin { get; set; }              // C_ADMINISTRATOR
+    }
+
     /// <summary>TSDB.mdb TB_WEIGH 조회 결과 1행.</summary>
     public class RawWeighRow
     {

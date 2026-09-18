@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Config\SyncSettings.cs" />
     <Compile Include="Hub\HubWriter.cs" />
+    <Compile Include="Hub\PasswordHasher.cs" />
     <Compile Include="Hub\SqlHelper.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Program.cs" />

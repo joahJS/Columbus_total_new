@@ -10,6 +10,10 @@ namespace ColumbusWeighing.Models
     {
         public int Id { get; set; }
 
+        /// <summary>소속 지점 코드('A'/'B'/'C'). NULL이면 지점에 속하지 않는 전사 공용 계정
+        /// (예: admin)이다. 유일성은 LOGIN_ID 단독이 아니라 (BranchCode, LoginId) 조합 기준이다.</summary>
+        public string BranchCode { get; set; }
+
         public string LoginId { get; set; }
 
         public string DisplayName { get; set; }

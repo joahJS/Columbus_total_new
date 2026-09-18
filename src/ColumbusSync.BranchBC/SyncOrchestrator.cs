@@ -52,6 +52,15 @@ namespace ColumbusSync.BranchBC
                     upserted++;
                 }
 
+                // TS2020 로그인 계정도 매 주기 계속 동기화한다(일회성이 아님) - 지점 담당자가
+                // 그쪽 프로그램에서 계정을 새로 만들거나 비밀번호를 바꾸면 허브에도 반영되어야
+                // ColumbusWeighing에서 같은 계정으로 계속 로그인할 수 있기 때문이다.
+                foreach (var user in _source.GetUsers())
+                {
+                    _hub.UpsertUser(user);
+                    upserted++;
+                }
+
                 // 계근 데이터는 최근 N일치를 매번 다시 훑는다. 검수/수정이 늦게 들어온 건도
                 // 놓치지 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다.
                 // App.config의 WeighSyncLookbackDays로 조정한다(기본 30일).
