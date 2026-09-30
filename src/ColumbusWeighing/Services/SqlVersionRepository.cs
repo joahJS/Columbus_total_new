@@ -114,5 +114,28 @@ VALUES
                 UploadedBy = uploadedBy,
             };
         }
+
+        public VersionRecord GetVersionWithFileData(int id)
+        {
+            const string sql = @"
+SELECT PROGRAM_VERSION_ID, VERSION_NO, UPLOAD_DATE, FILE_NAME, FILE_SIZE, FILE_DATA, REMARK, UPLOADED_BY
+FROM dbo.PROGRAM_VERSION
+WHERE PROGRAM_VERSION_ID = @Id";
+
+            var table = DBConn.GetDataTable(
+                sql,
+                new List<Parameter> { new Parameter("Id", id, SqlDbType.Int) },
+                CommandType.Text);
+
+            if (table.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            var row = table.Rows[0];
+            var record = ToRecord(row);
+            record.FileData = row["FILE_DATA"] == DBNull.Value ? null : (byte[])row["FILE_DATA"];
+            return record;
+        }
     }
 }
