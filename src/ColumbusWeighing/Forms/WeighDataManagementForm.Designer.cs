@@ -97,36 +97,36 @@ namespace ColumbusWeighing.Forms
             // _btnExcel
             //
             this._btnExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnExcel.Location = new System.Drawing.Point(850, 6);
+            this._btnExcel.Location = new System.Drawing.Point(850, 40);
             this._btnExcel.Name = "_btnExcel";
-            this._btnExcel.Size = new System.Drawing.Size(110, 22);
+            this._btnExcel.Size = new System.Drawing.Size(110, 20);
             this._btnExcel.TabIndex = 10;
             this._btnExcel.Text = "엑셀내보내기";
             //
             // _btnRetrieve
             //
             this._btnRetrieve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnRetrieve.Location = new System.Drawing.Point(966, 6);
+            this._btnRetrieve.Location = new System.Drawing.Point(966, 40);
             this._btnRetrieve.Name = "_btnRetrieve";
-            this._btnRetrieve.Size = new System.Drawing.Size(85, 22);
+            this._btnRetrieve.Size = new System.Drawing.Size(85, 20);
             this._btnRetrieve.TabIndex = 11;
             this._btnRetrieve.Text = "조회(F5)";
             //
             // _btnPrint
             //
             this._btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnPrint.Location = new System.Drawing.Point(1057, 6);
+            this._btnPrint.Location = new System.Drawing.Point(1057, 40);
             this._btnPrint.Name = "_btnPrint";
-            this._btnPrint.Size = new System.Drawing.Size(85, 22);
+            this._btnPrint.Size = new System.Drawing.Size(85, 20);
             this._btnPrint.TabIndex = 12;
             this._btnPrint.Text = "인쇄";
             //
             // _btnClose
             //
             this._btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnClose.Location = new System.Drawing.Point(1148, 6);
+            this._btnClose.Location = new System.Drawing.Point(1148, 40);
             this._btnClose.Name = "_btnClose";
-            this._btnClose.Size = new System.Drawing.Size(85, 22);
+            this._btnClose.Size = new System.Drawing.Size(85, 20);
             this._btnClose.TabIndex = 13;
             this._btnClose.Text = "종료(ESC)";
             //
