@@ -62,7 +62,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this._titleLabel.Size = new System.Drawing.Size(120, 34);
             this._titleLabel.TabIndex = 0;
-            this._titleLabel.Text = "1차 계량 대기";
+            this._titleLabel.Text = "1차 계량";
             //
             // _btnFirstSlip
             //

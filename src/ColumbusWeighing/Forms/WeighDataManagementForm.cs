@@ -30,6 +30,7 @@ namespace ColumbusWeighing.Forms
         private SimpleButton _btnToday;
         private ComboBoxEdit _cboStatus;
         private ComboBoxEdit _cboInOut;
+        private ComboBoxEdit _cboBranch;
         private TextEdit _productEdit;
         private TextEdit _ownerCompanyEdit;
         private TextEdit _customerEdit;
@@ -120,6 +121,7 @@ namespace ColumbusWeighing.Forms
             var vehicleNo = _vehicleNoEdit.Text.Trim();
             var statusIndex = _cboStatus.SelectedIndex;
             var inOutIndex = _cboInOut.SelectedIndex;
+            var branchIndex = _cboBranch.SelectedIndex;
 
             var filtered = _repository.Records.Where(r =>
                 Contains(r.ProductName, product) &&
@@ -127,7 +129,8 @@ namespace ColumbusWeighing.Forms
                 Contains(r.CustomerName, customer) &&
                 Contains(r.VehicleNo, vehicleNo) &&
                 MatchesStatus(r, statusIndex) &&
-                MatchesInOut(r, inOutIndex));
+                MatchesInOut(r, inOutIndex) &&
+                MatchesBranch(r, branchIndex));
 
             _displayRecords.RaiseListChangedEvents = false;
             _displayRecords.Clear();
@@ -169,6 +172,18 @@ namespace ColumbusWeighing.Forms
             return selectedIndex == 1 ? record.InOutType == InOutType.In : record.InOutType == InOutType.Out;
         }
 
+        /// <summary>지점 콤보: 0=전체, 1=영천(A), 2=생곡(B), 3=녹산(C).</summary>
+        private static bool MatchesBranch(WeighingRecord record, int selectedIndex)
+        {
+            switch (selectedIndex)
+            {
+                case 1: return record.BranchCode == "A";
+                case 2: return record.BranchCode == "B";
+                case 3: return record.BranchCode == "C";
+                default: return true;
+            }
+        }
+
         private void UpdateSummary()
         {
             var netWeightSum = _displayRecords.Sum(r => r.NetWeight ?? 0m);
@@ -201,6 +216,9 @@ namespace ColumbusWeighing.Forms
 
             AddLabel(548, 10, 54, "입출구분", labelFont);
             _cboInOut = AddComboEdit(606, 7, 90, new[] { "전체", "입고", "출고" });
+
+            AddLabel(716, 10, 30, "지점", labelFont);
+            _cboBranch = AddComboEdit(750, 7, 90, new[] { "전체", "영천", "생곡", "녹산" });
 
             AddLabel(10, 43, 30, "제품", labelFont);
             _productEdit = AddTextEdit(44, 40, 130);
@@ -309,6 +327,7 @@ namespace ColumbusWeighing.Forms
             AddColumn("Id", "순번", 60);
             AddColumn("FirstDateTime", "1차계량일", 88, "yyyy-MM-dd");
             AddColumn("SecondDateTime", "2차계량일", 88, "yyyy-MM-dd");
+            AddColumn("BranchCode", "지점", 55);
             AddColumn("WeighSeq", "계량순번", 75);
             AddColumn("FirstDateTime", "1차시간", 65, "HH:mm");
             AddColumn("SecondDateTime", "2차시간", 65, "HH:mm");
@@ -374,6 +393,10 @@ namespace ColumbusWeighing.Forms
             {
                 e.DisplayText = inOut.ToDisplayString();
             }
+            else if (e.Column.FieldName == "BranchCode" && e.Value is string branchCode)
+            {
+                e.DisplayText = branchCode.ToDisplayString();
+            }
             else if (e.Column.FieldName == "IsCompleted" && e.Value is bool isCompleted)
             {
                 e.DisplayText = isCompleted ? "2차 완료" : "1차 대기";
@@ -409,7 +432,7 @@ namespace ColumbusWeighing.Forms
 
         private static readonly string[] ExcelHeaders =
         {
-            "순번", "1차계량일", "2차계량일", "계량순번", "차량번호", "차량소속회사", "운전자",
+            "순번", "1차계량일", "2차계량일", "지점", "계량순번", "차량번호", "차량소속회사", "운전자",
             "거래처명", "제품명", "1차중량", "2차중량", "실중량", "감량", "단가", "금액",
             "입출구분", "계량상태", "계량자", "비고"
         };
@@ -420,7 +443,7 @@ namespace ColumbusWeighing.Forms
         /// 그래도 안 잘리고 다 보이는 게 좋다).</summary>
         private static readonly int[] ExcelColumnWidths =
         {
-            8, 13, 13, 10, 10, 16, 10, 16, 14, 12, 12, 12, 8, 8, 10, 8, 10, 14, 24
+            8, 13, 13, 8, 10, 10, 16, 10, 16, 14, 12, 12, 12, 8, 8, 10, 8, 10, 14, 24
         };
 
         /// <summary>Excel 전용 라이브러리 참조가 없어, SimpleXlsxWriter로 직접 최소한의
@@ -463,6 +486,7 @@ namespace ColumbusWeighing.Forms
                 r.Id.ToString(),
                 r.FirstDateTime.ToString("yyyy-MM-dd"),
                 r.SecondDateTime.HasValue ? r.SecondDateTime.Value.ToString("yyyy-MM-dd") : string.Empty,
+                r.BranchCode.ToDisplayString(),
                 r.WeighSeq.ToString(),
                 r.VehicleNo,
                 r.OwnerCompany,

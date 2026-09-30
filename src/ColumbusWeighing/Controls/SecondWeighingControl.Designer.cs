@@ -30,6 +30,10 @@ namespace ColumbusWeighing.Controls
         private DevExpress.XtraEditors.SimpleButton _btnShiftWeekForward;
         private DevExpress.XtraEditors.LabelControl _branchLabel;
         private DevExpress.XtraEditors.ComboBoxEdit _branchCombo;
+        private DevExpress.XtraEditors.LabelControl _inOutLabel;
+        private DevExpress.XtraEditors.ComboBoxEdit _inOutCombo;
+        private DevExpress.XtraEditors.ComboBoxEdit _searchTargetCombo;
+        private DevExpress.XtraEditors.TextEdit _searchTextEdit;
         private DevExpress.XtraEditors.SimpleButton _btnQuery;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
@@ -41,6 +45,10 @@ namespace ColumbusWeighing.Controls
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
             this._btnQuery = new DevExpress.XtraEditors.SimpleButton();
+            this._searchTextEdit = new DevExpress.XtraEditors.TextEdit();
+            this._searchTargetCombo = new DevExpress.XtraEditors.ComboBoxEdit();
+            this._inOutCombo = new DevExpress.XtraEditors.ComboBoxEdit();
+            this._inOutLabel = new DevExpress.XtraEditors.LabelControl();
             this._branchCombo = new DevExpress.XtraEditors.ComboBoxEdit();
             this._branchLabel = new DevExpress.XtraEditors.LabelControl();
             this._btnShiftWeekForward = new DevExpress.XtraEditors.SimpleButton();
@@ -57,6 +65,9 @@ namespace ColumbusWeighing.Controls
             this._headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._filterPanel)).BeginInit();
             this._filterPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._searchTextEdit.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._searchTargetCombo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._inOutCombo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._branchCombo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditTo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditFrom.Properties)).BeginInit();
@@ -91,7 +102,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this._titleLabel.Size = new System.Drawing.Size(120, 34);
             this._titleLabel.TabIndex = 0;
-            this._titleLabel.Text = "2차계량 완료";
+            this._titleLabel.Text = "2차 계량";
             //
             // _btnSecondSlip
             //
@@ -108,6 +119,10 @@ namespace ColumbusWeighing.Controls
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._filterPanel.Controls.Add(this._btnQuery);
+            this._filterPanel.Controls.Add(this._searchTextEdit);
+            this._filterPanel.Controls.Add(this._searchTargetCombo);
+            this._filterPanel.Controls.Add(this._inOutCombo);
+            this._filterPanel.Controls.Add(this._inOutLabel);
             this._filterPanel.Controls.Add(this._branchCombo);
             this._filterPanel.Controls.Add(this._branchLabel);
             this._filterPanel.Controls.Add(this._btnShiftWeekForward);
@@ -212,12 +227,50 @@ namespace ColumbusWeighing.Controls
             this._branchCombo.Size = new System.Drawing.Size(90, 20);
             this._branchCombo.TabIndex = 9;
             //
+            // _inOutLabel
+            //
+            this._inOutLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 9.5F, System.Drawing.FontStyle.Bold);
+            this._inOutLabel.Appearance.Options.UseFont = true;
+            this._inOutLabel.Location = new System.Drawing.Point(619, 9);
+            this._inOutLabel.Name = "_inOutLabel";
+            this._inOutLabel.Size = new System.Drawing.Size(40, 16);
+            this._inOutLabel.TabIndex = 10;
+            this._inOutLabel.Text = "입출고";
+            //
+            // _inOutCombo
+            //
+            this._inOutCombo.Location = new System.Drawing.Point(663, 5);
+            this._inOutCombo.Name = "_inOutCombo";
+            this._inOutCombo.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this._inOutCombo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            this._inOutCombo.Size = new System.Drawing.Size(75, 20);
+            this._inOutCombo.TabIndex = 11;
+            //
+            // _searchTargetCombo
+            //
+            this._searchTargetCombo.Location = new System.Drawing.Point(748, 5);
+            this._searchTargetCombo.Name = "_searchTargetCombo";
+            this._searchTargetCombo.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this._searchTargetCombo.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            this._searchTargetCombo.Size = new System.Drawing.Size(85, 20);
+            this._searchTargetCombo.TabIndex = 12;
+            //
+            // _searchTextEdit
+            //
+            this._searchTextEdit.Location = new System.Drawing.Point(838, 5);
+            this._searchTextEdit.Name = "_searchTextEdit";
+            this._searchTextEdit.Properties.NullValuePrompt = "검색어 입력";
+            this._searchTextEdit.Size = new System.Drawing.Size(150, 20);
+            this._searchTextEdit.TabIndex = 13;
+            //
             // _btnQuery (조회 버튼)
             //
-            this._btnQuery.Location = new System.Drawing.Point(619, 3);
+            this._btnQuery.Location = new System.Drawing.Point(998, 3);
             this._btnQuery.Name = "_btnQuery";
             this._btnQuery.Size = new System.Drawing.Size(70, 26);
-            this._btnQuery.TabIndex = 10;
+            this._btnQuery.TabIndex = 14;
             this._btnQuery.Text = "조회";
             //
             // _gridControl
@@ -251,6 +304,9 @@ namespace ColumbusWeighing.Controls
             ((System.ComponentModel.ISupportInitialize)(this._filterPanel)).EndInit();
             this._filterPanel.ResumeLayout(false);
             this._filterPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._searchTextEdit.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._searchTargetCombo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._inOutCombo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._branchCombo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditTo.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditFrom.Properties)).EndInit();

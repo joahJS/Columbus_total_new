@@ -66,6 +66,7 @@ namespace ColumbusWeighing.Controls
         private GridColumn _colUnitPrice;
         private GridColumn _colAmount;
         private GridColumn _colInOutType;
+        private GridColumn _colWeigherName;
         // 감량률(%)/비중·환산중량/담당자 컬럼은 연결할 실제 데이터가 없어 뺐다
         // (Models/WeighingColumnSettings.cs 참고).
 
@@ -76,12 +77,17 @@ namespace ColumbusWeighing.Controls
             ComnGridFunc.GridStyleBasicSetting(_gridView);
             SetupDateEditCalendarButton();
             SetupBranchCombo();
+            SetupInOutCombo();
+            SetupSearchTargetCombo();
 
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _dateEditFrom.EditValueChanged += (s, e) => ApplyDateFilter();
             _dateEditTo.EditValueChanged += (s, e) => ApplyDateFilter();
-            _branchCombo.SelectedIndexChanged += (s, e) => ApplyDateFilter();
+            _branchCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
+            _inOutCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
+            _searchTargetCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
+            _searchTextEdit.EditValueChanged += (s, e) => RefreshCompletedList();
             _btnQuery.Click += (s, e) => ApplyDateFilter();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
             _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);
@@ -207,12 +213,16 @@ namespace ColumbusWeighing.Controls
             var start = FromDate;
             var end = ToDate.AddDays(1);
             var branchCode = SelectedBranchCode;
+            var searchByVehicleNo = _searchTargetCombo.SelectedIndex == 0;
+            var searchText = _searchTextEdit.Text.Trim();
 
             _completedRecords.RaiseListChangedEvents = false;
             _completedRecords.Clear();
             foreach (var record in _repository.Records
                 .Where(r => r.IsCompleted && r.SecondDateTime.Value >= start && r.SecondDateTime.Value < end
-                    && (branchCode == null || r.BranchCode == branchCode)))
+                    && (branchCode == null || r.BranchCode == branchCode)
+                    && MatchesInOut(r)
+                    && Contains(searchByVehicleNo ? r.VehicleNo : r.CustomerName, searchText)))
             {
                 _completedRecords.Add(record);
             }
@@ -242,7 +252,9 @@ namespace ColumbusWeighing.Controls
             _colUnitPrice = AddColumn("UnitPrice", "단가", 80, "N0");
             _colAmount = AddColumn("Amount", "금액", 90, "N0");
             _colInOutType = AddInOutColumn();
-            AddColumn("WeigherName", "계량자", 130);
+            // 계량자 컬럼은 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
+            _colWeigherName = AddColumn("WeigherName", "계량자", 130);
+            _colWeigherName.Visible = false;
             AddColumn("Remark", "비고", 100);
         }
 
@@ -265,6 +277,35 @@ namespace ColumbusWeighing.Controls
             }
 
             _branchCombo.SelectedIndex = 0;
+        }
+
+        /// <summary>입출고 콤보: 0=전체, 1=입고, 2=출고.</summary>
+        private void SetupInOutCombo()
+        {
+            _inOutCombo.Properties.Items.AddRange(new object[] { "전체", "입고", "출고" });
+            _inOutCombo.SelectedIndex = 0;
+        }
+
+        /// <summary>검색 대상 콤보: 0=차량번호, 1=거래처.</summary>
+        private void SetupSearchTargetCombo()
+        {
+            _searchTargetCombo.Properties.Items.AddRange(new object[] { "차량번호", "거래처" });
+            _searchTargetCombo.SelectedIndex = 0;
+        }
+
+        private bool MatchesInOut(WeighingRecord record)
+        {
+            switch (_inOutCombo.SelectedIndex)
+            {
+                case 1: return record.InOutType == InOutType.In;
+                case 2: return record.InOutType == InOutType.Out;
+                default: return true;
+            }
+        }
+
+        private static bool Contains(string value, string search)
+        {
+            return string.IsNullOrEmpty(search) || (value ?? string.Empty).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         /// <summary>조회기간 옆 지점 콤보에서 선택한 지점 코드('A'/'B'/'C'). "전체"를 선택했으면 null.</summary>
