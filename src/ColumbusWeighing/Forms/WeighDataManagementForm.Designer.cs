@@ -50,10 +50,10 @@ namespace ColumbusWeighing.Forms
             ((System.ComponentModel.ISupportInitialize)(this._gridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._summaryPanel)).BeginInit();
             this.SuspendLayout();
-            //
-            // _headerPanel  (타이틀: 계량 데이터 관리)
-            //
-            this._headerPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(20, 45, 110);
+            // 
+            // _headerPanel
+            // 
+            this._headerPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(45)))), ((int)(((byte)(110)))));
             this._headerPanel.Appearance.Options.UseBackColor = true;
             this._headerPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._headerPanel.Controls.Add(this._titleLabel);
@@ -62,13 +62,14 @@ namespace ColumbusWeighing.Forms
             this._headerPanel.Name = "_headerPanel";
             this._headerPanel.Size = new System.Drawing.Size(1600, 34);
             this._headerPanel.TabIndex = 0;
-            //
+            // 
             // _titleLabel
-            //
+            // 
             this._titleLabel.Appearance.Font = new System.Drawing.Font("맑은 고딕", 11F, System.Drawing.FontStyle.Bold);
             this._titleLabel.Appearance.ForeColor = System.Drawing.Color.White;
             this._titleLabel.Appearance.Options.UseFont = true;
             this._titleLabel.Appearance.Options.UseForeColor = true;
+            this._titleLabel.Appearance.Options.UseTextOptions = true;
             this._titleLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
             this._titleLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             this._titleLabel.Dock = System.Windows.Forms.DockStyle.Left;
@@ -78,10 +79,10 @@ namespace ColumbusWeighing.Forms
             this._titleLabel.Size = new System.Drawing.Size(150, 34);
             this._titleLabel.TabIndex = 0;
             this._titleLabel.Text = "계량 데이터 관리";
-            //
+            // 
             // _filterPanel
-            //
-            this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 251, 224);
+            // 
+            this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(251)))), ((int)(((byte)(224)))));
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._filterPanel.Controls.Add(this._btnClose);
@@ -93,45 +94,45 @@ namespace ColumbusWeighing.Forms
             this._filterPanel.Name = "_filterPanel";
             this._filterPanel.Size = new System.Drawing.Size(1600, 76);
             this._filterPanel.TabIndex = 1;
-            //
-            // _btnExcel
-            //
-            this._btnExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnExcel.Location = new System.Drawing.Point(770, 40);
-            this._btnExcel.Name = "_btnExcel";
-            this._btnExcel.Size = new System.Drawing.Size(110, 20);
-            this._btnExcel.TabIndex = 10;
-            this._btnExcel.Text = "엑셀내보내기";
-            //
-            // _btnRetrieve
-            //
-            this._btnRetrieve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnRetrieve.Location = new System.Drawing.Point(886, 40);
-            this._btnRetrieve.Name = "_btnRetrieve";
-            this._btnRetrieve.Size = new System.Drawing.Size(85, 20);
-            this._btnRetrieve.TabIndex = 11;
-            this._btnRetrieve.Text = "조회(F5)";
-            //
-            // _btnPrint
-            //
-            this._btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnPrint.Location = new System.Drawing.Point(977, 40);
-            this._btnPrint.Name = "_btnPrint";
-            this._btnPrint.Size = new System.Drawing.Size(85, 20);
-            this._btnPrint.TabIndex = 12;
-            this._btnPrint.Text = "인쇄";
-            //
+            // 
             // _btnClose
-            //
+            // 
             this._btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._btnClose.Location = new System.Drawing.Point(1068, 40);
             this._btnClose.Name = "_btnClose";
             this._btnClose.Size = new System.Drawing.Size(85, 20);
             this._btnClose.TabIndex = 13;
             this._btnClose.Text = "종료(ESC)";
-            //
+            // 
+            // _btnPrint
+            // 
+            this._btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnPrint.Location = new System.Drawing.Point(977, 40);
+            this._btnPrint.Name = "_btnPrint";
+            this._btnPrint.Size = new System.Drawing.Size(85, 20);
+            this._btnPrint.TabIndex = 12;
+            this._btnPrint.Text = "인쇄";
+            // 
+            // _btnRetrieve
+            // 
+            this._btnRetrieve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnRetrieve.Location = new System.Drawing.Point(886, 40);
+            this._btnRetrieve.Name = "_btnRetrieve";
+            this._btnRetrieve.Size = new System.Drawing.Size(85, 20);
+            this._btnRetrieve.TabIndex = 11;
+            this._btnRetrieve.Text = "조회(F5)";
+            // 
+            // _btnExcel
+            // 
+            this._btnExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._btnExcel.Location = new System.Drawing.Point(770, 40);
+            this._btnExcel.Name = "_btnExcel";
+            this._btnExcel.Size = new System.Drawing.Size(110, 20);
+            this._btnExcel.TabIndex = 10;
+            this._btnExcel.Text = "엑셀내보내기";
+            // 
             // _gridControl
-            //
+            // 
             this._gridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._gridControl.Location = new System.Drawing.Point(0, 110);
             this._gridControl.MainView = this._gridView;
@@ -140,16 +141,16 @@ namespace ColumbusWeighing.Forms
             this._gridControl.TabIndex = 2;
             this._gridControl.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridView});
-            //
+            // 
             // _gridView
-            //
+            // 
             this._gridView.GridControl = this._gridControl;
             this._gridView.Name = "_gridView";
             this._gridView.OptionsView.ShowIndicator = false;
-            //
+            // 
             // _summaryPanel
-            //
-            this._summaryPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(235, 235, 235);
+            // 
+            this._summaryPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(235)))), ((int)(((byte)(235)))));
             this._summaryPanel.Appearance.Options.UseBackColor = true;
             this._summaryPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this._summaryPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -157,11 +158,9 @@ namespace ColumbusWeighing.Forms
             this._summaryPanel.Name = "_summaryPanel";
             this._summaryPanel.Size = new System.Drawing.Size(1600, 36);
             this._summaryPanel.TabIndex = 3;
-            //
+            // 
             // WeighDataManagementForm
-            //
-            // 시스템 DPI/글꼴 설정에 따른 자동 재스케일로 픽셀 단위 레이아웃이 어긋나는 것을
-            // 막기 위해 None으로 끈다(계량 화면 설정 팝업과 같은 이유).
+            // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(1600, 610);
             this.Controls.Add(this._gridControl);
@@ -179,6 +178,7 @@ namespace ColumbusWeighing.Forms
             ((System.ComponentModel.ISupportInitialize)(this._gridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._summaryPanel)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         #endregion
