@@ -28,7 +28,9 @@ namespace ColumbusWeighing.Forms
             _repository = repository;
             _loginUserName = loginUserName;
 
-            _tx_Version.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            // AssemblyVersion은 항상 4자리(Major.Minor.Build.Revision)라 ToString()으로는
+            // "1.0.1.0"처럼 나온다. Revision은 안 쓰므로 3자리(Major.Minor.Build)까지만 보여준다.
+            _tx_Version.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
             _btnUpload.Click += BtnUpload_Click;
             _btnSave.Click += BtnSave_Click;
