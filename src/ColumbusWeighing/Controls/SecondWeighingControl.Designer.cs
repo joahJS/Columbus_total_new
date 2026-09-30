@@ -267,9 +267,9 @@ namespace ColumbusWeighing.Controls
             //
             // _btnQuery (조회 버튼)
             //
-            this._btnQuery.Location = new System.Drawing.Point(998, 3);
+            this._btnQuery.Location = new System.Drawing.Point(998, 5);
             this._btnQuery.Name = "_btnQuery";
-            this._btnQuery.Size = new System.Drawing.Size(70, 26);
+            this._btnQuery.Size = new System.Drawing.Size(70, 20);
             this._btnQuery.TabIndex = 14;
             this._btnQuery.Text = "조회";
             //

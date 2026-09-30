@@ -87,7 +87,14 @@ namespace ColumbusWeighing.Controls
             _branchCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
             _inOutCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
             _searchTargetCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
-            _searchTextEdit.EditValueChanged += (s, e) => RefreshCompletedList();
+            // 검색어는 입력하는 즉시가 아니라, 조회 버튼(또는 Enter)을 눌렀을 때만 반영한다.
+            _searchTextEdit.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == System.Windows.Forms.Keys.Enter)
+                {
+                    ApplyDateFilter();
+                }
+            };
             _btnQuery.Click += (s, e) => ApplyDateFilter();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
             _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);

@@ -218,7 +218,7 @@ namespace ColumbusWeighing.Forms
             _cboInOut = AddComboEdit(606, 7, 90, new[] { "전체", "입고", "출고" });
 
             AddLabel(716, 10, 30, "지점", labelFont);
-            _cboBranch = AddComboEdit(750, 7, 90, new[] { "전체", "영천", "생곡", "녹산" });
+            _cboBranch = AddComboEdit(750, 7, 70, new[] { "전체", "영천", "생곡", "녹산" });
 
             AddLabel(10, 43, 30, "제품", labelFont);
             _productEdit = AddTextEdit(44, 40, 130);
