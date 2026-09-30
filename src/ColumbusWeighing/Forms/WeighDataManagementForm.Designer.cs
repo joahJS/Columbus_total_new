@@ -97,7 +97,7 @@ namespace ColumbusWeighing.Forms
             // _btnExcel
             //
             this._btnExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnExcel.Location = new System.Drawing.Point(850, 40);
+            this._btnExcel.Location = new System.Drawing.Point(770, 40);
             this._btnExcel.Name = "_btnExcel";
             this._btnExcel.Size = new System.Drawing.Size(110, 20);
             this._btnExcel.TabIndex = 10;
@@ -106,7 +106,7 @@ namespace ColumbusWeighing.Forms
             // _btnRetrieve
             //
             this._btnRetrieve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnRetrieve.Location = new System.Drawing.Point(966, 40);
+            this._btnRetrieve.Location = new System.Drawing.Point(886, 40);
             this._btnRetrieve.Name = "_btnRetrieve";
             this._btnRetrieve.Size = new System.Drawing.Size(85, 20);
             this._btnRetrieve.TabIndex = 11;
@@ -115,7 +115,7 @@ namespace ColumbusWeighing.Forms
             // _btnPrint
             //
             this._btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnPrint.Location = new System.Drawing.Point(1057, 40);
+            this._btnPrint.Location = new System.Drawing.Point(977, 40);
             this._btnPrint.Name = "_btnPrint";
             this._btnPrint.Size = new System.Drawing.Size(85, 20);
             this._btnPrint.TabIndex = 12;
@@ -124,7 +124,7 @@ namespace ColumbusWeighing.Forms
             // _btnClose
             //
             this._btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnClose.Location = new System.Drawing.Point(1148, 40);
+            this._btnClose.Location = new System.Drawing.Point(1068, 40);
             this._btnClose.Name = "_btnClose";
             this._btnClose.Size = new System.Drawing.Size(85, 20);
             this._btnClose.TabIndex = 13;
