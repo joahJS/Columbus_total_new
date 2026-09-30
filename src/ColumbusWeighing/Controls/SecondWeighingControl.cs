@@ -237,7 +237,7 @@ namespace ColumbusWeighing.Controls
             _colProductName = AddColumn("ProductName", "제품명", 100);
             AddColumn("FirstWeight", "1차중량", 80, "N0");
             AddColumn("SecondWeight", "2차중량", 80, "N0");
-            AddColumn("NetWeight", "순중량", 80, "N0");
+            AddColumn("NetWeight", "당사중량", 80, "N0");
             _colLossWeight = AddColumn("LossWeight", "감량중량", 80, "N0");
             _colUnitPrice = AddColumn("UnitPrice", "단가", 80, "N0");
             _colAmount = AddColumn("Amount", "금액", 90, "N0");
