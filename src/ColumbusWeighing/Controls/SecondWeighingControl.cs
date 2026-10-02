@@ -99,7 +99,20 @@ namespace ColumbusWeighing.Controls
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _gridView.CellValueChanged += GridView_CellValueChanged;
-            _gridView.CustomDrawColumnHeader += GridView_CustomDrawColumnHeader;
+            // DevExpress 버전마다 CustomDrawColumnHeader의 EventArgs 타입/네임스페이스가 달라
+            // 이름을 직접 쓰면 깨지기 쉬우므로, 람다로 받아 컴파일러가 타입을 추론하게 하고
+            // 실제 그리기는 System.Drawing 타입만 쓰는 DrawVendorWeightHelpIcon에 맡긴다.
+            _gridView.CustomDrawColumnHeader += (s, e) =>
+            {
+                if (e.Column == null || e.Column.FieldName != "VendorWeight")
+                {
+                    return;
+                }
+
+                e.Painter.DrawObject(e.Info);
+                e.Handled = true;
+                _vendorWeightHelpIconBounds = DrawVendorWeightHelpIcon(e.Graphics, e.Bounds);
+            };
             _gridView.MouseMove += GridView_MouseMove;
             _gridView.MouseDown += GridView_MouseDown;
             _dateEditFrom.EditValueChanged += (s, e) => ApplyDateFilter();
@@ -402,44 +415,37 @@ namespace ColumbusWeighing.Controls
             }
         }
 
-        /// <summary>"업체중량" 헤더 우측에 동그라미+물음표 도움말 아이콘을 그린다. 기본 헤더를
-        /// 먼저 그대로 그린 뒤(e.Painter.DrawObject) 그 위에 아이콘만 덧그리는 방식이다.</summary>
-        private void GridView_CustomDrawColumnHeader(object sender, DevExpress.XtraGrid.Views.Base.ColumnHeaderCustomDrawEventArgs e)
+        /// <summary>"업체중량" 헤더 우측에 동그라미+물음표 도움말 아이콘을 그리고, 그 아이콘의
+        /// 영역(그리드 좌표 기준)을 반환한다. System.Drawing 타입만 받아서, DevExpress 커스텀
+        /// 드로우 이벤트의 EventArgs 타입(버전마다 이름/네임스페이스가 다르다)과 분리해뒀다.</summary>
+        private static Rectangle DrawVendorWeightHelpIcon(Graphics graphics, Rectangle headerBounds)
         {
-            if (e.Column == null || e.Column.FieldName != "VendorWeight")
-            {
-                return;
-            }
-
-            e.Painter.DrawObject(e.Info);
-            e.Handled = true;
-
             const int diameter = 14;
             var iconBounds = new Rectangle(
-                e.Bounds.Right - diameter - 6,
-                e.Bounds.Top + (e.Bounds.Height - diameter) / 2,
+                headerBounds.Right - diameter - 6,
+                headerBounds.Top + (headerBounds.Height - diameter) / 2,
                 diameter,
                 diameter);
 
-            var oldSmoothingMode = e.Graphics.SmoothingMode;
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            var oldSmoothingMode = graphics.SmoothingMode;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             using (var circleBrush = new SolidBrush(Color.White))
             using (var circlePen = new Pen(Color.FromArgb(90, 90, 90)))
             {
-                e.Graphics.FillEllipse(circleBrush, iconBounds);
-                e.Graphics.DrawEllipse(circlePen, iconBounds);
+                graphics.FillEllipse(circleBrush, iconBounds);
+                graphics.DrawEllipse(circlePen, iconBounds);
             }
 
             using (var font = new Font("맑은 고딕", 7.5f, FontStyle.Bold))
             using (var textBrush = new SolidBrush(Color.FromArgb(90, 90, 90)))
             using (var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
             {
-                e.Graphics.DrawString("?", font, textBrush, iconBounds, format);
+                graphics.DrawString("?", font, textBrush, iconBounds, format);
             }
 
-            e.Graphics.SmoothingMode = oldSmoothingMode;
-            _vendorWeightHelpIconBounds = iconBounds;
+            graphics.SmoothingMode = oldSmoothingMode;
+            return iconBounds;
         }
 
         /// <summary>도움말 아이콘 위에 마우스를 올리면 툴팁으로 설명을 보여준다.</summary>
