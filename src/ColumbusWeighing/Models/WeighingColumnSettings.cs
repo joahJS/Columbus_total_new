@@ -21,7 +21,8 @@ namespace ColumbusWeighing.Models
         /// 기본적으로 보이도록 한다.</summary>
         public bool ShowLossWeight { get; set; } = true;
 
-        public bool ShowPriceInfo { get; set; }
+        /// <summary>기본적으로 보이도록 한다.</summary>
+        public bool ShowPriceInfo { get; set; } = true;
 
         // 비중/환산중량: MDB·허브 DB·코드 전체 어디에도 이 개념 자체가 없어 항목을 숨겼다.
         // public bool ShowSpecificGravity { get; set; }
