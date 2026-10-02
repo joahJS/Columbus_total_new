@@ -65,6 +65,9 @@ namespace ColumbusWeighing.Controls
         private GridColumn _colLossWeight;
         private GridColumn _colVendorWeight;
         private GridColumn _colLoss;
+        private GridColumn _colFinalWeight;
+        private GridColumn _colAdminUnitPrice;
+        private GridColumn _colSupplyAmount;
         private GridColumn _colUnitPrice;
         private GridColumn _colAmount;
         private GridColumn _colInOutType;
@@ -262,7 +265,11 @@ namespace ColumbusWeighing.Controls
             _colVendorWeight = AddColumn("VendorWeight", "업체중량", 80, "N0");
             _colVendorWeight.OptionsColumn.AllowEdit = true;
             _colLoss = AddColumn("Loss", "로스", 80, "N0");
-            _colUnitPrice = AddColumn("UnitPrice", "단가", 80, "N0");
+            _colFinalWeight = AddColumn("FinalWeight", "실중량", 80, "N0");
+            _colAdminUnitPrice = AddColumn("AdminUnitPrice", "단가", 80, "N0");
+            _colAdminUnitPrice.OptionsColumn.AllowEdit = true;
+            _colSupplyAmount = AddColumn("SupplyAmount", "공급가액", 90, "N0");
+            _colUnitPrice = AddColumn("UnitPrice", "단가(동기화)", 80, "N0");
             _colAmount = AddColumn("Amount", "금액", 90, "N0");
             _colInOutType = AddInOutColumn();
             // 계량자 컬럼은 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
@@ -368,22 +375,24 @@ namespace ColumbusWeighing.Controls
                 e.DisplayText = branchCode.ToDisplayString();
             }
             else if ((e.Column.FieldName == "FirstWeight" || e.Column.FieldName == "SecondWeight" || e.Column.FieldName == "NetWeight"
-                || e.Column.FieldName == "LossWeight" || e.Column.FieldName == "VendorWeight" || e.Column.FieldName == "Loss")
+                || e.Column.FieldName == "LossWeight" || e.Column.FieldName == "VendorWeight" || e.Column.FieldName == "Loss"
+                || e.Column.FieldName == "FinalWeight")
                 && e.Value is decimal weight)
             {
                 e.DisplayText = FormatWeight(weight);
             }
-            else if ((e.Column.FieldName == "UnitPrice" || e.Column.FieldName == "Amount") && e.Value is decimal money)
+            else if ((e.Column.FieldName == "UnitPrice" || e.Column.FieldName == "Amount"
+                || e.Column.FieldName == "AdminUnitPrice" || e.Column.FieldName == "SupplyAmount") && e.Value is decimal money)
             {
                 e.DisplayText = FormatAmount(money);
             }
         }
 
-        /// <summary>업체중량 컬럼을 편집하면 바로 허브 DB에 저장한다(이 화면에서 유일하게 쓰기가
-        /// 일어나는 컬럼). 로스는 업체중량에서 계산되는 값이라 저장 대상이 아니다.</summary>
+        /// <summary>업체중량/단가 컬럼을 편집하면 바로 허브 DB에 저장한다(이 화면에서 쓰기가
+        /// 일어나는 유일한 컬럼들). 로스/실중량/공급가액은 거기서 계산되는 값이라 저장 대상이 아니다.</summary>
         private void GridView_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)
         {
-            if (e.Column.FieldName != "VendorWeight" || _repository == null)
+            if (_repository == null)
             {
                 return;
             }
@@ -396,11 +405,18 @@ namespace ColumbusWeighing.Controls
 
             try
             {
-                _repository.UpdateVendorWeight(record.Id, record.VendorWeight);
+                if (e.Column.FieldName == "VendorWeight")
+                {
+                    _repository.UpdateVendorWeight(record.Id, record.VendorWeight);
+                }
+                else if (e.Column.FieldName == "AdminUnitPrice")
+                {
+                    _repository.UpdateAdminUnitPrice(record.Id, record.AdminUnitPrice);
+                }
             }
             catch (Exception ex)
             {
-                ComnFunc.gp_PrintMessage("업체중량 저장에 실패했습니다.\r\n" + ex.Message, "저장 오류", MessageType.오류);
+                ComnFunc.gp_PrintMessage("저장에 실패했습니다.\r\n" + ex.Message, "저장 오류", MessageType.오류);
             }
         }
 

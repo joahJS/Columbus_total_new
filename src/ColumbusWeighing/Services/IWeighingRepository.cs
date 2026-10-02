@@ -20,5 +20,9 @@ namespace ColumbusWeighing.Services
         /// <summary>업체중량(수동 입력값)만 저장한다. 동기화가 채우는 값이 아니라 이 프로그램에서
         /// 직접 관리하는 예외적인 쓰기 동작이다(2차계량 화면의 "업체중량" 컬럼 편집).</summary>
         void UpdateVendorWeight(int weighId, decimal? vendorWeight);
+
+        /// <summary>단가(관리자 수동 입력값)만 저장한다. 동기화되는 UnitPrice와는 별개 컬럼이다
+        /// (2차계량 화면의 "단가" 컬럼 편집).</summary>
+        void UpdateAdminUnitPrice(int weighId, decimal? adminUnitPrice);
     }
 }

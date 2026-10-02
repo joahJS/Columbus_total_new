@@ -17,8 +17,9 @@ namespace ColumbusWeighing.Models
         public bool ShowDriverName { get; set; }
 
         /// <summary>감량중량(kg)만 다룬다. 감량률(%)은 계근 건이 아니라 품목 마스터에만 있는
-        /// 값이라 연결할 데이터가 없어 항목 자체를 숨겼다(계량 화면 설정 팝업/그리드 컬럼 모두).</summary>
-        public bool ShowLossWeight { get; set; }
+        /// 값이라 연결할 데이터가 없어 항목 자체를 숨겼다(계량 화면 설정 팝업/그리드 컬럼 모두).
+        /// 기본적으로 보이도록 한다.</summary>
+        public bool ShowLossWeight { get; set; } = true;
 
         public bool ShowPriceInfo { get; set; }
 

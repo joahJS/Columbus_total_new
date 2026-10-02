@@ -22,7 +22,7 @@ namespace ColumbusWeighing.Services
         private const string SelectSql = @"
 SELECT w.WEIGH_ID, w.BRANCH_CODE, w.WEIGH_SEQ, w.VEHICLE_NO, w.CUSTOMER_NAME, w.PRODUCT_NAME, w.IN_OUT_TYPE,
        w.WEIGHER_NAME, w.UNIT_PRICE, w.REMARK, w.WEIGH_DATE, w.FIRST_DATETIME, w.FIRST_WEIGHT,
-       w.SECOND_DATETIME, w.SECOND_WEIGHT, w.LOSS_WEIGHT, w.VENDOR_WEIGHT,
+       w.SECOND_DATETIME, w.SECOND_WEIGHT, w.LOSS_WEIGHT, w.VENDOR_WEIGHT, w.ADMIN_UNIT_PRICE,
        veh.CARRIER_NAME, veh.DRIVER_NAME
 FROM dbo.WEIGH_RECORD w
 OUTER APPLY (
@@ -124,6 +124,7 @@ ORDER BY w.FIRST_DATETIME";
                 SecondWeight = AsNullableDecimal(row, "SECOND_WEIGHT"),
                 LossWeight = AsNullableDecimal(row, "LOSS_WEIGHT"),
                 VendorWeight = AsNullableDecimal(row, "VENDOR_WEIGHT"),
+                AdminUnitPrice = AsNullableDecimal(row, "ADMIN_UNIT_PRICE"),
                 OwnerCompany = AsString(row, "CARRIER_NAME"),
                 DriverName = AsString(row, "DRIVER_NAME"),
             };
@@ -138,6 +139,20 @@ ORDER BY w.FIRST_DATETIME";
                 new List<Parameter>
                 {
                     new Parameter("VendorWeight", vendorWeight, SqlDbType.Decimal),
+                    new Parameter("WeighId", weighId, SqlDbType.Int),
+                },
+                CommandType.Text);
+        }
+
+        public void UpdateAdminUnitPrice(int weighId, decimal? adminUnitPrice)
+        {
+            const string sql = "UPDATE dbo.WEIGH_RECORD SET ADMIN_UNIT_PRICE = @AdminUnitPrice WHERE WEIGH_ID = @WeighId";
+
+            DBConn.ExecuteNonQuery(
+                sql,
+                new List<Parameter>
+                {
+                    new Parameter("AdminUnitPrice", adminUnitPrice, SqlDbType.Decimal),
                     new Parameter("WeighId", weighId, SqlDbType.Int),
                 },
                 CommandType.Text);

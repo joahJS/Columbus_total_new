@@ -12,6 +12,7 @@ namespace ColumbusWeighing.Models
         private decimal? _secondWeight;
         private DateTime? _secondDateTime;
         private decimal? _vendorWeight;
+        private decimal? _adminUnitPrice;
 
         public int Id { get; set; }
 
@@ -58,7 +59,15 @@ namespace ColumbusWeighing.Models
         public decimal? SecondWeight
         {
             get { return _secondWeight; }
-            set { _secondWeight = value; OnPropertyChanged(nameof(SecondWeight)); OnPropertyChanged(nameof(NetWeight)); OnPropertyChanged(nameof(Loss)); }
+            set
+            {
+                _secondWeight = value;
+                OnPropertyChanged(nameof(SecondWeight));
+                OnPropertyChanged(nameof(NetWeight));
+                OnPropertyChanged(nameof(Loss));
+                OnPropertyChanged(nameof(FinalWeight));
+                OnPropertyChanged(nameof(SupplyAmount));
+            }
         }
 
         /// <summary>업체중량. 동기화 대상이 아니라 이 프로그램에서 사용자가 직접 입력하는 값이다
@@ -66,7 +75,23 @@ namespace ColumbusWeighing.Models
         public decimal? VendorWeight
         {
             get { return _vendorWeight; }
-            set { _vendorWeight = value; OnPropertyChanged(nameof(VendorWeight)); OnPropertyChanged(nameof(Loss)); }
+            set
+            {
+                _vendorWeight = value;
+                OnPropertyChanged(nameof(VendorWeight));
+                OnPropertyChanged(nameof(Loss));
+                OnPropertyChanged(nameof(FinalWeight));
+                OnPropertyChanged(nameof(SupplyAmount));
+            }
+        }
+
+        /// <summary>단가(관리자 수동입력). 동기화되는 UnitPrice와 별개로, 이 프로그램에서 직접
+        /// 입력/확정해 공급가액 계산에 쓰는 값이다(DB의 WEIGH_RECORD.ADMIN_UNIT_PRICE,
+        /// SqlWeighingRepository.UpdateAdminUnitPrice 참고).</summary>
+        public decimal? AdminUnitPrice
+        {
+            get { return _adminUnitPrice; }
+            set { _adminUnitPrice = value; OnPropertyChanged(nameof(AdminUnitPrice)); OnPropertyChanged(nameof(SupplyAmount)); }
         }
 
         /// <summary>2차 계량까지 완료된 건인지 여부. true 이면 2차계량 화면 대상.</summary>
@@ -104,6 +129,26 @@ namespace ColumbusWeighing.Models
                 }
 
                 return NetWeight.Value - VendorWeight.Value;
+            }
+        }
+
+        /// <summary>실중량(최종확정중량) = 업체중량이 입력된 건은 업체중량, 아니면 당사중량.</summary>
+        public decimal? FinalWeight
+        {
+            get { return VendorWeight ?? NetWeight; }
+        }
+
+        /// <summary>공급가액 = 실중량 * 단가(AdminUnitPrice). 둘 다 입력된 건만 계산된다.</summary>
+        public decimal? SupplyAmount
+        {
+            get
+            {
+                if (!FinalWeight.HasValue || !AdminUnitPrice.HasValue)
+                {
+                    return null;
+                }
+
+                return FinalWeight.Value * AdminUnitPrice.Value;
             }
         }
 
