@@ -55,6 +55,10 @@ namespace ColumbusWeighing.Controls
         /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
 
+        /// <summary>중량 컬럼의 캡션에 시스템 설정의 중량 단위를 붙이기 위해, 컬럼별 기본 캡션을
+        /// 따로 기억해둔다(예: "1차중량" + "(kg)"). 값 자체에는 더 이상 단위를 붙이지 않는다.</summary>
+        private readonly Dictionary<GridColumn, string> _weightColumnBaseCaptions = new Dictionary<GridColumn, string>();
+
         /// <summary>업체중량/단가를 편집했지만 아직 "저장" 버튼을 누르지 않은 건들. 조회조건을
         /// 바꿔 목록을 다시 불러오면(ApplyDateFilter) 예전 레코드 인스턴스는 더 이상 화면에 없는
         /// 값이 되므로 같이 비운다 - 그렇지 않으면 나중에 저장을 눌렀을 때 이미 버려진 편집값이
@@ -188,8 +192,20 @@ namespace ColumbusWeighing.Controls
         {
             _weightUnit = settings.WeightUnit;
             _amountUnit = settings.AmountUnit;
+            ApplyWeightUnitToCaptions();
             ComnGridFunc.SetRowFontSize(_gridView, settings.MainGridFontSize);
             _gridControl.Refresh();
+        }
+
+        /// <summary>중량 컬럼 캡션을 "기본캡션(단위)" 형태로 갱신한다(예: "실중량(kg)").
+        /// 값 칸에는 더 이상 단위를 붙이지 않고 헤더에만 표기한다.</summary>
+        private void ApplyWeightUnitToCaptions()
+        {
+            var suffix = string.IsNullOrEmpty(_weightUnit) ? string.Empty : "(" + _weightUnit + ")";
+            foreach (var pair in _weightColumnBaseCaptions)
+            {
+                pair.Key.Caption = pair.Value + suffix;
+            }
         }
 
         /// <summary>"계량 화면 설정" 팝업에서 고른 부가 컬럼 표시 여부를 그리드에 반영한다.</summary>
@@ -293,42 +309,36 @@ namespace ColumbusWeighing.Controls
         private void BuildColumns()
         {
             _gridView.Columns.Clear();
+            _weightColumnBaseCaptions.Clear();
 
-            _colSecondDate = AddColumn("SecondDateTime", "2차계량일", 90, "yyyy-MM-dd");
-            AddColumn("BranchCode", "지점", 60);
-            _colWeighSeq = AddColumn("WeighSeq", "계량순번", 60);
-            AddColumn("VehicleNo", "차량번호", 70);
-            _colCustomerName = AddColumn("CustomerName", "거래처명", 110);
-            _colProductName = AddColumn("ProductName", "제품명", 100);
-            _colFirstTime = AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
-            _colSecondTime = AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
-
+            _colSecondDate = AddCenteredColumn("SecondDateTime", "2차계량일", 90, "yyyy-MM-dd");
+            AddCenteredColumn("BranchCode", "지점", 60);
+            _colInOutType = AddCenteredColumn("InOutType", "입/출고", 60);
+            _colWeighSeq = AddCenteredColumn("WeighSeq", "계량순번", 60);
+            AddCenteredColumn("VehicleNo", "차량번호", 70);
             _colOwnerCompany = AddColumn("OwnerCompany", "차량소속회사", 100);
             _colDriverName = AddColumn("DriverName", "운전자", 80);
-            
-            AddColumn("FirstWeight", "1차중량", 80, "N0");
-            AddColumn("SecondWeight", "2차중량", 80, "N0");
-            _colLossWeight = AddColumn("LossWeight", "감량중량", 80, "N0");
-            AddColumn("NetWeight", "당사중량", 80, "N0");
-            _colVendorWeight = AddColumn("VendorWeight", "업체중량", 95, "N0");
-            _colFinalWeight = AddColumn("FinalWeight", "실중량", 80, "N0");
-            _colAdminUnitPrice = AddColumn("AdminUnitPrice", "단가", 80, "N0");
-            _colAmount = AddColumn("Amount", "금액", 90, "N0");
-
-            
+            _colCustomerName = AddColumn("CustomerName", "거래처명", 110);
+            _colProductName = AddCenteredColumn("ProductName", "제품명", 100);
+            _colFirstTime = AddCenteredColumn("FirstDateTime", "1차시간", 55, "HH:mm");
+            _colSecondTime = AddCenteredColumn("SecondDateTime", "2차시간", 55, "HH:mm");
+            AddWeightColumn("FirstWeight", "1차중량", 80);
+            AddWeightColumn("SecondWeight", "2차중량", 80);
+            _colLossWeight = AddWeightColumn("LossWeight", "감량중량", 80);
+            AddWeightColumn("NetWeight", "당사중량", 80);
+            _colVendorWeight = AddWeightColumn("VendorWeight", "업체중량", 95);
             _colVendorWeight.OptionsColumn.AllowEdit = true;
-            _colLoss = AddColumn("Loss", "로스", 80, "N0");
-            
-            
+            _colLoss = AddWeightColumn("Loss", "로스", 80);
+            _colFinalWeight = AddWeightColumn("FinalWeight", "실중량", 80);
+            _colAdminUnitPrice = AddMoneyColumn("AdminUnitPrice", "단가", 80);
             _colAdminUnitPrice.OptionsColumn.AllowEdit = true;
-            _colSupplyAmount = AddColumn("SupplyAmount", "공급가액", 90, "N0");
-            //_colUnitPrice = AddColumn("UnitPrice", "단가(동기화)", 80, "N0");
-            
-            _colInOutType = AddInOutColumn();
+            _colSupplyAmount = AddMoneyColumn("SupplyAmount", "공급가액", 90);
+            _colUnitPrice = AddMoneyColumn("UnitPrice", "단가(동기화)", 80);
+            _colAmount = AddMoneyColumn("Amount", "금액", 90);
             // 계량자 컬럼은 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
             _colWeigherName = AddColumn("WeigherName", "계량자", 130);
             _colWeigherName.Visible = false;
-            AddColumn("Remark", "비고", 100);
+            AddLeftAlignedColumn("Remark", "비고", 100);
         }
 
         /// <summary>조회일자 우측에 클릭하면 달력이 열리는 버튼을 명시적으로 붙인다.</summary>
@@ -409,11 +419,42 @@ namespace ColumbusWeighing.Controls
             return column;
         }
 
-        private GridColumn AddInOutColumn()
+        /// <summary>가운데 정렬 컬럼(일자/지점/입출고/순번/차량번호/제품명/시간 등).</summary>
+        private GridColumn AddCenteredColumn(string fieldName, string caption, int width, string format = null)
         {
-            var column = _gridView.Columns.AddVisible("InOutType", "입/출고");
-            column.Width = 60;
-            column.OptionsColumn.AllowEdit = false;
+            var column = AddColumn(fieldName, caption, width, format);
+            column.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            column.AppearanceCell.Options.UseTextOptions = true;
+            return column;
+        }
+
+        /// <summary>우측 정렬 + "N0" 숫자 포맷 중량 컬럼. 캡션에 중량 단위를 붙이기 위해
+        /// 기본 캡션을 _weightColumnBaseCaptions에 등록해둔다(ApplyWeightUnitToCaptions 참고).</summary>
+        private GridColumn AddWeightColumn(string fieldName, string caption, int width)
+        {
+            var column = AddColumn(fieldName, caption, width, "N0");
+            column.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
+            column.AppearanceCell.Options.UseTextOptions = true;
+            _weightColumnBaseCaptions[column] = caption;
+            return column;
+        }
+
+        /// <summary>우측 정렬 + "N0" 숫자 포맷 금액 컬럼(단가/금액/공급가액). 값에는 FormatAmount가
+        /// 시스템 설정의 금액 단위를 그대로 붙이므로 중량과 달리 캡션은 건드리지 않는다.</summary>
+        private GridColumn AddMoneyColumn(string fieldName, string caption, int width)
+        {
+            var column = AddColumn(fieldName, caption, width, "N0");
+            column.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
+            column.AppearanceCell.Options.UseTextOptions = true;
+            return column;
+        }
+
+        /// <summary>좌측 정렬 컬럼(비고). 문자열 컬럼의 기본 정렬과 같지만 명시적으로 지정해둔다.</summary>
+        private GridColumn AddLeftAlignedColumn(string fieldName, string caption, int width)
+        {
+            var column = AddColumn(fieldName, caption, width);
+            column.AppearanceCell.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Near;
+            column.AppearanceCell.Options.UseTextOptions = true;
             return column;
         }
 
@@ -427,13 +468,8 @@ namespace ColumbusWeighing.Controls
             {
                 e.DisplayText = branchCode.ToDisplayString();
             }
-            else if ((e.Column.FieldName == "FirstWeight" || e.Column.FieldName == "SecondWeight" || e.Column.FieldName == "NetWeight"
-                || e.Column.FieldName == "LossWeight" || e.Column.FieldName == "VendorWeight" || e.Column.FieldName == "Loss"
-                || e.Column.FieldName == "FinalWeight")
-                && e.Value is decimal weight)
-            {
-                e.DisplayText = FormatWeight(weight);
-            }
+            // 중량 값 자체에는 더 이상 단위를 붙이지 않는다(헤더 캡션에 "(kg)"처럼 표기 -
+            // ApplyWeightUnitToCaptions 참고). DisplayFormat의 "N0"만으로 숫자 서식은 충분하다.
             else if ((e.Column.FieldName == "UnitPrice" || e.Column.FieldName == "Amount"
                 || e.Column.FieldName == "AdminUnitPrice" || e.Column.FieldName == "SupplyAmount") && e.Value is decimal money)
             {
@@ -448,7 +484,7 @@ namespace ColumbusWeighing.Controls
         {
             const int diameter = 14;
             var iconBounds = new Rectangle(
-                headerBounds.Right - diameter - 6,
+                headerBounds.Left + 6,
                 headerBounds.Top + (headerBounds.Height - diameter) / 2,
                 diameter,
                 diameter);
@@ -549,13 +585,6 @@ namespace ColumbusWeighing.Controls
             {
                 ComnFunc.gp_PrintMessage("저장에 실패했습니다.\r\n" + ex.Message, "저장 오류", MessageType.오류);
             }
-        }
-
-        /// <summary>중량 값에 시스템 설정의 중량 단위(예: "kg")를 붙여서 보여준다.</summary>
-        private string FormatWeight(decimal value)
-        {
-            var text = value.ToString("N0");
-            return string.IsNullOrEmpty(_weightUnit) ? text : text + " " + _weightUnit;
         }
 
         /// <summary>금액 값에 시스템 설정의 금액 단위(예: "원")를 붙여서 보여준다.</summary>
