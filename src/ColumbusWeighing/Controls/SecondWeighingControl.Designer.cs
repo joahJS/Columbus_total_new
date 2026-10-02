@@ -288,7 +288,9 @@ namespace ColumbusWeighing.Controls
             //
             this._gridView.GridControl = this._gridControl;
             this._gridView.Name = "_gridView";
-            this._gridView.OptionsBehavior.Editable = false;
+            // 그리드 전체는 편집 가능 상태로 두고, 개별 컬럼마다 AllowEdit로 편집 여부를 정한다
+            // (업체중량 컬럼만 AllowEdit = true, 나머지는 전부 false - BuildColumns 참고).
+            this._gridView.OptionsBehavior.Editable = true;
             this._gridView.OptionsView.ShowGroupPanel = false;
             this._gridView.OptionsView.ShowIndicator = false;
             //

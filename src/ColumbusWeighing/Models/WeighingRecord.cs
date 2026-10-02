@@ -11,6 +11,7 @@ namespace ColumbusWeighing.Models
     {
         private decimal? _secondWeight;
         private DateTime? _secondDateTime;
+        private decimal? _vendorWeight;
 
         public int Id { get; set; }
 
@@ -57,7 +58,15 @@ namespace ColumbusWeighing.Models
         public decimal? SecondWeight
         {
             get { return _secondWeight; }
-            set { _secondWeight = value; OnPropertyChanged(nameof(SecondWeight)); OnPropertyChanged(nameof(NetWeight)); }
+            set { _secondWeight = value; OnPropertyChanged(nameof(SecondWeight)); OnPropertyChanged(nameof(NetWeight)); OnPropertyChanged(nameof(Loss)); }
+        }
+
+        /// <summary>업체중량. 동기화 대상이 아니라 이 프로그램에서 사용자가 직접 입력하는 값이다
+        /// (DB의 WEIGH_RECORD.VENDOR_WEIGHT, SqlWeighingRepository.UpdateVendorWeight 참고).</summary>
+        public decimal? VendorWeight
+        {
+            get { return _vendorWeight; }
+            set { _vendorWeight = value; OnPropertyChanged(nameof(VendorWeight)); OnPropertyChanged(nameof(Loss)); }
         }
 
         /// <summary>2차 계량까지 완료된 건인지 여부. true 이면 2차계량 화면 대상.</summary>
@@ -83,6 +92,20 @@ namespace ColumbusWeighing.Models
         public decimal? LossRate { get; set; }
 
         public decimal? LossWeight { get; set; }
+
+        /// <summary>로스 = 당사중량(NetWeight) - 업체중량. 업체중량이 입력된 건만 계산된다.</summary>
+        public decimal? Loss
+        {
+            get
+            {
+                if (!VendorWeight.HasValue || !NetWeight.HasValue)
+                {
+                    return null;
+                }
+
+                return NetWeight.Value - VendorWeight.Value;
+            }
+        }
 
         public decimal? Amount
         {
