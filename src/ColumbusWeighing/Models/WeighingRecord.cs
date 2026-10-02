@@ -71,13 +71,15 @@ namespace ColumbusWeighing.Models
         }
 
         /// <summary>업체중량. 동기화 대상이 아니라 이 프로그램에서 사용자가 직접 입력하는 값이다
-        /// (DB의 WEIGH_RECORD.VENDOR_WEIGHT, SqlWeighingRepository.UpdateVendorWeight 참고).</summary>
+        /// (DB의 WEIGH_RECORD.VENDOR_WEIGHT, SqlWeighingRepository.UpdateVendorWeight 참고).
+        /// 0은 "값 없음"과 동일하게 취급해 null로 저장한다 - 업체중량 0kg은 실제로 나올 수 없는
+        /// 값이고, 그리드에서 입력했던 값을 지우는 가장 쉬운 방법이 0을 입력하는 것이기 때문이다.</summary>
         public decimal? VendorWeight
         {
             get { return _vendorWeight; }
             set
             {
-                _vendorWeight = value;
+                _vendorWeight = value == 0m ? null : value;
                 OnPropertyChanged(nameof(VendorWeight));
                 OnPropertyChanged(nameof(Loss));
                 OnPropertyChanged(nameof(FinalWeight));
