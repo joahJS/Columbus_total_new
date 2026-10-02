@@ -220,7 +220,7 @@ namespace ColumbusWeighing.Controls
             _colProductName.Visible = settings.ShowProductName;
             _colCustomerName.Visible = settings.ShowCustomerName;
             _colLossWeight.Visible = settings.ShowLossWeight;
-            _colUnitPrice.Visible = settings.ShowPriceInfo;
+            // 단가(동기화)는 요청에 따라 항상 숨김 - "계량 화면 설정"의 금액표시 토글과 무관하다(BuildColumns 참고).
             _colAmount.Visible = settings.ShowPriceInfo;
             _colInOutType.Visible = settings.ShowInOutType;
         }
@@ -334,6 +334,9 @@ namespace ColumbusWeighing.Controls
             _colAdminUnitPrice.OptionsColumn.AllowEdit = true;
             _colSupplyAmount = AddMoneyColumn("SupplyAmount", "공급가액", 90);
             _colUnitPrice = AddMoneyColumn("UnitPrice", "단가(동기화)", 80);
+            // 요청에 따라 숨김(관리자가 직접 입력하는 "단가"가 생기면서 쓸모가 없어짐 -
+            // 코드는 남겨둠. "계량 화면 설정"의 금액표시 토글과도 분리해 항상 숨긴다).
+            _colUnitPrice.Visible = false;
             _colAmount = AddMoneyColumn("Amount", "금액", 90);
             // 계량자 컬럼은 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
             _colWeigherName = AddColumn("WeigherName", "계량자", 130);
