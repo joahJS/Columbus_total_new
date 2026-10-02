@@ -89,11 +89,18 @@ namespace ColumbusWeighing.Models
 
         /// <summary>단가(관리자 수동입력). 동기화되는 UnitPrice와 별개로, 이 프로그램에서 직접
         /// 입력/확정해 공급가액 계산에 쓰는 값이다(DB의 WEIGH_RECORD.ADMIN_UNIT_PRICE,
-        /// SqlWeighingRepository.UpdateAdminUnitPrice 참고).</summary>
+        /// SqlWeighingRepository.UpdateAdminUnitPrice 참고).
+        /// 0은 "값 없음"과 동일하게 취급해 null로 저장한다 - VendorWeight와 같은 이유로,
+        /// 그리드에서 입력했던 값을 지우는 가장 쉬운 방법이 0을 입력하는 것이기 때문이다.</summary>
         public decimal? AdminUnitPrice
         {
             get { return _adminUnitPrice; }
-            set { _adminUnitPrice = value; OnPropertyChanged(nameof(AdminUnitPrice)); OnPropertyChanged(nameof(SupplyAmount)); }
+            set
+            {
+                _adminUnitPrice = value == 0m ? null : value;
+                OnPropertyChanged(nameof(AdminUnitPrice));
+                OnPropertyChanged(nameof(SupplyAmount));
+            }
         }
 
         /// <summary>2차 계량까지 완료된 건인지 여부. true 이면 2차계량 화면 대상.</summary>
