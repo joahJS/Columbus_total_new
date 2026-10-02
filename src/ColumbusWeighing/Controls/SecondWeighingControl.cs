@@ -297,26 +297,33 @@ namespace ColumbusWeighing.Controls
             _colSecondDate = AddColumn("SecondDateTime", "2차계량일", 90, "yyyy-MM-dd");
             AddColumn("BranchCode", "지점", 60);
             _colWeighSeq = AddColumn("WeighSeq", "계량순번", 60);
-            _colFirstTime = AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
-            _colSecondTime = AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
             AddColumn("VehicleNo", "차량번호", 70);
-            _colOwnerCompany = AddColumn("OwnerCompany", "차량소속회사", 100);
-            _colDriverName = AddColumn("DriverName", "운전자", 80);
             _colCustomerName = AddColumn("CustomerName", "거래처명", 110);
             _colProductName = AddColumn("ProductName", "제품명", 100);
+            _colFirstTime = AddColumn("FirstDateTime", "1차시간", 55, "HH:mm");
+            _colSecondTime = AddColumn("SecondDateTime", "2차시간", 55, "HH:mm");
+
+            _colOwnerCompany = AddColumn("OwnerCompany", "차량소속회사", 100);
+            _colDriverName = AddColumn("DriverName", "운전자", 80);
+            
             AddColumn("FirstWeight", "1차중량", 80, "N0");
             AddColumn("SecondWeight", "2차중량", 80, "N0");
-            AddColumn("NetWeight", "당사중량", 80, "N0");
             _colLossWeight = AddColumn("LossWeight", "감량중량", 80, "N0");
+            AddColumn("NetWeight", "당사중량", 80, "N0");
             _colVendorWeight = AddColumn("VendorWeight", "업체중량", 95, "N0");
-            _colVendorWeight.OptionsColumn.AllowEdit = true;
-            _colLoss = AddColumn("Loss", "로스", 80, "N0");
             _colFinalWeight = AddColumn("FinalWeight", "실중량", 80, "N0");
             _colAdminUnitPrice = AddColumn("AdminUnitPrice", "단가", 80, "N0");
+            _colAmount = AddColumn("Amount", "금액", 90, "N0");
+
+            
+            _colVendorWeight.OptionsColumn.AllowEdit = true;
+            _colLoss = AddColumn("Loss", "로스", 80, "N0");
+            
+            
             _colAdminUnitPrice.OptionsColumn.AllowEdit = true;
             _colSupplyAmount = AddColumn("SupplyAmount", "공급가액", 90, "N0");
-            _colUnitPrice = AddColumn("UnitPrice", "단가(동기화)", 80, "N0");
-            _colAmount = AddColumn("Amount", "금액", 90, "N0");
+            //_colUnitPrice = AddColumn("UnitPrice", "단가(동기화)", 80, "N0");
+            
             _colInOutType = AddInOutColumn();
             // 계량자 컬럼은 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
             _colWeigherName = AddColumn("WeigherName", "계량자", 130);
