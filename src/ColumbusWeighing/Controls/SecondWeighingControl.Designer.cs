@@ -35,6 +35,7 @@ namespace ColumbusWeighing.Controls
         private DevExpress.XtraEditors.ComboBoxEdit _searchTargetCombo;
         private DevExpress.XtraEditors.TextEdit _searchTextEdit;
         private DevExpress.XtraEditors.SimpleButton _btnQuery;
+        private DevExpress.XtraEditors.SimpleButton _btnSave;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
 
@@ -44,6 +45,7 @@ namespace ColumbusWeighing.Controls
             this._btnSecondSlip = new DevExpress.XtraEditors.SimpleButton();
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
+            this._btnSave = new DevExpress.XtraEditors.SimpleButton();
             this._btnQuery = new DevExpress.XtraEditors.SimpleButton();
             this._searchTextEdit = new DevExpress.XtraEditors.TextEdit();
             this._searchTargetCombo = new DevExpress.XtraEditors.ComboBoxEdit();
@@ -118,6 +120,7 @@ namespace ColumbusWeighing.Controls
             this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 251, 224);
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this._filterPanel.Controls.Add(this._btnSave);
             this._filterPanel.Controls.Add(this._btnQuery);
             this._filterPanel.Controls.Add(this._searchTextEdit);
             this._filterPanel.Controls.Add(this._searchTargetCombo);
@@ -272,6 +275,14 @@ namespace ColumbusWeighing.Controls
             this._btnQuery.Size = new System.Drawing.Size(70, 20);
             this._btnQuery.TabIndex = 14;
             this._btnQuery.Text = "조회";
+            //
+            // _btnSave (업체중량/단가 입력값 저장 버튼 - 조회 버튼과 같은 줄 우측)
+            //
+            this._btnSave.Location = new System.Drawing.Point(1078, 5);
+            this._btnSave.Name = "_btnSave";
+            this._btnSave.Size = new System.Drawing.Size(70, 20);
+            this._btnSave.TabIndex = 15;
+            this._btnSave.Text = "저장";
             //
             // _gridControl
             //

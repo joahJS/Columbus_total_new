@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -53,6 +54,12 @@ namespace ColumbusWeighing.Controls
 
         /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
+
+        /// <summary>업체중량/단가를 편집했지만 아직 "저장" 버튼을 누르지 않은 건들. 조회조건을
+        /// 바꿔 목록을 다시 불러오면(ApplyDateFilter) 예전 레코드 인스턴스는 더 이상 화면에 없는
+        /// 값이 되므로 같이 비운다 - 그렇지 않으면 나중에 저장을 눌렀을 때 이미 버려진 편집값이
+        /// 엉뚱하게 다시 저장될 수 있다.</summary>
+        private readonly HashSet<WeighingRecord> _dirtyRecords = new HashSet<WeighingRecord>();
 
         // "업체중량" 헤더의 도움말 아이콘(동그라미 안에 물음표) 관련 상태.
         // GridView에는 헤더 안에 클릭 가능한 버튼을 넣는 기능이 없어서, CustomDrawColumnHeader로
@@ -129,6 +136,7 @@ namespace ColumbusWeighing.Controls
                 }
             };
             _btnQuery.Click += (s, e) => ApplyDateFilter();
+            _btnSave.Click += (s, e) => SaveDirtyRecords();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
             _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);
             _btnShiftDayBack.Click += (s, e) => ShiftDateRange(-1);
@@ -217,6 +225,17 @@ namespace ColumbusWeighing.Controls
                 return; // ToDate 세팅이 다시 ApplyDateFilter를 호출하므로 여기서는 끝낸다.
             }
 
+            // 조회조건을 바꾸면 목록을 DB에서 다시 불러오므로, 저장하지 않은 업체중량/단가
+            // 편집값은 사라진다 - 그 전에 한 번 확인한다.
+            if (_dirtyRecords.Count > 0
+                && !ComnFunc.gp_PrintQuestion(
+                    "저장하지 않은 업체중량/단가 변경사항이 있습니다. 계속하면 사라집니다.\r\n계속하시겠습니까?",
+                    "저장 확인", MessageType.질문))
+            {
+                return;
+            }
+
+            _dirtyRecords.Clear();
             _repository?.Refresh(from, to.AddDays(1));
             RefreshCompletedList();
         }
@@ -475,11 +494,12 @@ namespace ColumbusWeighing.Controls
             }
         }
 
-        /// <summary>업체중량/단가 컬럼을 편집하면 바로 허브 DB에 저장한다(이 화면에서 쓰기가
-        /// 일어나는 유일한 컬럼들). 로스/실중량/공급가액은 거기서 계산되는 값이라 저장 대상이 아니다.</summary>
+        /// <summary>업체중량/단가 컬럼을 편집하면 바로 DB에 저장하지 않고, "저장" 버튼을 누를 때
+        /// 한꺼번에 반영되도록 변경된 건만 표시해둔다. 로스/실중량/공급가액은 거기서 계산되는
+        /// 값이라 저장 대상이 아니다.</summary>
         private void GridView_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)
         {
-            if (_repository == null)
+            if (e.Column.FieldName != "VendorWeight" && e.Column.FieldName != "AdminUnitPrice")
             {
                 return;
             }
@@ -490,16 +510,33 @@ namespace ColumbusWeighing.Controls
                 return;
             }
 
+            _dirtyRecords.Add(record);
+        }
+
+        /// <summary>"저장" 버튼 클릭 시 편집된 업체중량/단가를 한꺼번에 허브 DB에 반영한다.</summary>
+        private void SaveDirtyRecords()
+        {
+            if (_repository == null)
+            {
+                return;
+            }
+
+            if (_dirtyRecords.Count == 0)
+            {
+                ComnFunc.gp_PrintMessage("변경된 내용이 없습니다.", "안내", MessageType.알림);
+                return;
+            }
+
             try
             {
-                if (e.Column.FieldName == "VendorWeight")
+                foreach (var record in _dirtyRecords)
                 {
                     _repository.UpdateVendorWeight(record.Id, record.VendorWeight);
-                }
-                else if (e.Column.FieldName == "AdminUnitPrice")
-                {
                     _repository.UpdateAdminUnitPrice(record.Id, record.AdminUnitPrice);
                 }
+
+                _dirtyRecords.Clear();
+                ComnFunc.gp_PrintMessage("저장되었습니다.", "안내", MessageType.알림);
             }
             catch (Exception ex)
             {
