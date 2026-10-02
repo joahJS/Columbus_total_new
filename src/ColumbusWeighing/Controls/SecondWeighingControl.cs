@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
 using ColumbusWeighing.Services;
@@ -52,6 +54,15 @@ namespace ColumbusWeighing.Controls
         /// <summary>조회일자 기준으로 완료된 건만 담는 그리드 전용 목록(그리드는 이 목록에만 바인딩된다).</summary>
         private readonly BindingList<WeighingRecord> _completedRecords = new BindingList<WeighingRecord>();
 
+        // "업체중량" 헤더의 도움말 아이콘(동그라미 안에 물음표) 관련 상태.
+        // GridView에는 헤더 안에 클릭 가능한 버튼을 넣는 기능이 없어서, CustomDrawColumnHeader로
+        // 직접 그리고, 그 영역을 MouseMove/MouseDown으로 직접 히트테스트해서 툴팁/안내 메시지를 띄운다.
+        private const string VendorWeightHelpText =
+            "업체중량 칸에 0을 입력하면 \"값 없음\"으로 처리되어,\r\n실중량/로스/공급가액이 자동으로 당사중량 기준 계산으로 되돌아갑니다.";
+        private Rectangle _vendorWeightHelpIconBounds = Rectangle.Empty;
+        private bool _vendorWeightHelpHintVisible;
+        private readonly ToolTip _vendorWeightHelpToolTip = new ToolTip();
+
         // "계량 화면 설정" 팝업에서 켜고 끄는 부가 컬럼들. 차량번호/1·2차중량/순중량/계량자/비고처럼
         // 항상 보여주는 핵심 컬럼은 필드로 따로 들고 있지 않는다.
         private GridColumn _colWeighSeq;
@@ -88,6 +99,9 @@ namespace ColumbusWeighing.Controls
             _gridControl.DataSource = _completedRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _gridView.CellValueChanged += GridView_CellValueChanged;
+            _gridView.CustomDrawColumnHeader += GridView_CustomDrawColumnHeader;
+            _gridView.MouseMove += GridView_MouseMove;
+            _gridView.MouseDown += GridView_MouseDown;
             _dateEditFrom.EditValueChanged += (s, e) => ApplyDateFilter();
             _dateEditTo.EditValueChanged += (s, e) => ApplyDateFilter();
             _branchCombo.SelectedIndexChanged += (s, e) => RefreshCompletedList();
@@ -262,7 +276,7 @@ namespace ColumbusWeighing.Controls
             AddColumn("SecondWeight", "2차중량", 80, "N0");
             AddColumn("NetWeight", "당사중량", 80, "N0");
             _colLossWeight = AddColumn("LossWeight", "감량중량", 80, "N0");
-            _colVendorWeight = AddColumn("VendorWeight", "업체중량", 80, "N0");
+            _colVendorWeight = AddColumn("VendorWeight", "업체중량", 95, "N0");
             _colVendorWeight.OptionsColumn.AllowEdit = true;
             _colLoss = AddColumn("Loss", "로스", 80, "N0");
             _colFinalWeight = AddColumn("FinalWeight", "실중량", 80, "N0");
@@ -385,6 +399,73 @@ namespace ColumbusWeighing.Controls
                 || e.Column.FieldName == "AdminUnitPrice" || e.Column.FieldName == "SupplyAmount") && e.Value is decimal money)
             {
                 e.DisplayText = FormatAmount(money);
+            }
+        }
+
+        /// <summary>"업체중량" 헤더 우측에 동그라미+물음표 도움말 아이콘을 그린다. 기본 헤더를
+        /// 먼저 그대로 그린 뒤(e.Painter.DrawObject) 그 위에 아이콘만 덧그리는 방식이다.</summary>
+        private void GridView_CustomDrawColumnHeader(object sender, DevExpress.XtraGrid.Views.Base.ColumnHeaderCustomDrawEventArgs e)
+        {
+            if (e.Column == null || e.Column.FieldName != "VendorWeight")
+            {
+                return;
+            }
+
+            e.Painter.DrawObject(e.Info);
+            e.Handled = true;
+
+            const int diameter = 14;
+            var iconBounds = new Rectangle(
+                e.Bounds.Right - diameter - 6,
+                e.Bounds.Top + (e.Bounds.Height - diameter) / 2,
+                diameter,
+                diameter);
+
+            var oldSmoothingMode = e.Graphics.SmoothingMode;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            using (var circleBrush = new SolidBrush(Color.White))
+            using (var circlePen = new Pen(Color.FromArgb(90, 90, 90)))
+            {
+                e.Graphics.FillEllipse(circleBrush, iconBounds);
+                e.Graphics.DrawEllipse(circlePen, iconBounds);
+            }
+
+            using (var font = new Font("맑은 고딕", 7.5f, FontStyle.Bold))
+            using (var textBrush = new SolidBrush(Color.FromArgb(90, 90, 90)))
+            using (var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+            {
+                e.Graphics.DrawString("?", font, textBrush, iconBounds, format);
+            }
+
+            e.Graphics.SmoothingMode = oldSmoothingMode;
+            _vendorWeightHelpIconBounds = iconBounds;
+        }
+
+        /// <summary>도움말 아이콘 위에 마우스를 올리면 툴팁으로 설명을 보여준다.</summary>
+        private void GridView_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_vendorWeightHelpIconBounds.Contains(e.Location))
+            {
+                if (!_vendorWeightHelpHintVisible)
+                {
+                    _vendorWeightHelpHintVisible = true;
+                    _vendorWeightHelpToolTip.Show(VendorWeightHelpText, _gridControl, e.X, e.Y - 20, 8000);
+                }
+            }
+            else if (_vendorWeightHelpHintVisible)
+            {
+                _vendorWeightHelpHintVisible = false;
+                _vendorWeightHelpToolTip.Hide(_gridControl);
+            }
+        }
+
+        /// <summary>도움말 아이콘을 클릭하면 안내 메시지창으로도 같은 설명을 보여준다.</summary>
+        private void GridView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && _vendorWeightHelpIconBounds.Contains(e.Location))
+            {
+                ComnFunc.gp_PrintMessage(VendorWeightHelpText, "업체중량 안내", MessageType.알림);
             }
         }
 
