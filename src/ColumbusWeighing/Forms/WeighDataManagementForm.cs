@@ -454,6 +454,11 @@ namespace ColumbusWeighing.Forms
                 using (var document = new PrintDocument())
                 {
                     document.DefaultPageSettings.Landscape = true;
+                    // 미리보기 자체도 한 번의 "인쇄 작업"이라 PrintPage가 호출된다 - 거기서
+                    // 이미 끝까지 다 그려놓은 _printRowIndex를 리셋하지 않으면, 실제로 인쇄
+                    // 버튼을 눌렀을 때(두 번째 인쇄 작업) 커서가 이미 끝에 가 있어 헤더만 찍히고
+                    // 데이터 행이 하나도 안 나온다. BeginPrint에서 매 인쇄 작업 시작마다 되돌린다.
+                    document.BeginPrint += (s, e) => _printRowIndex = 0;
                     document.PrintPage += Document_PrintPage;
 
                     try
@@ -506,6 +511,7 @@ namespace ColumbusWeighing.Forms
                 }
 
                 DrawPrintRow(e.Graphics, _printRows[_printRowIndex], colWidths, bounds.Left, ref y, _printBodyFont);
+                e.Graphics.DrawLine(Pens.LightGray, bounds.Left, y, bounds.Right, y);
                 _printRowIndex++;
             }
 
