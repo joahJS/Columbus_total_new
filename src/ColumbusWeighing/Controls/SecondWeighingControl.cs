@@ -142,8 +142,6 @@ namespace ColumbusWeighing.Controls
             _btnQuery.Click += (s, e) => ApplyDateFilter();
             _btnSave.Click += (s, e) => SaveDirtyRecords();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
-            // 전표 양식이 아직 없어 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
-            _btnSecondSlip.Visible = false;
             _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);
             _btnShiftDayBack.Click += (s, e) => ShiftDateRange(-1);
             _btnShiftDayForward.Click += (s, e) => ShiftDateRange(1);
