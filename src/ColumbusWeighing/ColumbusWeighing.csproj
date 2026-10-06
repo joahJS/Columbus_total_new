@@ -62,6 +62,7 @@
     <Compile Include="ComnLib\ComnString.cs" />
     <Compile Include="ComnLib\CredentialProtector.cs" />
     <Compile Include="ComnLib\DBConn.cs" />
+    <Compile Include="ComnLib\GridPrinter.cs" />
     <Compile Include="ComnLib\IniHelper.cs" />
     <Compile Include="ComnLib\LoginUser.cs" />
     <Compile Include="ComnLib\MainButtonInterface.cs" />

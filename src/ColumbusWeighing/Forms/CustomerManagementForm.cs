@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
@@ -102,10 +103,24 @@ namespace ColumbusWeighing.Forms
             }
         }
 
+        private static readonly string[] PrintHeaders = { "지점", "거래처코드", "거래처명", "대표", "담당자", "전화", "팩스", "비고" };
+        private static readonly int[] PrintColumnWidths = { 6, 10, 18, 10, 10, 12, 12, 20 };
+
         private void PrintList()
         {
-            // TODO: XtraReports 로 작성된 거래처 목록 출력 연결.
-            ComnFunc.gp_PrintMessage("거래처 목록 인쇄는 준비 중입니다.", "거래처 관리", MessageType.알림);
+            var rows = _repository.Records.Select(r => new[]
+            {
+                r.BranchCode.ToDisplayString(),
+                r.CustomerCode,
+                r.CustomerName,
+                r.CeoName,
+                r.ManagerName,
+                r.Tel,
+                r.Fax,
+                r.Remark,
+            }).ToArray();
+
+            GridPrinter.ShowPrintPreview(this, PrintHeaders, PrintColumnWidths, rows);
         }
     }
 }

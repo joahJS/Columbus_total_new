@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
 using ColumbusWeighing.Models;
@@ -108,10 +109,24 @@ namespace ColumbusWeighing.Forms
             }
         }
 
+        private static readonly string[] PrintHeaders = { "지점", "제품코드", "제품명", "단위", "단가", "감량(kg)", "감량률(%)", "비고" };
+        private static readonly int[] PrintColumnWidths = { 6, 10, 18, 6, 9, 9, 9, 22 };
+
         private void PrintList()
         {
-            // TODO: XtraReports 로 작성된 제품 목록 출력 연결.
-            ComnFunc.gp_PrintMessage("제품 목록 인쇄는 준비 중입니다.", "제품 관리", MessageType.알림);
+            var rows = _repository.Records.Select(r => new[]
+            {
+                r.BranchCode.ToDisplayString(),
+                r.ProductCode,
+                r.ProductName,
+                r.Unit,
+                r.UnitPrice.HasValue ? r.UnitPrice.Value.ToString("N0") : string.Empty,
+                r.LossWeight.HasValue ? r.LossWeight.Value.ToString("N0") : string.Empty,
+                r.LossRate.HasValue ? r.LossRate.Value.ToString("N1") : string.Empty,
+                r.Remark,
+            }).ToArray();
+
+            GridPrinter.ShowPrintPreview(this, PrintHeaders, PrintColumnWidths, rows);
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
@@ -426,127 +425,11 @@ namespace ColumbusWeighing.Forms
             return string.IsNullOrEmpty(_amountUnit) ? text : text + " " + _amountUnit;
         }
 
-        /// <summary>인쇄 중에만 쓰는 상태(페이지 넘길 때 어디까지 그렸는지) - PrintPage 이벤트가
-        /// 페이지마다 다시 불리므로 필드에 들고 있어야 한다.</summary>
-        private string[][] _printRows;
-        private int _printRowIndex;
-        private Font _printHeaderFont;
-        private Font _printBodyFont;
-
-        /// <summary>현재 조회 결과를 표 형태로 인쇄 미리보기에 띄운다. 가로 방향, 자동 쪽넘김.
-        /// XtraPrinting 쪽 어셈블리 의존 없이 표준 PrintDocument로 직접 그린다 - 엑셀 내보내기와
-        /// 같은 행 데이터(BuildExportRows)를 재사용해 두 출력 결과가 서로 어긋나지 않게 한다.</summary>
+        /// <summary>현재 조회 결과를 표 형태로 인쇄 미리보기에 띄운다. 엑셀 내보내기와 같은
+        /// 행 데이터(BuildExportRows)를 재사용해 두 출력 결과가 서로 어긋나지 않게 한다.</summary>
         private void PrintList()
         {
-            if (_displayRecords.Count == 0)
-            {
-                ComnFunc.gp_PrintMessage("인쇄할 데이터가 없습니다. 먼저 조회하세요.", "안내", MessageType.알림);
-                return;
-            }
-
-            _printRows = BuildExportRows().ToArray();
-            _printRowIndex = 0;
-            _printHeaderFont = new Font("맑은 고딕", 8f, FontStyle.Bold);
-            _printBodyFont = new Font("맑은 고딕", 7.5f);
-
-            try
-            {
-                using (var document = new PrintDocument())
-                {
-                    document.DefaultPageSettings.Landscape = true;
-                    // 기본 여백(1인치=100)의 절반.
-                    document.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
-                    // 미리보기 자체도 한 번의 "인쇄 작업"이라 PrintPage가 호출된다 - 거기서
-                    // 이미 끝까지 다 그려놓은 _printRowIndex를 리셋하지 않으면, 실제로 인쇄
-                    // 버튼을 눌렀을 때(두 번째 인쇄 작업) 커서가 이미 끝에 가 있어 헤더만 찍히고
-                    // 데이터 행이 하나도 안 나온다. BeginPrint에서 매 인쇄 작업 시작마다 되돌린다.
-                    document.BeginPrint += (s, e) => _printRowIndex = 0;
-                    document.PrintPage += Document_PrintPage;
-
-                    try
-                    {
-                        using (var preview = new PrintPreviewDialog())
-                        {
-                            preview.Document = document;
-                            preview.WindowState = FormWindowState.Maximized;
-                            preview.ShowDialog(this);
-                        }
-                    }
-                    finally
-                    {
-                        document.PrintPage -= Document_PrintPage;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ComnFunc.gp_PrintMessage("인쇄 중 오류가 발생했습니다.\r\n" + ex.Message, "인쇄 오류", MessageType.오류);
-            }
-            finally
-            {
-                _printHeaderFont.Dispose();
-                _printBodyFont.Dispose();
-                _printHeaderFont = null;
-                _printBodyFont = null;
-                _printRows = null;
-            }
-        }
-
-        private void Document_PrintPage(object sender, PrintPageEventArgs e)
-        {
-            var bounds = e.MarginBounds;
-            var totalWeight = (float)ExcelColumnWidths.Sum();
-            var colWidths = ExcelColumnWidths.Select(w => bounds.Width * w / totalWeight).ToArray();
-
-            var top = (float)bounds.Top;
-            var y = top;
-            DrawPrintRow(e.Graphics, ExcelHeaders, colWidths, bounds.Left, ref y, _printHeaderFont);
-            e.Graphics.DrawLine(Pens.Black, bounds.Left, y, bounds.Right, y);
-            y += 2f;
-
-            var rowHeight = _printBodyFont.GetHeight(e.Graphics) + 4f;
-            var hasMore = false;
-            while (_printRowIndex < _printRows.Length)
-            {
-                if (y + rowHeight > bounds.Bottom)
-                {
-                    hasMore = true;
-                    break;
-                }
-
-                DrawPrintRow(e.Graphics, _printRows[_printRowIndex], colWidths, bounds.Left, ref y, _printBodyFont);
-                e.Graphics.DrawLine(Pens.LightGray, bounds.Left, y, bounds.Right, y);
-                _printRowIndex++;
-            }
-
-            DrawColumnSeparators(e.Graphics, colWidths, bounds.Left, top, y);
-            e.HasMorePages = hasMore;
-        }
-
-        /// <summary>컬럼 사이에 세로 구분선을 긋는다(컬럼 개수-1개 - 맨 왼쪽/오른쪽 바깥 테두리는 긋지 않는다).</summary>
-        private static void DrawColumnSeparators(Graphics g, float[] colWidths, float startX, float top, float bottom)
-        {
-            var x = startX;
-            for (var i = 0; i < colWidths.Length - 1; i++)
-            {
-                x += colWidths[i];
-                g.DrawLine(Pens.LightGray, x, top, x, bottom);
-            }
-        }
-
-        private static void DrawPrintRow(Graphics g, string[] values, float[] colWidths, float startX, ref float y, Font font)
-        {
-            var format = new StringFormat { Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap };
-            var height = font.GetHeight(g) + 4f;
-            var x = startX;
-            for (var i = 0; i < values.Length; i++)
-            {
-                var rect = new RectangleF(x, y, colWidths[i], height);
-                g.DrawString(values[i] ?? string.Empty, font, Brushes.Black, rect, format);
-                x += colWidths[i];
-            }
-
-            y += height;
+            GridPrinter.ShowPrintPreview(this, ExcelHeaders, ExcelColumnWidths, BuildExportRows().ToArray());
         }
 
         private static readonly string[] ExcelHeaders =
