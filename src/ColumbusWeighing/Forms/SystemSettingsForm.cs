@@ -103,13 +103,14 @@ namespace ColumbusWeighing.Forms
         #region [사용자 설정]
 
         private const int UserLabelX = 10;
-        private const int UserLabelWidth = 75;
+        // "사업자등록번호"(7자)가 우측정렬 상태로 잘리지 않을 만큼 넓혀야 한다.
+        private const int UserLabelWidth = 110;
         private const int UserFieldX = UserLabelX + UserLabelWidth + 4;
-        private const int UserFullFieldWidth = 420 - UserFieldX;
-        private const int UserColBLabelX = 199;
+        private const int UserFullFieldWidth = 455 - UserFieldX;
+        private const int UserColBLabelX = 234;
         private const int UserColBLabelWidth = 50;
         private const int UserColBFieldX = UserColBLabelX + UserColBLabelWidth + 4;
-        private const int UserColBFieldWidth = 420 - UserColBFieldX;
+        private const int UserColBFieldWidth = 455 - UserColBFieldX;
 
         private void BuildUserSection()
         {
@@ -242,7 +243,7 @@ namespace ColumbusWeighing.Forms
             // 결재란 입력란 4개의 좌측 끝(PrintFieldStartX)과 마지막 칸의 우측 끝(PrintFieldEndX)을
             // 보고서프린터 콤보와 정확히 맞춘다.
             const int printFieldStartX = 100;
-            const int printFieldEndX = 484;
+            const int printFieldEndX = 460;
             const int approvalGap = 8;
             const int approvalWidth = (printFieldEndX - printFieldStartX - approvalGap * 3) / 4;
 
