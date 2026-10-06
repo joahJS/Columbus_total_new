@@ -26,6 +26,7 @@ namespace ColumbusWeighing.Forms
         private DevExpress.XtraEditors.TextEdit _phoneEdit;
         private DevExpress.XtraEditors.LabelControl _remarkLabel;
         private DevExpress.XtraEditors.TextEdit _remarkEdit;
+        private DevExpress.XtraEditors.LabelControl _permissionsLabel;
         private DevExpress.XtraEditors.CheckEdit _chkCanPrint;
         private DevExpress.XtraEditors.CheckEdit _chkCanEdit;
         private DevExpress.XtraEditors.CheckEdit _chkCanDelete;
@@ -50,6 +51,7 @@ namespace ColumbusWeighing.Forms
             this._phoneEdit = new DevExpress.XtraEditors.TextEdit();
             this._remarkLabel = new DevExpress.XtraEditors.LabelControl();
             this._remarkEdit = new DevExpress.XtraEditors.TextEdit();
+            this._permissionsLabel = new DevExpress.XtraEditors.LabelControl();
             this._chkCanPrint = new DevExpress.XtraEditors.CheckEdit();
             this._chkCanEdit = new DevExpress.XtraEditors.CheckEdit();
             this._chkCanDelete = new DevExpress.XtraEditors.CheckEdit();
@@ -152,6 +154,14 @@ namespace ColumbusWeighing.Forms
             this._remarkEdit.Name = "_remarkEdit";
             this._remarkEdit.Size = new System.Drawing.Size(200, 20);
             this._remarkEdit.TabIndex = 9;
+            //
+            // _permissionsLabel
+            //
+            this._permissionsLabel.Location = new System.Drawing.Point(24, 156);
+            this._permissionsLabel.Name = "_permissionsLabel";
+            this._permissionsLabel.Size = new System.Drawing.Size(24, 13);
+            this._permissionsLabel.TabIndex = 21;
+            this._permissionsLabel.Text = "권한";
             //
             // _chkCanPrint
             //
@@ -259,6 +269,7 @@ namespace ColumbusWeighing.Forms
             this.Controls.Add(this._chkCanDelete);
             this.Controls.Add(this._chkCanEdit);
             this.Controls.Add(this._chkCanPrint);
+            this.Controls.Add(this._permissionsLabel);
             this.Controls.Add(this._remarkEdit);
             this.Controls.Add(this._remarkLabel);
             this.Controls.Add(this._phoneEdit);
