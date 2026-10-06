@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Windows.Forms;
 using ColumbusWeighing.ComnLib;
@@ -424,10 +426,105 @@ namespace ColumbusWeighing.Forms
             return string.IsNullOrEmpty(_amountUnit) ? text : text + " " + _amountUnit;
         }
 
+        /// <summary>인쇄 중에만 쓰는 상태(페이지 넘길 때 어디까지 그렸는지) - PrintPage 이벤트가
+        /// 페이지마다 다시 불리므로 필드에 들고 있어야 한다.</summary>
+        private string[][] _printRows;
+        private int _printRowIndex;
+        private Font _printHeaderFont;
+        private Font _printBodyFont;
+
+        /// <summary>현재 조회 결과를 표 형태로 인쇄 미리보기에 띄운다. 가로 방향, 자동 쪽넘김.
+        /// XtraPrinting 쪽 어셈블리 의존 없이 표준 PrintDocument로 직접 그린다 - 엑셀 내보내기와
+        /// 같은 행 데이터(BuildExportRows)를 재사용해 두 출력 결과가 서로 어긋나지 않게 한다.</summary>
         private void PrintList()
         {
-            // TODO: XtraReports 로 작성된 계량 데이터 목록 출력 연결.
-            ComnFunc.gp_PrintMessage("계량 데이터 목록 인쇄는 준비 중입니다.", "계량 데이터 관리", MessageType.알림);
+            if (_displayRecords.Count == 0)
+            {
+                ComnFunc.gp_PrintMessage("인쇄할 데이터가 없습니다. 먼저 조회하세요.", "안내", MessageType.알림);
+                return;
+            }
+
+            _printRows = BuildExportRows().ToArray();
+            _printRowIndex = 0;
+            _printHeaderFont = new Font("맑은 고딕", 8f, FontStyle.Bold);
+            _printBodyFont = new Font("맑은 고딕", 7.5f);
+
+            try
+            {
+                using (var document = new PrintDocument())
+                {
+                    document.DefaultPageSettings.Landscape = true;
+                    document.PrintPage += Document_PrintPage;
+
+                    try
+                    {
+                        using (var preview = new PrintPreviewDialog())
+                        {
+                            preview.Document = document;
+                            preview.WindowState = FormWindowState.Maximized;
+                            preview.ShowDialog(this);
+                        }
+                    }
+                    finally
+                    {
+                        document.PrintPage -= Document_PrintPage;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ComnFunc.gp_PrintMessage("인쇄 중 오류가 발생했습니다.\r\n" + ex.Message, "인쇄 오류", MessageType.오류);
+            }
+            finally
+            {
+                _printHeaderFont.Dispose();
+                _printBodyFont.Dispose();
+                _printHeaderFont = null;
+                _printBodyFont = null;
+                _printRows = null;
+            }
+        }
+
+        private void Document_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            var bounds = e.MarginBounds;
+            var totalWeight = (float)ExcelColumnWidths.Sum();
+            var colWidths = ExcelColumnWidths.Select(w => bounds.Width * w / totalWeight).ToArray();
+
+            var y = (float)bounds.Top;
+            DrawPrintRow(e.Graphics, ExcelHeaders, colWidths, bounds.Left, ref y, _printHeaderFont);
+            e.Graphics.DrawLine(Pens.Black, bounds.Left, y, bounds.Right, y);
+            y += 2f;
+
+            var rowHeight = _printBodyFont.GetHeight(e.Graphics) + 4f;
+            while (_printRowIndex < _printRows.Length)
+            {
+                if (y + rowHeight > bounds.Bottom)
+                {
+                    e.HasMorePages = true;
+                    return;
+                }
+
+                DrawPrintRow(e.Graphics, _printRows[_printRowIndex], colWidths, bounds.Left, ref y, _printBodyFont);
+                _printRowIndex++;
+            }
+
+            e.HasMorePages = false;
+        }
+
+        private static void DrawPrintRow(Graphics g, string[] values, float[] colWidths, float startX, ref float y, Font font)
+        {
+            var format = new StringFormat { Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap };
+            var height = font.GetHeight(g) + 4f;
+            var x = startX;
+            for (var i = 0; i < values.Length; i++)
+            {
+                var rect = new RectangleF(x, y, colWidths[i], height);
+                g.DrawString(values[i] ?? string.Empty, font, Brushes.Black, rect, format);
+                x += colWidths[i];
+            }
+
+            y += height;
         }
 
         private static readonly string[] ExcelHeaders =
@@ -481,7 +578,14 @@ namespace ColumbusWeighing.Forms
 
         private void WriteExcel(string filePath)
         {
-            var rows = _displayRecords.Select(r => new[]
+            SimpleXlsxWriter.Write(filePath, "계량데이터", ExcelHeaders, BuildExportRows(), ExcelColumnWidths);
+        }
+
+        /// <summary>ExcelHeaders와 순서를 맞춘 행 데이터. 엑셀 내보내기와 인쇄가 같은 데이터를
+        /// 쓰도록 공유한다(둘의 결과가 서로 어긋나지 않게).</summary>
+        private IEnumerable<string[]> BuildExportRows()
+        {
+            return _displayRecords.Select(r => new[]
             {
                 r.Id.ToString(),
                 r.FirstDateTime.ToString("yyyy-MM-dd"),
@@ -504,8 +608,6 @@ namespace ColumbusWeighing.Forms
                 r.WeigherName,
                 r.Remark,
             });
-
-            SimpleXlsxWriter.Write(filePath, "계량데이터", ExcelHeaders, rows, ExcelColumnWidths);
         }
     }
 }
