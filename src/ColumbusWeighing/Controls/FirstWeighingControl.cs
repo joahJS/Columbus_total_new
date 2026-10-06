@@ -56,6 +56,8 @@ namespace ColumbusWeighing.Controls
             _gridControl.DataSource = _pendingRecords;
             _gridView.CustomColumnDisplayText += GridView_CustomColumnDisplayText;
             _btnFirstSlip.Click += (s, e) => PrintFirstSlip();
+            // 전표 양식이 아직 없어 요청에 따라 임시로 숨김(코드는 남겨둠 - 나중에 다시 보이게 할 수 있음).
+            _btnFirstSlip.Visible = false;
         }
 
         /// <summary>선택된 행의 계근 기록(없으면 null).</summary>
