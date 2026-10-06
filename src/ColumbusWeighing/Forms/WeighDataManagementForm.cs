@@ -454,6 +454,8 @@ namespace ColumbusWeighing.Forms
                 using (var document = new PrintDocument())
                 {
                     document.DefaultPageSettings.Landscape = true;
+                    // 기본 여백(1인치=100)의 절반.
+                    document.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
                     // 미리보기 자체도 한 번의 "인쇄 작업"이라 PrintPage가 호출된다 - 거기서
                     // 이미 끝까지 다 그려놓은 _printRowIndex를 리셋하지 않으면, 실제로 인쇄
                     // 버튼을 눌렀을 때(두 번째 인쇄 작업) 커서가 이미 끝에 가 있어 헤더만 찍히고
@@ -496,18 +498,20 @@ namespace ColumbusWeighing.Forms
             var totalWeight = (float)ExcelColumnWidths.Sum();
             var colWidths = ExcelColumnWidths.Select(w => bounds.Width * w / totalWeight).ToArray();
 
-            var y = (float)bounds.Top;
+            var top = (float)bounds.Top;
+            var y = top;
             DrawPrintRow(e.Graphics, ExcelHeaders, colWidths, bounds.Left, ref y, _printHeaderFont);
             e.Graphics.DrawLine(Pens.Black, bounds.Left, y, bounds.Right, y);
             y += 2f;
 
             var rowHeight = _printBodyFont.GetHeight(e.Graphics) + 4f;
+            var hasMore = false;
             while (_printRowIndex < _printRows.Length)
             {
                 if (y + rowHeight > bounds.Bottom)
                 {
-                    e.HasMorePages = true;
-                    return;
+                    hasMore = true;
+                    break;
                 }
 
                 DrawPrintRow(e.Graphics, _printRows[_printRowIndex], colWidths, bounds.Left, ref y, _printBodyFont);
@@ -515,7 +519,19 @@ namespace ColumbusWeighing.Forms
                 _printRowIndex++;
             }
 
-            e.HasMorePages = false;
+            DrawColumnSeparators(e.Graphics, colWidths, bounds.Left, top, y);
+            e.HasMorePages = hasMore;
+        }
+
+        /// <summary>컬럼 사이에 세로 구분선을 긋는다(컬럼 개수-1개 - 맨 왼쪽/오른쪽 바깥 테두리는 긋지 않는다).</summary>
+        private static void DrawColumnSeparators(Graphics g, float[] colWidths, float startX, float top, float bottom)
+        {
+            var x = startX;
+            for (var i = 0; i < colWidths.Length - 1; i++)
+            {
+                x += colWidths[i];
+                g.DrawLine(Pens.LightGray, x, top, x, bottom);
+            }
         }
 
         private static void DrawPrintRow(Graphics g, string[] values, float[] colWidths, float startX, ref float y, Font font)
