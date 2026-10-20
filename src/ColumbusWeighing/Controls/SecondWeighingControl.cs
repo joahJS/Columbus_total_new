@@ -65,7 +65,7 @@ namespace ColumbusWeighing.Controls
         /// 엉뚱하게 다시 저장될 수 있다.</summary>
         private readonly HashSet<WeighingRecord> _dirtyRecords = new HashSet<WeighingRecord>();
 
-        // "업체중량" 헤더의 도움말 아이콘(동그라미 안에 물음표) 관련 상태.
+        // "업체중량"/"단가" 헤더의 도움말 아이콘(동그라미 안에 물음표) 관련 상태.
         // GridView에는 헤더 안에 클릭 가능한 버튼을 넣는 기능이 없어서, CustomDrawColumnHeader로
         // 직접 그리고, 그 영역을 MouseMove/MouseDown으로 직접 히트테스트해서 툴팁/안내 메시지를 띄운다.
         private const string VendorWeightHelpText =
@@ -73,6 +73,12 @@ namespace ColumbusWeighing.Controls
         private Rectangle _vendorWeightHelpIconBounds = Rectangle.Empty;
         private bool _vendorWeightHelpHintVisible;
         private readonly ToolTip _vendorWeightHelpToolTip = new ToolTip();
+
+        private const string AdminUnitPriceHelpText =
+            "단가 칸에 0을 입력하면 \"값 없음\"으로 처리되어,\r\n금액(공급가액)이 자동으로 비워집니다.";
+        private Rectangle _adminUnitPriceHelpIconBounds = Rectangle.Empty;
+        private bool _adminUnitPriceHelpHintVisible;
+        private readonly ToolTip _adminUnitPriceHelpToolTip = new ToolTip();
 
         // "계량 화면 설정" 팝업에서 켜고 끄는 부가 컬럼들. 차량번호/1·2차중량/순중량/계량자/비고처럼
         // 항상 보여주는 핵심 컬럼은 필드로 따로 들고 있지 않는다.
@@ -112,17 +118,26 @@ namespace ColumbusWeighing.Controls
             _gridView.CellValueChanged += GridView_CellValueChanged;
             // DevExpress 버전마다 CustomDrawColumnHeader의 EventArgs 타입/네임스페이스가 달라
             // 이름을 직접 쓰면 깨지기 쉬우므로, 람다로 받아 컴파일러가 타입을 추론하게 하고
-            // 실제 그리기는 System.Drawing 타입만 쓰는 DrawVendorWeightHelpIcon에 맡긴다.
+            // 실제 그리기는 System.Drawing 타입만 쓰는 DrawColumnHelpIcon에 맡긴다.
             _gridView.CustomDrawColumnHeader += (s, e) =>
             {
-                if (e.Column == null || e.Column.FieldName != "VendorWeight")
+                if (e.Column == null)
                 {
                     return;
                 }
 
-                e.Painter.DrawObject(e.Info);
-                e.Handled = true;
-                _vendorWeightHelpIconBounds = DrawVendorWeightHelpIcon(e.Graphics, e.Bounds);
+                if (e.Column.FieldName == "VendorWeight")
+                {
+                    e.Painter.DrawObject(e.Info);
+                    e.Handled = true;
+                    _vendorWeightHelpIconBounds = DrawColumnHelpIcon(e.Graphics, e.Bounds);
+                }
+                else if (e.Column.FieldName == "AdminUnitPrice")
+                {
+                    e.Painter.DrawObject(e.Info);
+                    e.Handled = true;
+                    _adminUnitPriceHelpIconBounds = DrawColumnHelpIcon(e.Graphics, e.Bounds);
+                }
             };
             _gridView.MouseMove += GridView_MouseMove;
             _gridView.MouseDown += GridView_MouseDown;
@@ -480,10 +495,11 @@ namespace ColumbusWeighing.Controls
             }
         }
 
-        /// <summary>"업체중량" 헤더 우측에 동그라미+물음표 도움말 아이콘을 그리고, 그 아이콘의
+        /// <summary>헤더 우측에 동그라미+물음표 도움말 아이콘을 그리고, 그 아이콘의
         /// 영역(그리드 좌표 기준)을 반환한다. System.Drawing 타입만 받아서, DevExpress 커스텀
-        /// 드로우 이벤트의 EventArgs 타입(버전마다 이름/네임스페이스가 다르다)과 분리해뒀다.</summary>
-        private static Rectangle DrawVendorWeightHelpIcon(Graphics graphics, Rectangle headerBounds)
+        /// 드로우 이벤트의 EventArgs 타입(버전마다 이름/네임스페이스가 다르다)과 분리해뒀다.
+        /// "업체중량"/"단가" 헤더가 공통으로 쓴다.</summary>
+        private static Rectangle DrawColumnHelpIcon(Graphics graphics, Rectangle headerBounds)
         {
             const int diameter = 14;
             var iconBounds = new Rectangle(
@@ -516,27 +532,42 @@ namespace ColumbusWeighing.Controls
         /// <summary>도움말 아이콘 위에 마우스를 올리면 툴팁으로 설명을 보여준다.</summary>
         private void GridView_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_vendorWeightHelpIconBounds.Contains(e.Location))
+            UpdateHelpHint(e, _vendorWeightHelpIconBounds, ref _vendorWeightHelpHintVisible, _vendorWeightHelpToolTip, VendorWeightHelpText);
+            UpdateHelpHint(e, _adminUnitPriceHelpIconBounds, ref _adminUnitPriceHelpHintVisible, _adminUnitPriceHelpToolTip, AdminUnitPriceHelpText);
+        }
+
+        private void UpdateHelpHint(MouseEventArgs e, Rectangle iconBounds, ref bool hintVisible, ToolTip toolTip, string helpText)
+        {
+            if (iconBounds.Contains(e.Location))
             {
-                if (!_vendorWeightHelpHintVisible)
+                if (!hintVisible)
                 {
-                    _vendorWeightHelpHintVisible = true;
-                    _vendorWeightHelpToolTip.Show(VendorWeightHelpText, _gridControl, e.X, e.Y - 20, 8000);
+                    hintVisible = true;
+                    toolTip.Show(helpText, _gridControl, e.X, e.Y - 20, 8000);
                 }
             }
-            else if (_vendorWeightHelpHintVisible)
+            else if (hintVisible)
             {
-                _vendorWeightHelpHintVisible = false;
-                _vendorWeightHelpToolTip.Hide(_gridControl);
+                hintVisible = false;
+                toolTip.Hide(_gridControl);
             }
         }
 
         /// <summary>도움말 아이콘을 클릭하면 안내 메시지창으로도 같은 설명을 보여준다.</summary>
         private void GridView_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && _vendorWeightHelpIconBounds.Contains(e.Location))
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+
+            if (_vendorWeightHelpIconBounds.Contains(e.Location))
             {
                 ComnFunc.gp_PrintMessage(VendorWeightHelpText, "업체중량 안내", MessageType.알림);
+            }
+            else if (_adminUnitPriceHelpIconBounds.Contains(e.Location))
+            {
+                ComnFunc.gp_PrintMessage(AdminUnitPriceHelpText, "단가 안내", MessageType.알림);
             }
         }
 
