@@ -190,7 +190,7 @@ namespace ColumbusWeighing.Forms
             var netWeightSum = _displayRecords.Sum(r => r.NetWeight ?? 0m);
             var lossSum = _displayRecords.Sum(r => r.LossWeight ?? 0m);
             var receivedSum = netWeightSum - lossSum;
-            var amountSum = _displayRecords.Sum(r => r.Amount ?? 0m);
+            var amountSum = _displayRecords.Sum(r => r.SupplyAmount ?? 0m);
 
             _countValueLabel.Text = _displayRecords.Count.ToString("N0") + "건";
             _netWeightValueLabel.Text = FormatWeight(netWeightSum);
@@ -341,8 +341,8 @@ namespace ColumbusWeighing.Forms
             AddColumn("SecondWeight", "2차중량", 82, "N0");
             AddColumn("NetWeight", "실중량", 82, "N0");
             AddColumn("LossWeight", "감량", 65, "N0");
-            AddColumn("UnitPrice", "단가", 65, "N0");
-            AddColumn("Amount", "금액", 82, "N0");
+            AddColumn("AdminUnitPrice", "단가", 65, "N0");
+            AddColumn("SupplyAmount", "금액", 82, "N0");
             AddInOutColumn();
             AddStatusColumn();
             AddColumn("WeigherName", "계량자", 85);
@@ -407,7 +407,7 @@ namespace ColumbusWeighing.Forms
             {
                 e.DisplayText = FormatWeight(weight);
             }
-            else if ((e.Column.FieldName == "UnitPrice" || e.Column.FieldName == "Amount") && e.Value is decimal money)
+            else if ((e.Column.FieldName == "AdminUnitPrice" || e.Column.FieldName == "SupplyAmount") && e.Value is decimal money)
             {
                 e.DisplayText = FormatAmount(money);
             }
@@ -506,8 +506,8 @@ namespace ColumbusWeighing.Forms
                 r.SecondWeight.HasValue ? r.SecondWeight.Value.ToString("N0") : string.Empty,
                 r.NetWeight.HasValue ? r.NetWeight.Value.ToString("N0") : string.Empty,
                 r.LossWeight.HasValue ? r.LossWeight.Value.ToString("N0") : string.Empty,
-                r.UnitPrice.HasValue ? r.UnitPrice.Value.ToString("N0") : string.Empty,
-                r.Amount.HasValue ? r.Amount.Value.ToString("N0") : string.Empty,
+                r.AdminUnitPrice.HasValue ? r.AdminUnitPrice.Value.ToString("N0") : string.Empty,
+                r.SupplyAmount.HasValue ? r.SupplyAmount.Value.ToString("N0") : string.Empty,
                 r.InOutType.ToDisplayString(),
                 r.IsCompleted ? "2차 완료" : "1차 대기",
                 r.WeigherName,
