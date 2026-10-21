@@ -340,8 +340,8 @@ namespace ColumbusWeighing.Forms
             AddColumn("FirstWeight", "1차중량", 82, "N0");
             AddColumn("SecondWeight", "2차중량", 82, "N0");
             AddColumn("VendorWeight", "업체중량", 82, "N0");
-            AddColumn("NetWeight", "실중량", 82, "N0");
             AddColumn("Loss", "로스", 65, "N0");
+            AddColumn("NetWeight", "실중량", 82, "N0");
             AddColumn("LossWeight", "감량", 65, "N0");
             AddColumn("AdminUnitPrice", "단가", 65, "N0");
             AddColumn("SupplyAmount", "금액", 82, "N0");
@@ -438,7 +438,7 @@ namespace ColumbusWeighing.Forms
         private static readonly string[] ExcelHeaders =
         {
             "순번", "1차계량일", "2차계량일", "지점", "계량순번", "차량번호", "차량소속회사", "운전자",
-            "거래처명", "제품명", "1차중량", "2차중량", "업체중량", "실중량", "로스", "감량", "단가", "금액",
+            "거래처명", "제품명", "1차중량", "2차중량", "업체중량", "로스", "실중량", "감량", "단가", "금액",
             "입출구분", "계량상태", "계량자", "비고"
         };
 
@@ -448,7 +448,7 @@ namespace ColumbusWeighing.Forms
         /// 그래도 안 잘리고 다 보이는 게 좋다).</summary>
         private static readonly int[] ExcelColumnWidths =
         {
-            8, 13, 13, 8, 10, 10, 16, 10, 16, 14, 12, 12, 12, 12, 8, 8, 8, 10, 8, 10, 14, 24
+            8, 13, 13, 8, 10, 10, 16, 10, 16, 14, 12, 12, 12, 8, 12, 8, 8, 10, 8, 10, 14, 24
         };
 
         /// <summary>Excel 전용 라이브러리 참조가 없어, SimpleXlsxWriter로 직접 최소한의
@@ -508,8 +508,8 @@ namespace ColumbusWeighing.Forms
                 r.FirstWeight.ToString("N0"),
                 r.SecondWeight.HasValue ? r.SecondWeight.Value.ToString("N0") : string.Empty,
                 r.VendorWeight.HasValue ? r.VendorWeight.Value.ToString("N0") : string.Empty,
-                r.NetWeight.HasValue ? r.NetWeight.Value.ToString("N0") : string.Empty,
                 r.Loss.HasValue ? r.Loss.Value.ToString("N0") : string.Empty,
+                r.NetWeight.HasValue ? r.NetWeight.Value.ToString("N0") : string.Empty,
                 r.LossWeight.HasValue ? r.LossWeight.Value.ToString("N0") : string.Empty,
                 r.AdminUnitPrice.HasValue ? r.AdminUnitPrice.Value.ToString("N0") : string.Empty,
                 r.SupplyAmount.HasValue ? r.SupplyAmount.Value.ToString("N0") : string.Empty,
