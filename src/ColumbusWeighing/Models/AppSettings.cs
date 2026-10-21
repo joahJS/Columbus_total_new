@@ -36,7 +36,6 @@ namespace ColumbusWeighing.Models
         // public bool UseDispatch { get; set; }
         public bool UseAutoLogin { get; set; }
         public bool SaveLogData { get; set; }
-        public int AdminAutoOffMinutes { get; set; }
         public string ClosingTime { get; set; }
         public int MainGridFontSize { get; set; }
         public string WeightUnit { get; set; }

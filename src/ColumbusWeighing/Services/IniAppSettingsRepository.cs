@@ -34,7 +34,6 @@ namespace ColumbusWeighing.Services
 
                     UseAutoLogin = GetBool("UseAutoLogin", defaults.UseAutoLogin),
                     SaveLogData = GetBool("SaveLogData", defaults.SaveLogData),
-                    AdminAutoOffMinutes = GetInt("AdminAutoOffMinutes", defaults.AdminAutoOffMinutes),
                     ClosingTime = GetString("ClosingTime", defaults.ClosingTime),
                     MainGridFontSize = GetInt("MainGridFontSize", defaults.MainGridFontSize),
                     WeightUnit = GetString("WeightUnit", defaults.WeightUnit),
@@ -71,7 +70,6 @@ namespace ColumbusWeighing.Services
 
                 SetValue("UseAutoLogin", settings.UseAutoLogin);
                 SetValue("SaveLogData", settings.SaveLogData);
-                SetValue("AdminAutoOffMinutes", settings.AdminAutoOffMinutes);
                 SetValue("ClosingTime", settings.ClosingTime);
                 SetValue("MainGridFontSize", settings.MainGridFontSize);
                 SetValue("WeightUnit", settings.WeightUnit);
@@ -147,7 +145,6 @@ namespace ColumbusWeighing.Services
 
                 UseAutoLogin = false,
                 SaveLogData = false,
-                AdminAutoOffMinutes = 10,
                 ClosingTime = "00:00",
                 MainGridFontSize = 9,
                 WeightUnit = "kg",

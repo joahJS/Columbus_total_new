@@ -43,7 +43,6 @@ namespace ColumbusWeighing.Forms
         // private CheckEdit _chkUseDispatch;
         private CheckEdit _chkAutoLogin;
         private CheckEdit _chkSaveLog;
-        private SpinEdit _numAdminAutoOffMinutes;
         private TextEdit _txtClosingTime;
         private SpinEdit _numGridFontSize;
         private TextEdit _txtWeightUnit;
@@ -160,7 +159,8 @@ namespace ColumbusWeighing.Forms
         {
             // 참고 화면(TS2020)과 동일한 순서: 차량인식기준/편차 → PC안내방송+안정판정시간 →
             // 2차자료 복사/이동 → 메인화면 수정권한 → 입출고구분 → 최종자료읽기 → 배차사용 →
-            // 자동로그인/로그저장 → 관리자자동오프 → 마감시간/그리드폰트 → 중량/금액 단위.
+            // 자동로그인/로그저장 → 마감시간/그리드폰트 → 중량/금액 단위.
+            // (관리자 자동오프 기능은 제거되어, 그 설정 항목도 함께 뺐다.)
             //
             // 아래 실계량 입력/현장 장비 제어용 항목들(차량인식기준~배차 사용)은 이 프로그램이
             // 조회 전용이라 해당 사항이 없어 주석 처리했다. 입출고 구분도 각 지점
@@ -209,18 +209,15 @@ namespace ColumbusWeighing.Forms
                 "자동 로그인 사용");
             _chkSaveLog = AddCheckEdit(_grpWeighing, WeighingColBLabelX, 30, WeighingCheckWidth, "로그 데이터 저장");
 
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 60, WeighingColALabelWidth, "관리자 자동오프(분)");
-            _numAdminAutoOffMinutes = AddSpinEdit(_grpWeighing, WeighingColAFieldX, 57, WeighingFieldWidth, 0, 999);
+            AddLabelLeft(_grpWeighing, WeighingColALabelX, 60, WeighingColALabelWidth, "마감 기준 시간");
+            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 57, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 60, WeighingColBLabelWidth, "메인화면 그리드 폰트");
+            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 57, WeighingFieldWidth, 6, 24);
 
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 88, WeighingColALabelWidth, "마감 기준 시간");
-            _txtClosingTime = AddTextEdit(_grpWeighing, WeighingColAFieldX, 85, WeighingFieldWidth);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 88, WeighingColBLabelWidth, "메인화면 그리드 폰트");
-            _numGridFontSize = AddSpinEdit(_grpWeighing, WeighingColBFieldX, 85, WeighingFieldWidth, 6, 24);
-
-            AddLabelLeft(_grpWeighing, WeighingColALabelX, 116, WeighingColALabelWidth, "중량 단위");
-            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 113, WeighingFieldWidth);
-            AddLabel(_grpWeighing, WeighingColBLabelX, 116, WeighingColBLabelWidth, "금액 단위");
-            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 113, WeighingFieldWidth);
+            AddLabelLeft(_grpWeighing, WeighingColALabelX, 88, WeighingColALabelWidth, "중량 단위");
+            _txtWeightUnit = AddTextEdit(_grpWeighing, WeighingColAFieldX, 85, WeighingFieldWidth);
+            AddLabel(_grpWeighing, WeighingColBLabelX, 88, WeighingColBLabelWidth, "금액 단위");
+            _txtAmountUnit = AddTextEdit(_grpWeighing, WeighingColBFieldX, 85, WeighingFieldWidth);
         }
 
         #endregion
@@ -433,7 +430,6 @@ namespace ColumbusWeighing.Forms
             // _chkUseDispatch.Checked = settings.UseDispatch;
             _chkAutoLogin.Checked = settings.UseAutoLogin;
             _chkSaveLog.Checked = settings.SaveLogData;
-            _numAdminAutoOffMinutes.Value = settings.AdminAutoOffMinutes;
             _txtClosingTime.Text = settings.ClosingTime;
             _numGridFontSize.Value = settings.MainGridFontSize;
             _txtWeightUnit.Text = settings.WeightUnit;
@@ -500,7 +496,6 @@ namespace ColumbusWeighing.Forms
                 // UseDispatch = _chkUseDispatch.Checked,
                 UseAutoLogin = _chkAutoLogin.Checked,
                 SaveLogData = _chkSaveLog.Checked,
-                AdminAutoOffMinutes = (int)_numAdminAutoOffMinutes.Value,
                 ClosingTime = _txtClosingTime.Text,
                 MainGridFontSize = (int)_numGridFontSize.Value,
                 WeightUnit = _txtWeightUnit.Text,
