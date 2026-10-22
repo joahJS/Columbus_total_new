@@ -28,7 +28,8 @@ namespace ColumbusWeighing.Models
 
         public string ProductName { get; set; }
 
-        public InOutType InOutType { get; set; }
+        /// <summary>2차 계량이 끝나야 비로소 정해지는 값이라, 그 전까지는 null(미정)이다.</summary>
+        public InOutType? InOutType { get; set; }
 
         /// <summary>계량자(로그인 사용자/회사).</summary>
         public string WeigherName { get; set; }
@@ -103,10 +104,14 @@ namespace ColumbusWeighing.Models
             }
         }
 
-        /// <summary>2차 계량까지 완료된 건인지 여부. true 이면 2차계량 화면 대상.</summary>
+        /// <summary>2차 계량까지 완료된 건인지 여부. true 이면 2차계량 화면 대상.
+        /// SecondDateTime만으로 판단하면 안 된다 - B/C지점 원본(mdb)이 1차 계량 직후 2차
+        /// 일시 칸에 1차와 같은 값을 임시로 채워두고 2차중량은 0으로 두는 경우가 있어서,
+        /// SecondDateTime만 보면 아직 2차 계량 전인데도 완료로 잘못 판정된다(동기화 쪽
+        /// SyncOrchestrator.Transform()의 isCompleted 판정과 동일하게 맞춘다).</summary>
         public bool IsCompleted
         {
-            get { return SecondDateTime.HasValue; }
+            get { return SecondWeight.HasValue && SecondWeight.Value != 0; }
         }
 
         /// <summary>순중량 = |2차중량 - 1차중량|.</summary>

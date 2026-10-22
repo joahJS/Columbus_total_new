@@ -114,7 +114,7 @@ ORDER BY w.FIRST_DATETIME";
                 VehicleNo = AsString(row, "VEHICLE_NO"),
                 CustomerName = AsString(row, "CUSTOMER_NAME"),
                 ProductName = AsString(row, "PRODUCT_NAME"),
-                InOutType = AsString(row, "IN_OUT_TYPE") == "I" ? InOutType.In : InOutType.Out,
+                InOutType = ParseInOutType(AsString(row, "IN_OUT_TYPE")),
                 WeigherName = AsString(row, "WEIGHER_NAME"),
                 UnitPrice = AsNullableDecimal(row, "UNIT_PRICE"),
                 Remark = AsString(row, "REMARK"),
@@ -176,6 +176,23 @@ ORDER BY w.FIRST_DATETIME";
         private static DateTime? AsNullableDateTime(DataRow row, string column)
         {
             return row[column] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(row[column]);
+        }
+
+        /// <summary>"I"/"O" 외의 값(동기화 쪽에서 2차 계량이 아직 안 끝나 입/출고를 정하지
+        /// 못했을 때 null로 남겨둔 경우 등)은 "출고"로 단정하지 않고 미정(null)으로 둔다.</summary>
+        private static InOutType? ParseInOutType(string value)
+        {
+            if (value == "I")
+            {
+                return InOutType.In;
+            }
+
+            if (value == "O")
+            {
+                return InOutType.Out;
+            }
+
+            return null;
         }
     }
 }

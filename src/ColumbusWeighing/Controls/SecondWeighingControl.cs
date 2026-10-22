@@ -309,7 +309,7 @@ namespace ColumbusWeighing.Controls
             _completedRecords.RaiseListChangedEvents = false;
             _completedRecords.Clear();
             foreach (var record in _repository.Records
-                .Where(r => r.IsCompleted && r.SecondDateTime.Value >= start && r.SecondDateTime.Value < end
+                .Where(r => r.IsCompleted && r.SecondDateTime.HasValue && r.SecondDateTime.Value >= start && r.SecondDateTime.Value < end
                     && (branchCode == null || r.BranchCode == branchCode)
                     && MatchesInOut(r)
                     && Contains(searchByVehicleNo ? r.VehicleNo : r.CustomerName, searchText)))
