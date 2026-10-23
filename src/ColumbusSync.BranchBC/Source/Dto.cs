@@ -79,5 +79,11 @@ namespace ColumbusSync.BranchBC.Source
         public string WeigherName { get; set; }          // DAMDANG
         public string Remark { get; set; }                // REM1
         public string WeighStatus { get; set; }            // WEIGH_STS (원본 상태값, 참고용으로만 보존)
+
+        /// <summary>1차 계량 시점 사진의 파일명(확장자 제외) - yyyyMMddHHmmssfff 형식.
+        /// IMAGE 폴더(날짜별 하위폴더) 안에 "{IMGFILE}_1.jpg", "{IMGFILE}_2.jpg"로 저장되어
+        /// 있다. 2차 계량 사진은 이 컬럼이 따로 없어, TIME2와 같은 분(分)에 촬영된 사진 쌍을
+        /// 찾는 방식으로 연결한다 - PhotoFileReader 참고.</summary>
+        public string ImgFile { get; set; }
     }
 }

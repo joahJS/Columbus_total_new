@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using ColumbusSync.BranchBC.Source;
 
@@ -194,6 +195,51 @@ WHEN NOT MATCHED THEN INSERT
                 new SqlParam("@PasswordHash", hash),
                 new SqlParam("@PasswordSalt", salt),
                 new SqlParam("@ModifiedBy", "sync:" + _branchCode),
+            });
+        }
+
+        /// <summary>이미 사진이 올라가 있는 (SOURCE_KEY, STAGE) 조합을 "SOURCE_KEY|STAGE"
+        /// 형태의 집합으로 가져온다. 계근건 사진은 한번 찍히면 바뀌지 않으므로, 이미 올라간
+        /// 단계는 매 주기마다 로컬 파일을 다시 읽고 DB에 다시 쓰는 낭비를 하지 않기 위해
+        /// 이 목록으로 걸러낸다 - SyncOrchestrator.SyncPhotos 참고.</summary>
+        public HashSet<string> GetSyncedPhotoKeys()
+        {
+            const string sql = "SELECT SOURCE_KEY, STAGE FROM dbo.WEIGH_PHOTO WHERE BRANCH_CODE = @BranchCode";
+
+            var table = SqlHelper.ExecuteQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", _branchCode, SqlDbType.NVarChar),
+            });
+
+            var keys = new HashSet<string>();
+            foreach (DataRow row in table.Rows)
+            {
+                keys.Add(Convert.ToString(row["SOURCE_KEY"]) + "|" + Convert.ToString(row["STAGE"]));
+            }
+
+            return keys;
+        }
+
+        public void UpsertWeighPhoto(string sourceKey, WeighPhoto photo)
+        {
+            const string sql = @"
+MERGE dbo.WEIGH_PHOTO AS target
+USING (SELECT @BranchCode AS BRANCH_CODE, @SourceKey AS SOURCE_KEY, @Stage AS STAGE, @Seq AS SEQ) AS src
+    ON target.BRANCH_CODE = src.BRANCH_CODE AND target.SOURCE_KEY = src.SOURCE_KEY
+       AND target.STAGE = src.STAGE AND target.SEQ = src.SEQ
+WHEN MATCHED THEN UPDATE SET
+    PHOTO_DATA = @PhotoData, SYNCED_AT = SYSDATETIME()
+WHEN NOT MATCHED THEN INSERT
+    (BRANCH_CODE, SOURCE_KEY, STAGE, SEQ, PHOTO_DATA)
+    VALUES (@BranchCode, @SourceKey, @Stage, @Seq, @PhotoData);";
+
+            SqlHelper.ExecuteNonQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", _branchCode),
+                new SqlParam("@SourceKey", sourceKey),
+                new SqlParam("@Stage", photo.Stage),
+                new SqlParam("@Seq", photo.Seq, SqlDbType.TinyInt),
+                new SqlParam("@PhotoData", photo.Data, SqlDbType.VarBinary),
             });
         }
 

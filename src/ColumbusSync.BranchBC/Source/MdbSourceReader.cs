@@ -139,7 +139,7 @@ namespace ColumbusSync.BranchBC.Source
         {
             const string sql = @"
 SELECT [SENO], [DATE1], [DATE2], [BUNHO], [TIME1], [TIME2], [CARNO], [CUSTONO], [CUSTONM],
-       [PUMNO], [PUMNM], [ONEWT], [TWOWT], [LOSSWT], [DANKA], [DAMDANG], [REM1], [WEIGH_STS]
+       [PUMNO], [PUMNM], [ONEWT], [TWOWT], [LOSSWT], [DANKA], [DAMDANG], [REM1], [WEIGH_STS], [IMGFILE]
 FROM [TB_WEIGH]
 WHERE [DATE1] >= ? AND [DATE1] <= ?
 ORDER BY [DATE1], [BUNHO]";
@@ -177,6 +177,7 @@ ORDER BY [DATE1], [BUNHO]";
                     WeigherName = AsString(row, "DAMDANG"),
                     Remark = AsString(row, "REM1"),
                     WeighStatus = AsString(row, "WEIGH_STS"),
+                    ImgFile = AsString(row, "IMGFILE"),
                 });
             }
 

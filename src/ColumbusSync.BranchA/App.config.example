@@ -41,6 +41,14 @@
       않는다. 실제 업무에서 검수가 며칠까지 늦어질 수 있는지에 맞춰 조정할 것.
     -->
     <add key="WeighSyncLookbackDays" value="30" />
+    <!--
+      계근 사진이 올라가 있는 FTP 서버 경로. Columbus_MES(SA015F00.cs)가 쓰는 것과 동일한
+      서버/계정입니다(ComnLib/ComnClass.cs 참고). 비워두면 사진 동기화를 하지 않습니다.
+      예: ftp://121.66.17.30:16021/Columbus/  (끝에 반드시 "/" 포함)
+    -->
+    <add key="FtpPath" value="" />
+    <add key="FtpUserId" value="__SET_ME__" />
+    <add key="FtpPassword" value="__SET_ME__" />
   </appSettings>
 
   <runtime>

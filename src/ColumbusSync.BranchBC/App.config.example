@@ -40,6 +40,12 @@
       반영되지 않습니다. 실제 업무에서 수정이 며칠까지 늦어질 수 있는지에 맞춰 조정하세요.
     -->
     <add key="WeighSyncLookbackDays" value="30" />
+    <!--
+      계근 사진(IMAGE\yyyyMMdd\*.jpg)이 들어있는 폴더의 루트 경로. TS2020 설치 폴더 밑의
+      IMAGE 폴더를 가리키면 됩니다(예: C:\TS2020\IMAGE). 비워두면 사진 동기화를 하지
+      않습니다(이 기능이 꼭 필요하지 않다면 비워두세요).
+    -->
+    <add key="ImagesFolderPath" value="" />
   </appSettings>
 
   <runtime>

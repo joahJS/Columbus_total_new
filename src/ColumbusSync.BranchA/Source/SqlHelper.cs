@@ -50,6 +50,29 @@ namespace ColumbusSync.BranchA.Source
             }
         }
 
+        /// <summary>GetDataTable과 달리 저장프로시저가 아닌 일반 SQL 텍스트를 실행한다
+        /// (허브 DB 조회용 - HubWriter.GetSyncedPhotoKeys 참고).</summary>
+        public static DataTable ExecuteQuery(string connectionString, string commandText, IEnumerable<SqlParam> parameters)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            using (var command = new SqlCommand(commandText, connection) { CommandTimeout = 60 })
+            {
+                foreach (var parameter in parameters)
+                {
+                    command.Parameters.Add(parameter.Name, parameter.DbType).Value = parameter.Value ?? DBNull.Value;
+                }
+
+                connection.Open();
+                var table = new DataTable();
+                using (var adapter = new SqlDataAdapter(command))
+                {
+                    adapter.Fill(table);
+                }
+
+                return table;
+            }
+        }
+
         public static int ExecuteNonQuery(string connectionString, string commandText, IEnumerable<SqlParam> parameters)
         {
             using (var connection = new SqlConnection(connectionString))

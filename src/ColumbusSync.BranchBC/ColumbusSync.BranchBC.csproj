@@ -83,6 +83,7 @@
     <Compile Include="Source\Dto.cs" />
     <Compile Include="Source\MdbSourceReader.cs" />
     <Compile Include="Source\OleDbHelper.cs" />
+    <Compile Include="Source\PhotoFileReader.cs" />
     <Compile Include="SyncOrchestrator.cs" />
   </ItemGroup>
   <ItemGroup>

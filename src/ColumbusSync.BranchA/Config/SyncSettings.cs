@@ -59,6 +59,28 @@ namespace ColumbusSync.BranchA.Config
             }
         }
 
+        /// <summary>계근 사진이 올라가 있는 FTP 서버 루트 경로(예: "ftp://121.66.17.30:16021/Columbus/").
+        /// 끝에 "/"를 포함해야 한다(Columbus_total의 SA015F00.cs와 같은 규칙). 비어있으면
+        /// 사진 동기화를 건너뛴다.</summary>
+        public static string FtpPath
+        {
+            get
+            {
+                var value = ConfigurationManager.AppSettings["FtpPath"];
+                return string.IsNullOrWhiteSpace(value) || value == "__SET_ME__" ? null : value;
+            }
+        }
+
+        public static string FtpUserId
+        {
+            get { return ConfigurationManager.AppSettings["FtpUserId"]; }
+        }
+
+        public static string FtpPassword
+        {
+            get { return ConfigurationManager.AppSettings["FtpPassword"]; }
+        }
+
         private static string GetConnectionString(string name)
         {
             var setting = ConfigurationManager.ConnectionStrings[name];

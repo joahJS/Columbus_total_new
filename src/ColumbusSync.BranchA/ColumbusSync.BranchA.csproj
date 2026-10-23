@@ -51,6 +51,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Dto.cs" />
+    <Compile Include="Source\FtpPhotoReader.cs" />
     <Compile Include="Source\MesSourceReader.cs" />
     <Compile Include="Source\SqlHelper.cs" />
     <Compile Include="SyncOrchestrator.cs" />

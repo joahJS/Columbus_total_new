@@ -96,5 +96,17 @@ namespace ColumbusSync.BranchBC.Config
                 return days;
             }
         }
+
+        /// <summary>계근 사진(IMAGE\yyyyMMdd\*.jpg)이 들어있는 폴더의 루트 경로
+        /// (예: "C:\TS2020\IMAGE"). 비어있으면 사진 동기화를 건너뛴다 - 이 기능을 아직 쓰지
+        /// 않는 지점의 기존 배포가 깨지지 않도록 기본값을 "사용 안 함"으로 둔다.</summary>
+        public static string ImagesFolderPath
+        {
+            get
+            {
+                var path = ConfigurationManager.AppSettings["ImagesFolderPath"];
+                return string.IsNullOrWhiteSpace(path) || path == "__SET_ME__" ? null : path;
+            }
+        }
     }
 }

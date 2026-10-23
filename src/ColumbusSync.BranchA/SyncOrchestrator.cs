@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ColumbusSync.BranchA.Config;
 using ColumbusSync.BranchA.Hub;
 using ColumbusSync.BranchA.Logging;
@@ -65,10 +66,21 @@ namespace ColumbusSync.BranchA
                 var toDate = DateTime.Today;
                 var fromDate = toDate.AddDays(-SyncSettings.WeighSyncLookbackDays);
 
+                // 사진 동기화는 FtpPath가 설정된 경우에만 한다. 이미 올라간 건은
+                // GetSyncedPhotoKeys()로 미리 걸러내 매 주기 FTP 재조회를 피한다.
+                var ftpPath = SyncSettings.FtpPath;
+                var ftpReader = ftpPath != null ? new FtpPhotoReader(ftpPath, SyncSettings.FtpUserId, SyncSettings.FtpPassword) : null;
+                var syncedPhotoKeys = ftpReader != null ? _hub.GetSyncedPhotoKeys() : null;
+
                 foreach (var raw in _source.GetWeighRecords(fromDate, toDate))
                 {
                     _hub.UpsertWeighRecord(Transform(raw));
                     upserted++;
+
+                    if (ftpReader != null)
+                    {
+                        SyncPhotos(raw, ftpReader, syncedPhotoKeys);
+                    }
                 }
 
                 var finishedAt = DateTime.Now;
@@ -91,10 +103,49 @@ namespace ColumbusSync.BranchA
             }
         }
 
+        /// <summary>계근건 1건의 사진을 FTP에서 읽어 올린다. 이미 올라간 단계는 건너뛰고,
+        /// 1차는 언제든(완료 전이라도) 시도하되 2차는 2차 계량이 끝난 건만 시도한다.
+        /// 사진 하나 처리 실패(FTP 일시 오류 등)가 전체 동기화를 중단시키지 않도록 이
+        /// 메서드 안에서만 예외를 잡는다.</summary>
+        private void SyncPhotos(RawWeighRow raw, FtpPhotoReader ftpReader, HashSet<string> syncedPhotoKeys)
+        {
+            var needFirst = !syncedPhotoKeys.Contains(PhotoKey(raw.Slino, "1"));
+            var needSecond = IsCompleted(raw) && !syncedPhotoKeys.Contains(PhotoKey(raw.Slino, "2"));
+
+            if (!needFirst && !needSecond)
+            {
+                return;
+            }
+
+            try
+            {
+                var photos = ftpReader.ReadPhotos(raw.TDate, raw.Slino, needFirst, needSecond);
+                foreach (var photo in photos)
+                {
+                    _hub.UpsertWeighPhoto(raw.Slino, photo);
+                    syncedPhotoKeys.Add(PhotoKey(raw.Slino, photo.Stage));
+                }
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Error(string.Format("사진 동기화 실패(SLINO={0})", raw.Slino), ex);
+            }
+        }
+
+        private static string PhotoKey(string sourceKey, string stage)
+        {
+            return sourceKey + "|" + stage;
+        }
+
+        private static bool IsCompleted(RawWeighRow raw)
+        {
+            return raw.SWeit.HasValue && raw.SWeit.Value != 0;
+        }
+
         /// <summary>MES 원본 1건을 통합 스키마 규칙에 맞게 변환한다.</summary>
         private static WeighRecordForHub Transform(RawWeighRow raw)
         {
-            var isCompleted = raw.SWeit.HasValue && raw.SWeit.Value != 0;
+            var isCompleted = IsCompleted(raw);
 
             string inOutType = null;
             if (raw.FWeit.HasValue && raw.SWeit.HasValue && raw.FWeit.Value != 0 && raw.SWeit.Value != 0)

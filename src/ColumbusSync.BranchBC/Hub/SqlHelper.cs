@@ -38,5 +38,26 @@ namespace ColumbusSync.BranchBC.Hub
                 return command.ExecuteNonQuery();
             }
         }
+
+        public static DataTable ExecuteQuery(string connectionString, string commandText, IEnumerable<SqlParam> parameters)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            using (var command = new SqlCommand(commandText, connection) { CommandTimeout = 60 })
+            {
+                foreach (var parameter in parameters)
+                {
+                    command.Parameters.Add(parameter.Name, parameter.DbType).Value = parameter.Value ?? DBNull.Value;
+                }
+
+                connection.Open();
+                var table = new DataTable();
+                using (var adapter = new SqlDataAdapter(command))
+                {
+                    adapter.Fill(table);
+                }
+
+                return table;
+            }
+        }
     }
 }
