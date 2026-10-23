@@ -198,6 +198,44 @@ WHEN NOT MATCHED THEN INSERT
             });
         }
 
+        private const string WeighWatermarkStateKey = "WEIGH_WATERMARK";
+
+        /// <summary>직전 동기화에서 본 가장 최신 TB_WEIGH.WORK_DATE 값("yyyyMMddHHmmss").
+        /// 아직 한 번도 저장된 적이 없으면(= 이 지점에서 처음 도는 동기화) null을 반환한다 -
+        /// SyncOrchestrator가 이 값의 유무로 "최초 백필" vs "증분 동기화"를 가른다.</summary>
+        public string GetWeighWatermark()
+        {
+            const string sql = "SELECT STATE_VALUE FROM dbo.SYNC_STATE WHERE BRANCH_CODE = @BranchCode AND STATE_KEY = @StateKey";
+
+            var table = SqlHelper.ExecuteQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", _branchCode),
+                new SqlParam("@StateKey", WeighWatermarkStateKey),
+            });
+
+            return table.Rows.Count > 0 && table.Rows[0]["STATE_VALUE"] != DBNull.Value
+                ? Convert.ToString(table.Rows[0]["STATE_VALUE"])
+                : null;
+        }
+
+        public void SetWeighWatermark(string value)
+        {
+            const string sql = @"
+MERGE dbo.SYNC_STATE AS target
+USING (SELECT @BranchCode AS BRANCH_CODE, @StateKey AS STATE_KEY) AS src
+    ON target.BRANCH_CODE = src.BRANCH_CODE AND target.STATE_KEY = src.STATE_KEY
+WHEN MATCHED THEN UPDATE SET STATE_VALUE = @StateValue, UPDATED_AT = SYSDATETIME()
+WHEN NOT MATCHED THEN INSERT (BRANCH_CODE, STATE_KEY, STATE_VALUE)
+    VALUES (@BranchCode, @StateKey, @StateValue);";
+
+            SqlHelper.ExecuteNonQuery(_connectionString, sql, new[]
+            {
+                new SqlParam("@BranchCode", _branchCode),
+                new SqlParam("@StateKey", WeighWatermarkStateKey),
+                new SqlParam("@StateValue", value),
+            });
+        }
+
         /// <summary>이미 사진이 올라가 있는 (SOURCE_KEY, STAGE) 조합을 "SOURCE_KEY|STAGE"
         /// 형태의 집합으로 가져온다. 계근건 사진은 한번 찍히면 바뀌지 않으므로, 이미 올라간
         /// 단계는 매 주기마다 로컬 파일을 다시 읽고 DB에 다시 쓰는 낭비를 하지 않기 위해

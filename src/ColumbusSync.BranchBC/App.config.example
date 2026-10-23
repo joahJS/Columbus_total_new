@@ -36,10 +36,13 @@
     <!-- 로그 파일 저장 경로. 상대경로면 실행파일 폴더 기준. -->
     <add key="LogFilePath" value="logs\ColumbusSync.BranchBC.log" />
     <!--
-      계근 데이터를 매 배치마다 다시 훑는 기간(일). 검수/수정이 이 기간보다 늦게 들어오면
-      반영되지 않습니다. 실제 업무에서 수정이 며칠까지 늦어질 수 있는지에 맞춰 조정하세요.
+      최초 동기화(이 지점에서 프로그램을 처음 돌릴 때) 때 한 번 백필할 기간(일). 기본 1년.
+      이후부터는 이 값과 무관하게 WORK_DATE(수정시각) 기준 증분 동기화로 바뀌어서, 아무리
+      오래된 계근건이라도 수정되면 바로 반영됩니다 - 더 오래된 과거 데이터까지 받고
+      싶으면 이 값을 늘린 뒤 허브 DB의 dbo.SYNC_STATE에서 이 지점의 WEIGH_WATERMARK
+      행을 지우고 다시 백필을 돌리세요.
     -->
-    <add key="WeighSyncLookbackDays" value="30" />
+    <add key="WeighSyncLookbackDays" value="365" />
     <!--
       계근 사진(IMAGE\yyyyMMdd\*.jpg)이 들어있는 폴더의 루트 경로. TS2020 설치 폴더 밑의
       IMAGE 폴더를 가리키면 됩니다(예: C:\TS2020\IMAGE). 비워두면 사진 동기화를 하지

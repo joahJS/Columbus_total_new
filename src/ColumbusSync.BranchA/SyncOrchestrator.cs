@@ -62,7 +62,9 @@ namespace ColumbusSync.BranchA
                 // 계근 데이터는 최근 N일치를 매번 다시 훑는다. MEASURE_RETR이 계량일자(TDATE)로만
                 // 조회 조건을 받고 수정일시 기준 필터를 지원하지 않기 때문에, 검수/수정이 늦게
                 // 들어온 건도 놓치지 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다.
-                // App.config의 WeighSyncLookbackDays로 조정한다(기본 30일).
+                // App.config의 WeighSyncLookbackDays로 조정한다(기본 1년). 매번 전체 기간을
+                // 다시 받긴 하지만, 아래 WeighHashCache가 내용이 안 바뀐 완료건의 허브
+                // 업서트는 걸러낸다.
                 var toDate = DateTime.Today;
                 var fromDate = toDate.AddDays(-SyncSettings.WeighSyncLookbackDays);
 
@@ -72,16 +74,26 @@ namespace ColumbusSync.BranchA
                 var ftpReader = ftpPath != null ? new FtpPhotoReader(ftpPath, SyncSettings.FtpUserId, SyncSettings.FtpPassword) : null;
                 var syncedPhotoKeys = ftpReader != null ? _hub.GetSyncedPhotoKeys() : null;
 
+                // 내용이 안 바뀐 완료건은 허브 업서트를 건너뛴다(WeighHashCache 참고) - MES는
+                // 매번 전체 기간을 다시 주지만, 그중 실제로 바뀐 것만 허브로 올린다.
+                var hashCache = WeighHashCache.Load(SyncSettings.WeighHashCachePath);
+
                 foreach (var raw in _source.GetWeighRecords(fromDate, toDate))
                 {
-                    _hub.UpsertWeighRecord(Transform(raw));
-                    upserted++;
+                    var contentHash = WeighHashCache.ComputeHash(BuildHashContent(raw));
+                    if (!hashCache.IsUnchanged(raw.Slino, contentHash))
+                    {
+                        _hub.UpsertWeighRecord(Transform(raw));
+                        upserted++;
+                    }
 
                     if (ftpReader != null)
                     {
                         SyncPhotos(raw, ftpReader, syncedPhotoKeys);
                     }
                 }
+
+                hashCache.Save();
 
                 var finishedAt = DateTime.Now;
                 _hub.WriteSyncLog(startedAt, finishedAt, success: true, inserted: upserted, updated: 0, errorMessage: null);
@@ -140,6 +152,29 @@ namespace ColumbusSync.BranchA
         private static bool IsCompleted(RawWeighRow raw)
         {
             return raw.SWeit.HasValue && raw.SWeit.Value != 0;
+        }
+
+        /// <summary>WeighHashCache와 비교할 "내용"을 만든다. 허브에 실제로 올라가는 값에
+        /// 영향을 주는 필드만 모으면 되고, 필드 추가/순서 변경 시에는 캐시가 전부
+        /// "변경됨"으로 보여 한 번 더 업서트될 뿐이라 안전하다(멱등적인 MERGE).</summary>
+        private static string BuildHashContent(RawWeighRow raw)
+        {
+            return string.Join("|", new[]
+            {
+                raw.TDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                raw.SeqNo, raw.JobGu, raw.CarNo, raw.CvCod, raw.CvNam, raw.ItCod, raw.ItNam,
+                raw.FTime.HasValue ? raw.FTime.Value.ToString("o") : null,
+                raw.STime.HasValue ? raw.STime.Value.ToString("o") : null,
+                raw.FWeit.HasValue ? raw.FWeit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.SWeit.HasValue ? raw.SWeit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.EWeit.HasValue ? raw.EWeit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.RWeit.HasValue ? raw.RWeit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.LWeit.HasValue ? raw.LWeit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.LosGu,
+                raw.AWeit.HasValue ? raw.AWeit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.UCost.HasValue ? raw.UCost.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
+                raw.ChkYn, raw.PlnNm, raw.InsRk,
+            });
         }
 
         /// <summary>MES 원본 1건을 통합 스키마 규칙에 맞게 변환한다.</summary>

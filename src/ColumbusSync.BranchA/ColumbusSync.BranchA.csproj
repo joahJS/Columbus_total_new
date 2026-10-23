@@ -55,6 +55,7 @@
     <Compile Include="Source\MesSourceReader.cs" />
     <Compile Include="Source\SqlHelper.cs" />
     <Compile Include="SyncOrchestrator.cs" />
+    <Compile Include="WeighHashCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

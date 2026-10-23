@@ -129,20 +129,27 @@ namespace ColumbusSync.BranchBC.Source
             return list;
         }
 
+        private const string WeighColumns =
+            "[SENO], [DATE1], [DATE2], [BUNHO], [TIME1], [TIME2], [CARNO], [CUSTONO], [CUSTONM], " +
+            "[PUMNO], [PUMNM], [ONEWT], [TWOWT], [LOSSWT], [DANKA], [DAMDANG], [REM1], [WEIGH_STS], [IMGFILE], [WORK_DATE]";
+
         /// <summary>
         /// 지정한 기간의 계근 데이터 조회 (TB_WEIGH). DATE1(1차계량일, Text 10)이 "yyyy-mm-dd"
         /// 형식으로 저장되어 있어 문자열 범위 비교로도 날짜순 비교가 정확히 맞는다.
         /// OLE DB는 "?" 자리표시자를 SQL문에 나오는 순서대로 채우므로, 파라미터 배열 순서가
         /// 곧 자리표시자 순서다.
+        ///
+        /// 최초 백필(워터마크가 아직 없을 때)에만 쓴다 - 이후의 매 주기 동기화는
+        /// GetWeighRecordsModifiedSince()로 WORK_DATE 기준 증분 조회를 한다
+        /// (SyncOrchestrator 참고). 일단 받은 뒤에는 수정 여부와 상관없이 전부 돌려준다.
         /// </summary>
         public List<RawWeighRow> GetWeighRecords(DateTime fromDate, DateTime toDate)
         {
-            const string sql = @"
-SELECT [SENO], [DATE1], [DATE2], [BUNHO], [TIME1], [TIME2], [CARNO], [CUSTONO], [CUSTONM],
-       [PUMNO], [PUMNM], [ONEWT], [TWOWT], [LOSSWT], [DANKA], [DAMDANG], [REM1], [WEIGH_STS], [IMGFILE]
+            var sql = string.Format(@"
+SELECT {0}
 FROM [TB_WEIGH]
 WHERE [DATE1] >= ? AND [DATE1] <= ?
-ORDER BY [DATE1], [BUNHO]";
+ORDER BY [DATE1], [BUNHO]", WeighColumns);
 
             var table = OleDbHelper.GetDataTable(_connectionString, sql, new[]
             {
@@ -150,6 +157,34 @@ ORDER BY [DATE1], [BUNHO]";
                 new OleDbParam("ToDate", toDate.ToString("yyyy-MM-dd")),
             });
 
+            return MapWeighRows(table, fromDate);
+        }
+
+        /// <summary>
+        /// workDateWatermark(직전 동기화에서 본 가장 최신 WORK_DATE)보다 WORK_DATE가 더
+        /// 큰(=그 이후에 저장/수정된) 행만 조회한다. DATE1(계량일)과 무관하게 걸리므로,
+        /// 1년도 더 지난 오래된 계근건이 뒤늦게 수정되는 경우도 놓치지 않는다 - 매 주기
+        /// 전체 기간을 다시 훑지 않고도 "수정된 내역이 있는 데이터만" 수집하기 위한 핵심
+        /// 메서드다.
+        /// </summary>
+        public List<RawWeighRow> GetWeighRecordsModifiedSince(string workDateWatermark)
+        {
+            var sql = string.Format(@"
+SELECT {0}
+FROM [TB_WEIGH]
+WHERE [WORK_DATE] > ?
+ORDER BY [WORK_DATE]", WeighColumns);
+
+            var table = OleDbHelper.GetDataTable(_connectionString, sql, new[]
+            {
+                new OleDbParam("WorkDateWatermark", workDateWatermark),
+            });
+
+            return MapWeighRows(table, DateTime.Today);
+        }
+
+        private static List<RawWeighRow> MapWeighRows(DataTable table, DateTime fallbackDate)
+        {
             var list = new List<RawWeighRow>();
             foreach (DataRow row in table.Rows)
             {
@@ -161,7 +196,7 @@ ORDER BY [DATE1], [BUNHO]";
                 list.Add(new RawWeighRow
                 {
                     Seno = AsString(row, "SENO"),
-                    WeighDate = ParseDate(date1) ?? fromDate,
+                    WeighDate = ParseDate(date1) ?? fallbackDate,
                     Bunho = AsString(row, "BUNHO"),
                     CarNo = AsString(row, "CARNO"),
                     CustoNo = AsString(row, "CUSTONO"),
@@ -178,6 +213,7 @@ ORDER BY [DATE1], [BUNHO]";
                     Remark = AsString(row, "REM1"),
                     WeighStatus = AsString(row, "WEIGH_STS"),
                     ImgFile = AsString(row, "IMGFILE"),
+                    WorkDate = AsString(row, "WORK_DATE"),
                 });
             }
 

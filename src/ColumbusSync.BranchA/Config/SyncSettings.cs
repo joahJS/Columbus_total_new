@@ -39,11 +39,26 @@ namespace ColumbusSync.BranchA.Config
             }
         }
 
+        /// <summary>완료된 계근건의 내용 해시를 저장해두는 로컬 캐시 파일 경로(WeighHashCache
+        /// 참고) - 내용이 바뀌지 않은 건은 매 주기 허브 DB에 다시 업서트하지 않기 위한
+        /// 것이다. 상대경로면 실행파일 폴더 기준.</summary>
+        public static string WeighHashCachePath
+        {
+            get
+            {
+                var configured = ConfigurationManager.AppSettings["WeighHashCachePath"];
+                return string.IsNullOrWhiteSpace(configured) ? "state\\weigh_hash_cache.tsv" : configured;
+            }
+        }
+
         /// <summary>
         /// 계근 데이터를 매 배치마다 다시 훑는 기간(일). MEASURE_RETR은 수정일시가 아니라
         /// 계량일자(TDATE)로만 조회 조건을 받기 때문에, 검수/수정이 늦게 들어온 건을 놓치지
-        /// 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다. 실제 업무에서 검수가 며칠까지
-        /// 늦어질 수 있는지에 맞춰 조정한다.
+        /// 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다. 기본값(1년)은 매 주기
+        /// 그대로 유지된다 - B/C지점과 달리 MES에는 수정시각 컬럼이 없어서 워터마크 증분
+        /// 조회로 바꿀 수 없기 때문이다. 대신 WeighHashCache가 내용이 안 바뀐 완료건의 허브
+        /// 업서트는 걸러내므로, 매 주기 전체 기간을 "다시 받기"는 하지만 "다시 쓰기"는 하지
+        /// 않는다.
         /// </summary>
         public static int WeighSyncLookbackDays
         {
@@ -52,7 +67,7 @@ namespace ColumbusSync.BranchA.Config
                 int days;
                 if (!int.TryParse(ConfigurationManager.AppSettings["WeighSyncLookbackDays"], out days) || days <= 0)
                 {
-                    days = 30;
+                    days = 365;
                 }
 
                 return days;

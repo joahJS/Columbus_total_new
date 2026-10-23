@@ -85,5 +85,14 @@ namespace ColumbusSync.BranchBC.Source
         /// 있다. 2차 계량 사진은 이 컬럼이 따로 없어, TIME2와 같은 분(分)에 촬영된 사진 쌍을
         /// 찾는 방식으로 연결한다 - PhotoFileReader 참고.</summary>
         public string ImgFile { get; set; }
+
+        /// <summary>이 행이 마지막으로 저장(= 1차 입력 또는 2차 완료 등 수정)된 시각.
+        /// "yyyyMMddHHmmss"(14자리, 고정폭) 형식의 Text 컬럼이라 문자열 비교로도 시간순
+        /// 비교가 정확히 맞는다 - DATE1처럼 저장 즉시 값이 반올림/가공되는 게 아니라 그
+        /// 레코드가 마지막으로 write된 실제 시각이라는 걸 실 데이터로 확인했다(SyncOrchestrator
+        /// 참고). 이 컬럼을 기준으로 "WORK_DATE가 지난번 동기화 이후보다 큰 행만" 다시
+        /// 받아오면, 오래된 계근건이 나중에 수정되는 경우도 놓치지 않으면서 매 주기 전체
+        /// 기간을 다시 훑는 낭비를 피할 수 있다.</summary>
+        public string WorkDate { get; set; }
     }
 }

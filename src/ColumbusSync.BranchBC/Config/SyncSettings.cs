@@ -83,6 +83,10 @@ namespace ColumbusSync.BranchBC.Config
             }
         }
 
+        /// <summary>최초 동기화(워터마크가 없을 때)에 한 번 백필할 기간(일). 그 이후의 매
+        /// 주기 동기화는 이 값과 무관하게 WORK_DATE 증분 조회로 바뀐다(SyncOrchestrator
+        /// 참고) - 더 오래된 과거 데이터까지 조회하고 싶으면 이 값을 늘린 다음, 허브 DB의
+        /// dbo.SYNC_STATE에서 이 지점의 WEIGH_WATERMARK 행을 지우고 다시 백필을 돌리면 된다.</summary>
         public static int WeighSyncLookbackDays
         {
             get
@@ -90,7 +94,7 @@ namespace ColumbusSync.BranchBC.Config
                 int days;
                 if (!int.TryParse(ConfigurationManager.AppSettings["WeighSyncLookbackDays"], out days) || days <= 0)
                 {
-                    days = 30;
+                    days = 365;
                 }
 
                 return days;

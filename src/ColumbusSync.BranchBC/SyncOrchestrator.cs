@@ -62,26 +62,50 @@ namespace ColumbusSync.BranchBC
                     upserted++;
                 }
 
-                // 계근 데이터는 최근 N일치를 매번 다시 훑는다. 검수/수정이 늦게 들어온 건도
-                // 놓치지 않으려면 그 지연 가능성만큼 기간을 넉넉히 잡아야 한다.
-                // App.config의 WeighSyncLookbackDays로 조정한다(기본 30일).
-                var toDate = DateTime.Today;
-                var fromDate = toDate.AddDays(-SyncSettings.WeighSyncLookbackDays);
+                // 계근 데이터: 워터마크(직전 동기화에서 본 가장 최신 WORK_DATE)가 없으면
+                // 최초 백필로 WeighSyncLookbackDays 기간(기본 1년) 전체를 훑고, 있으면
+                // WORK_DATE가 그 이후인 행만 증분으로 받는다. 이렇게 하면 매 주기 전체
+                // 기간을 다시 훑는 낭비 없이도, 아무리 오래된 계근건이라도 수정되면 바로
+                // 반영된다(DATE1 범위와 무관하게 WORK_DATE만 본다).
+                var watermark = _hub.GetWeighWatermark();
+                List<RawWeighRow> weighRows;
+                if (watermark == null)
+                {
+                    var toDate = DateTime.Today;
+                    var fromDate = toDate.AddDays(-SyncSettings.WeighSyncLookbackDays);
+                    weighRows = _source.GetWeighRecords(fromDate, toDate);
+                }
+                else
+                {
+                    weighRows = _source.GetWeighRecordsModifiedSince(watermark);
+                }
 
                 // 사진 동기화는 ImagesFolderPath가 설정된 지점(B/C지점 PC)에서만 한다.
                 // 이미 올라간 건은 GetSyncedPhotoKeys()로 미리 걸러내 매 주기 디스크 재탐색을 피한다.
                 var imagesFolderPath = SyncSettings.ImagesFolderPath;
                 var syncedPhotoKeys = imagesFolderPath != null ? _hub.GetSyncedPhotoKeys() : null;
 
-                foreach (var raw in _source.GetWeighRecords(fromDate, toDate))
+                var maxWorkDate = watermark;
+                foreach (var raw in weighRows)
                 {
                     _hub.UpsertWeighRecord(Transform(raw));
                     upserted++;
+
+                    if (!string.IsNullOrEmpty(raw.WorkDate) &&
+                        (maxWorkDate == null || string.CompareOrdinal(raw.WorkDate, maxWorkDate) > 0))
+                    {
+                        maxWorkDate = raw.WorkDate;
+                    }
 
                     if (imagesFolderPath != null)
                     {
                         SyncPhotos(raw, imagesFolderPath, syncedPhotoKeys);
                     }
+                }
+
+                if (!string.IsNullOrEmpty(maxWorkDate) && maxWorkDate != watermark)
+                {
+                    _hub.SetWeighWatermark(maxWorkDate);
                 }
 
                 var finishedAt = DateTime.Now;

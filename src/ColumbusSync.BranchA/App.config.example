@@ -36,11 +36,19 @@
     <!-- 로그 파일 저장 경로. 상대경로면 실행파일 폴더 기준. -->
     <add key="LogFilePath" value="logs\ColumbusSync.BranchA.log" />
     <!--
-      계근 데이터를 매 배치마다 다시 훑는 기간(일). MEASURE_RETR은 계량일자(TDATE) 기준으로만
-      조회되고 수정일시 필터는 지원하지 않아서, 검수/수정이 이 기간보다 늦게 들어오면 반영되지
-      않는다. 실제 업무에서 검수가 며칠까지 늦어질 수 있는지에 맞춰 조정할 것.
+      계근 데이터를 매 배치마다 다시 훑는 기간(일). 기본 1년. MEASURE_RETR은 계량일자
+      (TDATE) 기준으로만 조회되고 수정일시 필터는 지원하지 않아서, 이 값과 무관하게
+      매 주기 똑같이 전체 기간을 다시 받는다 - 다만 내용이 안 바뀐 완료건은
+      WeighHashCache가 걸러내 허브 DB에 다시 쓰지는 않는다(원본 MES 조회 자체는
+      매번 그대로 한다. 사내망이라 보통 문제 없음).
     -->
-    <add key="WeighSyncLookbackDays" value="30" />
+    <add key="WeighSyncLookbackDays" value="365" />
+    <!--
+      완료된 계근건의 내용 해시를 저장해두는 로컬 캐시 파일 경로. 상대경로면 실행파일
+      폴더 기준. 이 파일이 지워지면(재배포 등) 다음 주기에 한 번 더 전체를 허브로
+      업서트하게 될 뿐, 데이터가 틀어지지는 않습니다.
+    -->
+    <add key="WeighHashCachePath" value="state\weigh_hash_cache.tsv" />
     <!--
       계근 사진이 올라가 있는 FTP 서버 경로. Columbus_MES(SA015F00.cs)가 쓰는 것과 동일한
       서버/계정입니다(ComnLib/ComnClass.cs 참고). 비워두면 사진 동기화를 하지 않습니다.
