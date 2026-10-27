@@ -90,40 +90,48 @@ namespace ColumbusSync.BranchA.Source
 
         private HashSet<string> ListDirectory(string folderUrl)
         {
-            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            try
+            for (var attempt = 1; attempt <= MaxAttempts; attempt++)
             {
-                var request = (FtpWebRequest)WebRequest.Create(folderUrl);
-                request.Method = WebRequestMethods.Ftp.ListDirectory;
-                request.Credentials = new NetworkCredential(_userId, _password);
-                request.UsePassive = true;
-
-                using (var response = (FtpWebResponse)request.GetResponse())
-                using (var stream = response.GetResponseStream())
-                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                try
                 {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
+                    var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    var request = CreateRequest(folderUrl, WebRequestMethods.Ftp.ListDirectory);
+
+                    using (var response = (FtpWebResponse)request.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    using (var reader = new StreamReader(stream, Encoding.UTF8))
                     {
-                        // 서버가 파일명만 돌려주는 걸 기준으로 한다(SA015F00.cs와 동일한 가정).
-                        result.Add(Path.GetFileName(line.Trim()));
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            // 서버가 파일명만 돌려주는 걸 기준으로 한다(SA015F00.cs와 동일한 가정).
+                            result.Add(Path.GetFileName(line.Trim()));
+                        }
+                    }
+
+                    return result;
+                }
+                catch (WebException ex)
+                {
+                    // "550"(파일/폴더 없음)은 그날 사진 폴더가 아예 없는 정상적인 경우일 수 있다
+                    // (예: 그 날짜엔 카메라 설정이 꺼져 있었음) - 조용히 빈 목록으로 넘어간다.
+                    if (IsFileUnavailable(ex))
+                    {
+                        return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    }
+
+                    // 그 외(연결 끊김, 인증 실패, 타임아웃 등)는 한 번 재시도해보고, 그래도 안
+                    // 되면 원인을 알아야 하므로 로그를 남긴다 - 안 그러면 사진이 하나도 안
+                    // 쌓여도 어디서 막히는지 전혀 알 수 없다.
+                    if (attempt >= MaxAttempts)
+                    {
+                        FileLogger.Error(string.Format("FTP 디렉토리 조회 실패: {0}", folderUrl), ex);
+                        return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     }
                 }
             }
-            catch (WebException ex)
-            {
-                // "550"(파일/폴더 없음)은 그날 사진 폴더가 아예 없는 정상적인 경우일 수 있다
-                // (예: 그 날짜엔 카메라 설정이 꺼져 있었음) - 조용히 빈 목록으로 넘어간다.
-                // 그 외(연결 실패, 인증 실패, 타임아웃 등)는 원인을 알아야 하므로 로그를 남긴다 -
-                // 안 그러면 사진이 하나도 안 쌓여도 어디서 막히는지 전혀 알 수 없다.
-                if (!IsFileUnavailable(ex))
-                {
-                    FileLogger.Error(string.Format("FTP 디렉토리 조회 실패: {0}", folderUrl), ex);
-                }
-            }
 
-            return result;
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         private static bool IsFileUnavailable(WebException ex)
@@ -132,32 +140,54 @@ namespace ColumbusSync.BranchA.Source
             return response != null && response.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable;
         }
 
+        private const int MaxAttempts = 2;
+
         private byte[] DownloadFile(string fileUrl)
         {
-            try
+            for (var attempt = 1; attempt <= MaxAttempts; attempt++)
             {
-                var request = (FtpWebRequest)WebRequest.Create(fileUrl);
-                request.Method = WebRequestMethods.Ftp.DownloadFile;
-                request.Credentials = new NetworkCredential(_userId, _password);
-                request.UsePassive = true;
-
-                using (var response = (FtpWebResponse)request.GetResponse())
-                using (var stream = response.GetResponseStream())
-                using (var memory = new MemoryStream())
+                try
                 {
-                    stream.CopyTo(memory);
-                    return memory.ToArray();
+                    var request = CreateRequest(fileUrl, WebRequestMethods.Ftp.DownloadFile);
+
+                    using (var response = (FtpWebResponse)request.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    using (var memory = new MemoryStream())
+                    {
+                        stream.CopyTo(memory);
+                        return memory.ToArray();
+                    }
+                }
+                catch (WebException ex)
+                {
+                    if (IsFileUnavailable(ex))
+                    {
+                        return null;
+                    }
+
+                    if (attempt >= MaxAttempts)
+                    {
+                        FileLogger.Error(string.Format("FTP 파일 다운로드 실패: {0}", fileUrl), ex);
+                        return null;
+                    }
                 }
             }
-            catch (WebException ex)
-            {
-                if (!IsFileUnavailable(ex))
-                {
-                    FileLogger.Error(string.Format("FTP 파일 다운로드 실패: {0}", fileUrl), ex);
-                }
 
-                return null;
-            }
+            return null;
+        }
+
+        /// <summary>.NET의 FtpWebRequest는 기본적으로 요청 간 연결을 재사용하는데(KeepAlive),
+        /// 이 연결 재사용 경로에 "연결이 닫혔습니다 / 프로토콜 위반" 같은 오류를 간헐적으로
+        /// 일으키는 오래된 버그가 있다 - 짧은 시간에 여러 파일을 연속으로 받을 때 특히 잘
+        /// 드러난다. 매 요청마다 새 연결을 쓰도록 강제해서 피한다.</summary>
+        private FtpWebRequest CreateRequest(string url, string method)
+        {
+            var request = (FtpWebRequest)WebRequest.Create(url);
+            request.Method = method;
+            request.Credentials = new NetworkCredential(_userId, _password);
+            request.UsePassive = true;
+            request.KeepAlive = false;
+            return request;
         }
     }
 }
