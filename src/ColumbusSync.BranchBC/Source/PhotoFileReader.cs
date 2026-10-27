@@ -15,27 +15,23 @@ namespace ColumbusSync.BranchBC.Source
     /// <summary>
     /// TS2020의 IMAGE 폴더(날짜별 하위폴더)에서 계근 사진을 읽어온다.
     ///
-    /// 1차 계량 사진은 TB_WEIGH.IMGFILE 컬럼으로 연결되는데, 실제 mdb(TSDB.mdb)와 실제
-    /// 사진 파일을 직접 대조해본 결과(차량번호까지 사진에서 육안으로 확인) IMGFILE은
-    /// "yyyyMMddHHmmssfff"(17자리) 값이고, 실제 파일명은 그 뒤에 구분용 숫자가 하나 더
-    /// 붙은 18자리다(예: IMGFILE="20261027071115350" → 파일 "202610270711153501_1.jpg").
-    /// 즉 IMGFILE은 파일명 전체가 아니라 "앞부분 접두사"다 - 그래서 정확히 같은 파일명이
-    /// 아니라 IMGFILE로 시작하는 파일을 찾아야 한다. 드물게 같은 밀리초에 다른 차량이
-    /// 찍혀 접두사가 겹치는 경우가 있는데(정확한 발생 원인은 불명), 그럴 때는 끝자리가
-    /// 가장 작은(=가장 먼저 찍힌) 파일을 선택한다 - 실 데이터로 대조해보니 그게 맞는
-    /// 파일이었다.
+    /// 실제 mdb(TSDB.mdb)와 실제 사진 파일, 사진 속 차량번호/적재상태까지 직접 대조해서
+    /// 확인한 규칙: TB_WEIGH.IMGFILE은 17자리(yyyyMMddHHmmssfff, 1차 계량 시점의 정밀
+    /// 타임스탬프) 값이고, 실제 파일명은 "{IMGFILE}{식별숫자1자리}_{카메라번호}.jpg" 형태다.
+    /// 1차 사진은 "{IMGFILE}1_1.jpg"/"{IMGFILE}1_2.jpg"(카메라 1/2), 2차 사진은
+    /// "{IMGFILE}2_1.jpg"/"{IMGFILE}2_2.jpg"로, **2차 사진도 1차와 똑같은 IMGFILE
+    /// 타임스탬프를 그대로 재사용**하고 그 뒤에 붙는 한 자리 숫자만 1(1차)/2(2차)로
+    /// 바뀐다 - 2차 사진 파일명이 "2차 계량이 실제로 일어난 시각"을 반영하는 게 아니다.
+    /// (처음에는 "같은 밀리초에 다른 차량이 찍혔다"고 오판했었는데, 차량번호와 적재상태를
+    /// 직접 대조해보니 같은 차량의 1차(적재 전/후)와 2차였다.)
     ///
-    /// 2차 계량 사진은 DB에 연결 컬럼이 따로 없다. IMGFILE과 실제 촬영 시각을 대조해보면,
-    /// 파일명이 "그 사진을 찍은 정확한 시각"이고 TB_WEIGH의 TIME1/TIME2는 그 시각을 분(分)
-    /// 단위로 반올림해 저장한 값이라는 걸 알 수 있었다(1차 기준으로 실제 검증됨). 그래서
-    /// 2차 사진은 "2차계량시각(TIME2)과 같은 분에 찍힌, 1차 사진과는 다른 파일"을 찾는
-    /// 방식으로 추정 연결한다 - 여러 차량이 같은 분에 몰리면 잘못 연결될 수 있다는 한계는
-    /// 있다.
+    /// 그래서 2차 사진을 찾을 때 "2차계량시각과 같은 분" 같은 추정이 필요 없다 - 같은
+    /// IMGFILE 접두사를 가진 카메라별 파일들을 끝자리 순으로 정렬하면, 첫 번째가 1차,
+    /// 두 번째가 2차다(2차가 아직 없으면 그 카메라의 파일이 1개만 있다).
     ///
     /// 같은 배치(RunOnce 1회) 안에서는 같은 날짜 폴더를 여러 계근건이 같이 참조하므로,
     /// 폴더 목록 조회(Directory.GetFiles)를 날짜 폴더당 한 번만 하도록 인스턴스에 캐시한다
-    /// (A지점 FtpPhotoReader와 같은 이유) - 이게 없으면 1년치 백필처럼 건수가 많을 때
-    /// 같은 날짜 폴더를 계근건 수만큼 반복해서 디스크에서 다시 읽어 매우 느려진다.
+    /// (A지점 FtpPhotoReader와 같은 이유).
     /// </summary>
     public class PhotoFileReader
     {
@@ -45,10 +41,10 @@ namespace ColumbusSync.BranchBC.Source
         /// 필요가 없는 단계를 건너뛰기 위한 플래그다(SyncOrchestrator가 HubWriter.GetSyncedPhotoKeys
         /// 조회 결과로 결정) - 매 주기마다 이미 동기화된 사진까지 디스크에서 다시 읽는 낭비를
         /// 막는다.</summary>
-        public List<WeighPhoto> ReadPhotos(string imagesFolderRoot, DateTime weighDate, string imgFile, DateTime? secondDateTime, bool needFirstStage, bool needSecondStage)
+        public List<WeighPhoto> ReadPhotos(string imagesFolderRoot, DateTime weighDate, string imgFile, bool needFirstStage, bool needSecondStage)
         {
             var photos = new List<WeighPhoto>();
-            if (string.IsNullOrEmpty(imagesFolderRoot) || (!needFirstStage && !needSecondStage))
+            if (string.IsNullOrEmpty(imagesFolderRoot) || string.IsNullOrEmpty(imgFile) || (!needFirstStage && !needSecondStage))
             {
                 return photos;
             }
@@ -60,17 +56,24 @@ namespace ColumbusSync.BranchBC.Source
                 return photos;
             }
 
-            if (needFirstStage && !string.IsNullOrEmpty(imgFile))
+            // 카메라(seq) 1, 2 각각에 대해, 같은 IMGFILE 접두사를 가진 파일을 끝자리 순으로
+            // 정렬하면 [0]=1차, [1]=2차다.
+            for (var seq = 1; seq <= 2; seq++)
             {
-                AddPhotosForPrefix(photos, dayFolder, fileNames, imgFile, "1");
-            }
-
-            if (needSecondStage && secondDateTime.HasValue)
-            {
-                var secondBaseName = FindBaseNameForMinute(fileNames, secondDateTime.Value, imgFile);
-                if (secondBaseName != null)
+                var matches = FindMatches(fileNames, imgFile, seq);
+                if (matches.Count == 0)
                 {
-                    AddPhotosForPrefix(photos, dayFolder, fileNames, secondBaseName, "2");
+                    continue;
+                }
+
+                if (needFirstStage)
+                {
+                    AddPhoto(photos, dayFolder, matches, 0, "1", seq);
+                }
+
+                if (needSecondStage && matches.Count > 1)
+                {
+                    AddPhoto(photos, dayFolder, matches, 1, "2", seq);
                 }
             }
 
@@ -106,32 +109,28 @@ namespace ColumbusSync.BranchBC.Source
             return fileNames;
         }
 
-        private static void AddPhotosForPrefix(List<WeighPhoto> photos, string dayFolder, List<string> fileNames, string basePrefix, string stage)
+        private static void AddPhoto(List<WeighPhoto> photos, string dayFolder, List<string> matches, int index, string stage, int seq)
         {
-            for (var seq = 1; seq <= 2; seq++)
+            if (index >= matches.Count)
             {
-                var fileName = FindBestMatch(fileNames, basePrefix, seq);
-                if (fileName == null)
-                {
-                    continue;
-                }
-
-                photos.Add(new WeighPhoto
-                {
-                    Stage = stage,
-                    Seq = seq,
-                    Data = File.ReadAllBytes(Path.Combine(dayFolder, fileName)),
-                });
+                return;
             }
+
+            photos.Add(new WeighPhoto
+            {
+                Stage = stage,
+                Seq = seq,
+                Data = File.ReadAllBytes(Path.Combine(dayFolder, matches[index])),
+            });
         }
 
-        /// <summary>basePrefix로 시작하고 "_{seq}"로 끝나는(확장자 제외) 파일을 찾는다.
-        /// 여러 건이 걸리면(접두사 겹침) 파일명 기준으로 정렬해 가장 앞에 오는 것 - 즉
-        /// 끝자리가 가장 작은 것을 선택한다.</summary>
-        private static string FindBestMatch(List<string> fileNames, string basePrefix, int seq)
+        /// <summary>basePrefix(IMGFILE)로 시작하고 "_{seq}"로 끝나는(확장자 제외) 파일을
+        /// 전부 찾아 정렬해서 돌려준다. 보통 0~2개가 나온다(없음=1차 사진도 아직 없음,
+        /// 1개=1차만, 2개=1차+2차 둘 다).</summary>
+        private static List<string> FindMatches(List<string> fileNames, string basePrefix, int seq)
         {
             var suffix = "_" + seq;
-            List<string> matches = null;
+            var matches = new List<string>();
 
             foreach (var name in fileNames)
             {
@@ -146,68 +145,11 @@ namespace ColumbusSync.BranchBC.Source
                     continue;
                 }
 
-                if (matches == null)
-                {
-                    matches = new List<string>();
-                }
-
                 matches.Add(name);
             }
 
-            if (matches == null)
-            {
-                return null;
-            }
-
             matches.Sort(StringComparer.OrdinalIgnoreCase);
-            return matches[0];
-        }
-
-        /// <summary>targetMinute와 같은 분(分)에 촬영된 "_1" 사진을 찾아 그 베이스 파일명
-        /// (확장자/순번 제외, 전체 18자리)을 반환한다. excludePrefix(1차 사진의 IMGFILE
-        /// 접두사)로 시작하는 파일은 1차 사진 자신이므로 건너뛴다. 여러 건이 걸리면 그중
-        /// 하나(정렬 후 첫 매치)를 돌려준다 - 같은 분에 차량이 여러 대 몰리면 틀린 걸 고를
-        /// 수 있다는 한계가 있다.</summary>
-        private static string FindBaseNameForMinute(List<string> fileNames, DateTime targetMinute, string excludePrefix)
-        {
-            var minutePrefix = targetMinute.ToString("yyyyMMddHHmm");
-            var candidates = new List<string>();
-
-            foreach (var name in fileNames)
-            {
-                if (!name.StartsWith(minutePrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var nameNoExt = Path.GetFileNameWithoutExtension(name);
-                if (nameNoExt.EndsWith("_1", StringComparison.OrdinalIgnoreCase))
-                {
-                    candidates.Add(name);
-                }
-            }
-
-            candidates.Sort(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var name in candidates)
-            {
-                var nameNoExt = Path.GetFileNameWithoutExtension(name);
-                if (nameNoExt.Length <= "_1".Length)
-                {
-                    continue;
-                }
-
-                var baseName = nameNoExt.Substring(0, nameNoExt.Length - "_1".Length);
-                if (!string.IsNullOrEmpty(excludePrefix) &&
-                    baseName.StartsWith(excludePrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                return baseName;
-            }
-
-            return null;
+            return matches;
         }
     }
 }

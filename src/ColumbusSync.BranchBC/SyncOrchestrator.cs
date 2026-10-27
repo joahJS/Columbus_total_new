@@ -155,7 +155,7 @@ namespace ColumbusSync.BranchBC
             {
                 var photos = hasImageTable
                     ? _source.GetImagesByImgFile(raw.ImgFile)
-                    : photoFileReader.ReadPhotos(imagesFolderPath, raw.WeighDate, raw.ImgFile, raw.SecondDateTime, needFirst, needSecond);
+                    : photoFileReader.ReadPhotos(imagesFolderPath, raw.WeighDate, raw.ImgFile, needFirst, needSecond);
 
                 foreach (var photo in photos)
                 {
