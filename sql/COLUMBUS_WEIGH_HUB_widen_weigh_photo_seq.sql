@@ -1,0 +1,8 @@
+-- 녹산(C지점)의 TS2020은 사진을 로컬 파일이 아니라 mdb의 TB_IMAGE 테이블에 직접 저장하는데,
+-- 이 테이블은 1차/2차 각각 최대 4장(IMAGE1_1~IMAGE1_4, IMAGE2_1~IMAGE2_4)까지 지원한다.
+-- 기존 CK_WEIGH_PHOTO_SEQ는 1~2만 허용했으므로, 3/4번째 사진이 있으면 INSERT가 막힌다.
+ALTER TABLE dbo.WEIGH_PHOTO DROP CONSTRAINT CK_WEIGH_PHOTO_SEQ;
+GO
+
+ALTER TABLE dbo.WEIGH_PHOTO ADD CONSTRAINT CK_WEIGH_PHOTO_SEQ CHECK (SEQ IN (1, 2, 3, 4));
+GO

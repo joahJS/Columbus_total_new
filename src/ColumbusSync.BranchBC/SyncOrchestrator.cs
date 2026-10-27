@@ -80,10 +80,14 @@ namespace ColumbusSync.BranchBC
                     weighRows = _source.GetWeighRecordsModifiedSince(watermark);
                 }
 
-                // 사진 동기화는 ImagesFolderPath가 설정된 지점(B/C지점 PC)에서만 한다.
-                // 이미 올라간 건은 GetSyncedPhotoKeys()로 미리 걸러내 매 주기 디스크 재탐색을 피한다.
+                // 사진 동기화: mdb에 TB_IMAGE 테이블이 있으면(녹산/C지점처럼 DB에 직접 저장하는
+                // 버전) 그걸 쓰고, 없으면 ImagesFolderPath가 설정된 경우(생곡/B지점처럼 로컬
+                // 파일로 저장하는 버전) 그걸 쓴다 - HasImageTable() 참고. 이미 올라간 건은
+                // GetSyncedPhotoKeys()로 미리 걸러내 매 주기 재탐색을 피한다.
                 var imagesFolderPath = SyncSettings.ImagesFolderPath;
-                var syncedPhotoKeys = imagesFolderPath != null ? _hub.GetSyncedPhotoKeys() : null;
+                var hasImageTable = _source.HasImageTable();
+                var photoSyncEnabled = hasImageTable || imagesFolderPath != null;
+                var syncedPhotoKeys = photoSyncEnabled ? _hub.GetSyncedPhotoKeys() : null;
 
                 var maxWorkDate = watermark;
                 foreach (var raw in weighRows)
@@ -97,9 +101,9 @@ namespace ColumbusSync.BranchBC
                         maxWorkDate = raw.WorkDate;
                     }
 
-                    if (imagesFolderPath != null)
+                    if (photoSyncEnabled)
                     {
-                        SyncPhotos(raw, imagesFolderPath, syncedPhotoKeys);
+                        SyncPhotos(raw, hasImageTable, imagesFolderPath, syncedPhotoKeys);
                     }
                 }
 
@@ -129,10 +133,12 @@ namespace ColumbusSync.BranchBC
         }
 
         /// <summary>계근건 1건의 사진을 읽어 올린다. 이미 올라간 단계는 건너뛰고, 1차는
-        /// 언제든(완료 전이라도) 시도하되 2차는 2차 계량이 끝난 건만 시도한다 - 2차가 아직
-        /// 안 끝났으면 TIME2가 아직 확정되지 않아 분(分) 매칭이 의미가 없기 때문이다.
+        /// 언제든(완료 전이라도) 시도하되 2차는 2차 계량이 끝난 건만 시도한다 - 로컬 파일
+        /// 방식(hasImageTable=false)에서는 2차가 아직 안 끝났으면 TIME2가 아직 확정되지
+        /// 않아 분(分) 매칭이 의미가 없기 때문이고, DB 테이블 방식도 2차가 끝나야 2차
+        /// 컬럼이 채워지는 건 마찬가지라 동일하게 적용한다.
         /// 사진 하나 처리 실패가 전체 동기화를 중단시키지 않도록 이 메서드 안에서만 예외를 잡는다.</summary>
-        private void SyncPhotos(RawWeighRow raw, string imagesFolderPath, HashSet<string> syncedPhotoKeys)
+        private void SyncPhotos(RawWeighRow raw, bool hasImageTable, string imagesFolderPath, HashSet<string> syncedPhotoKeys)
         {
             var needFirst = !syncedPhotoKeys.Contains(PhotoKey(raw.Seno, "1"));
             var needSecond = IsCompleted(raw) && !syncedPhotoKeys.Contains(PhotoKey(raw.Seno, "2"));
@@ -144,9 +150,17 @@ namespace ColumbusSync.BranchBC
 
             try
             {
-                var photos = PhotoFileReader.ReadPhotos(imagesFolderPath, raw.WeighDate, raw.ImgFile, raw.SecondDateTime, needFirst, needSecond);
+                var photos = hasImageTable
+                    ? _source.GetImagesByImgFile(raw.ImgFile)
+                    : PhotoFileReader.ReadPhotos(imagesFolderPath, raw.WeighDate, raw.ImgFile, raw.SecondDateTime, needFirst, needSecond);
+
                 foreach (var photo in photos)
                 {
+                    if ((photo.Stage == "1" && !needFirst) || (photo.Stage == "2" && !needSecond))
+                    {
+                        continue;
+                    }
+
                     _hub.UpsertWeighPhoto(raw.Seno, photo);
                     syncedPhotoKeys.Add(PhotoKey(raw.Seno, photo.Stage));
                 }

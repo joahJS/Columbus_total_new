@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.OleDb;
 
 namespace ColumbusSync.BranchBC.Source
 {
@@ -181,6 +182,78 @@ ORDER BY [WORK_DATE]", WeighColumns);
             });
 
             return MapWeighRows(table, DateTime.Today);
+        }
+
+        /// <summary>이 mdb에 TB_IMAGE 테이블이 있는지 확인한다. TS2020은 버전/설정에 따라
+        /// 계근 사진을 로컬 IMAGE 폴더의 파일로 저장하기도 하고(B지점처럼), mdb 안의
+        /// TB_IMAGE 테이블에 바이너리로 직접 저장하기도 한다(녹산/C지점에서 발견됨) - 같은
+        /// 실행파일(TS2020.exe)에 두 방식이 다 들어있고, 실제로 어느 쪽을 쓰는지는 mdb
+        /// 스키마를 보기 전에는 알 수 없다. B/C지점이 같은 프로그램(ColumbusSync.BranchBC)을
+        /// 쓰기 때문에, 이 메서드로 지점마다 자동으로 알맞은 방식을 골라 쓴다(SyncOrchestrator
+        /// 참고) - 설정을 따로 둘 필요가 없다.</summary>
+        public bool HasImageTable()
+        {
+            try
+            {
+                OleDbHelper.GetDataTable(_connectionString, "SELECT TOP 1 [IMGFILE] FROM [TB_IMAGE]", new OleDbParam[0]);
+                return true;
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerException is OleDbException)
+                {
+                    // TB_IMAGE 테이블 자체가 없는 mdb(로컬 파일 방식인 경우) - 정상적인 경우다.
+                    return false;
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>TB_IMAGE에서 IMGFILE 하나에 연결된 1차/2차 사진(각 최대 4장)을 모두
+        /// 읽어온다. 이 테이블은 IMAGE1_1~IMAGE1_4(1차), IMAGE2_1~IMAGE2_4(2차) 컬럼에
+        /// 사진 바이너리를 직접 담고 있고, 1차/2차가 IMGFILE 하나로 같은 행에 묶여 있어서
+        /// 로컬 파일 방식(PhotoFileReader)처럼 2차 사진을 촬영 시각으로 추정할 필요가 없다 -
+        /// IMGFILE로 조회만 하면 둘 다 정확하게 나온다.</summary>
+        public List<WeighPhoto> GetImagesByImgFile(string imgFile)
+        {
+            var result = new List<WeighPhoto>();
+            if (string.IsNullOrEmpty(imgFile))
+            {
+                return result;
+            }
+
+            const string sql = "SELECT [IMAGE1_1],[IMAGE1_2],[IMAGE1_3],[IMAGE1_4],[IMAGE2_1],[IMAGE2_2],[IMAGE2_3],[IMAGE2_4] FROM [TB_IMAGE] WHERE [IMGFILE] = ?";
+            var table = OleDbHelper.GetDataTable(_connectionString, sql, new[] { new OleDbParam("ImgFile", imgFile) });
+            if (table.Rows.Count == 0)
+            {
+                return result;
+            }
+
+            var row = table.Rows[0];
+            AddImageIfPresent(result, row, "IMAGE1_1", "1", 1);
+            AddImageIfPresent(result, row, "IMAGE1_2", "1", 2);
+            AddImageIfPresent(result, row, "IMAGE1_3", "1", 3);
+            AddImageIfPresent(result, row, "IMAGE1_4", "1", 4);
+            AddImageIfPresent(result, row, "IMAGE2_1", "2", 1);
+            AddImageIfPresent(result, row, "IMAGE2_2", "2", 2);
+            AddImageIfPresent(result, row, "IMAGE2_3", "2", 3);
+            AddImageIfPresent(result, row, "IMAGE2_4", "2", 4);
+            return result;
+        }
+
+        private static void AddImageIfPresent(List<WeighPhoto> result, DataRow row, string column, string stage, int seq)
+        {
+            if (!row.Table.Columns.Contains(column) || row[column] == DBNull.Value)
+            {
+                return;
+            }
+
+            var bytes = row[column] as byte[];
+            if (bytes != null && bytes.Length > 0)
+            {
+                result.Add(new WeighPhoto { Stage = stage, Seq = seq, Data = bytes });
+            }
         }
 
         private static List<RawWeighRow> MapWeighRows(DataTable table, DateTime fallbackDate)
