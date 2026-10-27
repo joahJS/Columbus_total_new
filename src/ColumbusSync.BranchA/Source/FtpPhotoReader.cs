@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using ColumbusSync.BranchA.Logging;
 
 namespace ColumbusSync.BranchA.Source
 {
@@ -110,13 +111,25 @@ namespace ColumbusSync.BranchA.Source
                     }
                 }
             }
-            catch (WebException)
+            catch (WebException ex)
             {
-                // 그날 사진 폴더가 아예 없을 수 있다(예: 그 날짜엔 카메라 설정이 꺼져 있었음) -
-                // 빈 목록으로 취급하고 이 계근건은 사진 없이 넘어간다.
+                // "550"(파일/폴더 없음)은 그날 사진 폴더가 아예 없는 정상적인 경우일 수 있다
+                // (예: 그 날짜엔 카메라 설정이 꺼져 있었음) - 조용히 빈 목록으로 넘어간다.
+                // 그 외(연결 실패, 인증 실패, 타임아웃 등)는 원인을 알아야 하므로 로그를 남긴다 -
+                // 안 그러면 사진이 하나도 안 쌓여도 어디서 막히는지 전혀 알 수 없다.
+                if (!IsFileUnavailable(ex))
+                {
+                    FileLogger.Error(string.Format("FTP 디렉토리 조회 실패: {0}", folderUrl), ex);
+                }
             }
 
             return result;
+        }
+
+        private static bool IsFileUnavailable(WebException ex)
+        {
+            var response = ex.Response as FtpWebResponse;
+            return response != null && response.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable;
         }
 
         private byte[] DownloadFile(string fileUrl)
@@ -136,8 +149,13 @@ namespace ColumbusSync.BranchA.Source
                     return memory.ToArray();
                 }
             }
-            catch (WebException)
+            catch (WebException ex)
             {
+                if (!IsFileUnavailable(ex))
+                {
+                    FileLogger.Error(string.Format("FTP 파일 다운로드 실패: {0}", fileUrl), ex);
+                }
+
                 return null;
             }
         }
