@@ -155,6 +155,7 @@ namespace ColumbusWeighing.Controls
                 }
             };
             _btnQuery.Click += (s, e) => ApplyDateFilter();
+            _btnRefresh.Click += (s, e) => ApplyDateFilter();
             _btnSave.Click += (s, e) => SaveDirtyRecords();
             _btnSecondSlip.Click += (s, e) => PrintSecondSlip();
             _btnShiftWeekBack.Click += (s, e) => ShiftDateRange(-7);

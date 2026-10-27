@@ -36,6 +36,7 @@ namespace ColumbusWeighing.Controls
         private DevExpress.XtraEditors.TextEdit _searchTextEdit;
         private DevExpress.XtraEditors.SimpleButton _btnQuery;
         private DevExpress.XtraEditors.SimpleButton _btnSave;
+        private DevExpress.XtraEditors.SimpleButton _btnRefresh;
         private DevExpress.XtraGrid.GridControl _gridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView _gridView;
 
@@ -46,6 +47,7 @@ namespace ColumbusWeighing.Controls
             this._titleLabel = new DevExpress.XtraEditors.LabelControl();
             this._filterPanel = new DevExpress.XtraEditors.PanelControl();
             this._btnSave = new DevExpress.XtraEditors.SimpleButton();
+            this._btnRefresh = new DevExpress.XtraEditors.SimpleButton();
             this._btnQuery = new DevExpress.XtraEditors.SimpleButton();
             this._searchTextEdit = new DevExpress.XtraEditors.TextEdit();
             this._searchTargetCombo = new DevExpress.XtraEditors.ComboBoxEdit();
@@ -120,6 +122,7 @@ namespace ColumbusWeighing.Controls
             this._filterPanel.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 251, 224);
             this._filterPanel.Appearance.Options.UseBackColor = true;
             this._filterPanel.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this._filterPanel.Controls.Add(this._btnRefresh);
             this._filterPanel.Controls.Add(this._btnSave);
             this._filterPanel.Controls.Add(this._btnQuery);
             this._filterPanel.Controls.Add(this._searchTextEdit);
@@ -283,6 +286,14 @@ namespace ColumbusWeighing.Controls
             this._btnSave.Size = new System.Drawing.Size(70, 20);
             this._btnSave.TabIndex = 15;
             this._btnSave.Text = "저장";
+            //
+            // _btnRefresh (새로고침 버튼 - 조회 조건은 그대로 두고 목록만 다시 불러옴)
+            //
+            this._btnRefresh.Location = new System.Drawing.Point(1156, 5);
+            this._btnRefresh.Name = "_btnRefresh";
+            this._btnRefresh.Size = new System.Drawing.Size(80, 20);
+            this._btnRefresh.TabIndex = 16;
+            this._btnRefresh.Text = "새로고침";
             //
             // _gridControl
             //

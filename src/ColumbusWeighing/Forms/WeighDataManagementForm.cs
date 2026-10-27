@@ -333,7 +333,7 @@ namespace ColumbusWeighing.Forms
             AddColumn("FirstDateTime", "1차시간", 65, "HH:mm");
             AddColumn("SecondDateTime", "2차시간", 65, "HH:mm");
             AddColumn("VehicleNo", "차량번호", 78);
-            AddColumn("OwnerCompany", "차량소속회사", 108);
+            AddColumn("OwnerCompany", "차량소속회사", 108).Visible = false;
             AddColumn("DriverName", "운전자", 70);
             AddColumn("CustomerName", "거래처명", 108);
             AddColumn("ProductName", "제품명", 95);
