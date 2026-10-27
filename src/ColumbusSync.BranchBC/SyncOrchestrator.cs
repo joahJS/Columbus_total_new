@@ -88,6 +88,9 @@ namespace ColumbusSync.BranchBC
                 var hasImageTable = _source.HasImageTable();
                 var photoSyncEnabled = hasImageTable || imagesFolderPath != null;
                 var syncedPhotoKeys = photoSyncEnabled ? _hub.GetSyncedPhotoKeys() : null;
+                // 날짜 폴더별 파일 목록을 이 배치(RunOnce 1회) 동안 캐시해서, 같은 날짜를
+                // 참조하는 계근건이 많아도 디스크 조회는 폴더당 한 번만 하도록 한다.
+                var photoFileReader = new PhotoFileReader();
 
                 var maxWorkDate = watermark;
                 foreach (var raw in weighRows)
@@ -103,7 +106,7 @@ namespace ColumbusSync.BranchBC
 
                     if (photoSyncEnabled)
                     {
-                        SyncPhotos(raw, hasImageTable, imagesFolderPath, syncedPhotoKeys);
+                        SyncPhotos(raw, hasImageTable, imagesFolderPath, photoFileReader, syncedPhotoKeys);
                     }
                 }
 
@@ -138,7 +141,7 @@ namespace ColumbusSync.BranchBC
         /// 않아 분(分) 매칭이 의미가 없기 때문이고, DB 테이블 방식도 2차가 끝나야 2차
         /// 컬럼이 채워지는 건 마찬가지라 동일하게 적용한다.
         /// 사진 하나 처리 실패가 전체 동기화를 중단시키지 않도록 이 메서드 안에서만 예외를 잡는다.</summary>
-        private void SyncPhotos(RawWeighRow raw, bool hasImageTable, string imagesFolderPath, HashSet<string> syncedPhotoKeys)
+        private void SyncPhotos(RawWeighRow raw, bool hasImageTable, string imagesFolderPath, PhotoFileReader photoFileReader, HashSet<string> syncedPhotoKeys)
         {
             var needFirst = !syncedPhotoKeys.Contains(PhotoKey(raw.Seno, "1"));
             var needSecond = IsCompleted(raw) && !syncedPhotoKeys.Contains(PhotoKey(raw.Seno, "2"));
@@ -152,7 +155,7 @@ namespace ColumbusSync.BranchBC
             {
                 var photos = hasImageTable
                     ? _source.GetImagesByImgFile(raw.ImgFile)
-                    : PhotoFileReader.ReadPhotos(imagesFolderPath, raw.WeighDate, raw.ImgFile, raw.SecondDateTime, needFirst, needSecond);
+                    : photoFileReader.ReadPhotos(imagesFolderPath, raw.WeighDate, raw.ImgFile, raw.SecondDateTime, needFirst, needSecond);
 
                 foreach (var photo in photos)
                 {

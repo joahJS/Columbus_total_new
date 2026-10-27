@@ -31,14 +31,21 @@ namespace ColumbusSync.BranchBC.Source
     /// 2차 사진은 "2차계량시각(TIME2)과 같은 분에 찍힌, 1차 사진과는 다른 파일"을 찾는
     /// 방식으로 추정 연결한다 - 여러 차량이 같은 분에 몰리면 잘못 연결될 수 있다는 한계는
     /// 있다.
+    ///
+    /// 같은 배치(RunOnce 1회) 안에서는 같은 날짜 폴더를 여러 계근건이 같이 참조하므로,
+    /// 폴더 목록 조회(Directory.GetFiles)를 날짜 폴더당 한 번만 하도록 인스턴스에 캐시한다
+    /// (A지점 FtpPhotoReader와 같은 이유) - 이게 없으면 1년치 백필처럼 건수가 많을 때
+    /// 같은 날짜 폴더를 계근건 수만큼 반복해서 디스크에서 다시 읽어 매우 느려진다.
     /// </summary>
-    public static class PhotoFileReader
+    public class PhotoFileReader
     {
+        private readonly Dictionary<string, List<string>> _dayFolderCache = new Dictionary<string, List<string>>();
+
         /// <summary>needFirstStage/needSecondStage는 이미 허브 DB에 올라가 있어 다시 읽을
         /// 필요가 없는 단계를 건너뛰기 위한 플래그다(SyncOrchestrator가 HubWriter.GetSyncedPhotoKeys
         /// 조회 결과로 결정) - 매 주기마다 이미 동기화된 사진까지 디스크에서 다시 읽는 낭비를
         /// 막는다.</summary>
-        public static List<WeighPhoto> ReadPhotos(string imagesFolderRoot, DateTime weighDate, string imgFile, DateTime? secondDateTime, bool needFirstStage, bool needSecondStage)
+        public List<WeighPhoto> ReadPhotos(string imagesFolderRoot, DateTime weighDate, string imgFile, DateTime? secondDateTime, bool needFirstStage, bool needSecondStage)
         {
             var photos = new List<WeighPhoto>();
             if (string.IsNullOrEmpty(imagesFolderRoot) || (!needFirstStage && !needSecondStage))
@@ -47,34 +54,64 @@ namespace ColumbusSync.BranchBC.Source
             }
 
             var dayFolder = Path.Combine(imagesFolderRoot, weighDate.ToString("yyyyMMdd"));
-            if (!Directory.Exists(dayFolder))
+            var fileNames = GetDayFolderFileNames(dayFolder);
+            if (fileNames == null)
             {
                 return photos;
             }
 
             if (needFirstStage && !string.IsNullOrEmpty(imgFile))
             {
-                AddPhotosForPrefix(photos, dayFolder, imgFile, "1");
+                AddPhotosForPrefix(photos, dayFolder, fileNames, imgFile, "1");
             }
 
             if (needSecondStage && secondDateTime.HasValue)
             {
-                var secondBaseName = FindBaseNameForMinute(dayFolder, secondDateTime.Value, imgFile);
+                var secondBaseName = FindBaseNameForMinute(fileNames, secondDateTime.Value, imgFile);
                 if (secondBaseName != null)
                 {
-                    AddPhotosForPrefix(photos, dayFolder, secondBaseName, "2");
+                    AddPhotosForPrefix(photos, dayFolder, fileNames, secondBaseName, "2");
                 }
             }
 
             return photos;
         }
 
-        private static void AddPhotosForPrefix(List<WeighPhoto> photos, string dayFolder, string basePrefix, string stage)
+        /// <summary>dayFolder 안의 파일명(경로 제외) 목록을 캐시에서 가져오거나, 없으면
+        /// 한 번만 디스크에서 읽어 캐시에 넣는다. 폴더가 없으면 null을 캐시해서, 존재하지
+        /// 않는 폴더를 매번 다시 확인하는 것도 피한다.</summary>
+        private List<string> GetDayFolderFileNames(string dayFolder)
+        {
+            List<string> fileNames;
+            if (_dayFolderCache.TryGetValue(dayFolder, out fileNames))
+            {
+                return fileNames;
+            }
+
+            if (Directory.Exists(dayFolder))
+            {
+                var paths = Directory.GetFiles(dayFolder);
+                fileNames = new List<string>(paths.Length);
+                foreach (var path in paths)
+                {
+                    fileNames.Add(Path.GetFileName(path));
+                }
+            }
+            else
+            {
+                fileNames = null;
+            }
+
+            _dayFolderCache[dayFolder] = fileNames;
+            return fileNames;
+        }
+
+        private static void AddPhotosForPrefix(List<WeighPhoto> photos, string dayFolder, List<string> fileNames, string basePrefix, string stage)
         {
             for (var seq = 1; seq <= 2; seq++)
             {
-                var path = FindBestMatch(dayFolder, basePrefix, seq);
-                if (path == null)
+                var fileName = FindBestMatch(fileNames, basePrefix, seq);
+                if (fileName == null)
                 {
                     continue;
                 }
@@ -83,47 +120,84 @@ namespace ColumbusSync.BranchBC.Source
                 {
                     Stage = stage,
                     Seq = seq,
-                    Data = File.ReadAllBytes(path),
+                    Data = File.ReadAllBytes(Path.Combine(dayFolder, fileName)),
                 });
             }
         }
 
-        /// <summary>basePrefix로 시작하는 "_{seq}.*" 파일을 찾는다. 여러 건이 걸리면(접두사
-        /// 겹침) 파일명 기준으로 정렬해 가장 먼저 오는 것 - 즉 끝자리가 가장 작은 것을
-        /// 선택한다.</summary>
-        private static string FindBestMatch(string dayFolder, string basePrefix, int seq)
+        /// <summary>basePrefix로 시작하고 "_{seq}"로 끝나는(확장자 제외) 파일을 찾는다.
+        /// 여러 건이 걸리면(접두사 겹침) 파일명 기준으로 정렬해 가장 앞에 오는 것 - 즉
+        /// 끝자리가 가장 작은 것을 선택한다.</summary>
+        private static string FindBestMatch(List<string> fileNames, string basePrefix, int seq)
         {
-            var pattern = string.Format("{0}*_{1}.*", basePrefix, seq);
-            var matches = Directory.GetFiles(dayFolder, pattern);
-            if (matches.Length == 0)
+            var suffix = "_" + seq;
+            List<string> matches = null;
+
+            foreach (var name in fileNames)
             {
-                return null;
-            }
-
-            Array.Sort(matches, StringComparer.OrdinalIgnoreCase);
-            return matches[0];
-        }
-
-        /// <summary>같은 날짜 폴더 안에서 targetMinute와 같은 분(分)에 촬영된 "_1" 사진을
-        /// 찾아 그 베이스 파일명(확장자/순번 제외, 전체 18자리)을 반환한다. excludePrefix(1차
-        /// 사진의 IMGFILE 접두사)로 시작하는 파일은 1차 사진 자신이므로 건너뛴다. 여러 건이
-        /// 걸리면 그중 하나(정렬 후 첫 매치)를 돌려준다 - 같은 분에 차량이 여러 대 몰리면
-        /// 틀린 걸 고를 수 있다는 한계가 있다.</summary>
-        private static string FindBaseNameForMinute(string dayFolder, DateTime targetMinute, string excludePrefix)
-        {
-            var minutePrefix = targetMinute.ToString("yyyyMMddHHmm");
-            var files = Directory.GetFiles(dayFolder, minutePrefix + "*_1.*");
-            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var file in files)
-            {
-                var fileNameNoExt = Path.GetFileNameWithoutExtension(file);
-                if (fileNameNoExt.Length <= "_1".Length)
+                if (!name.StartsWith(basePrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var baseName = fileNameNoExt.Substring(0, fileNameNoExt.Length - "_1".Length);
+                var nameNoExt = Path.GetFileNameWithoutExtension(name);
+                if (!nameNoExt.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (matches == null)
+                {
+                    matches = new List<string>();
+                }
+
+                matches.Add(name);
+            }
+
+            if (matches == null)
+            {
+                return null;
+            }
+
+            matches.Sort(StringComparer.OrdinalIgnoreCase);
+            return matches[0];
+        }
+
+        /// <summary>targetMinute와 같은 분(分)에 촬영된 "_1" 사진을 찾아 그 베이스 파일명
+        /// (확장자/순번 제외, 전체 18자리)을 반환한다. excludePrefix(1차 사진의 IMGFILE
+        /// 접두사)로 시작하는 파일은 1차 사진 자신이므로 건너뛴다. 여러 건이 걸리면 그중
+        /// 하나(정렬 후 첫 매치)를 돌려준다 - 같은 분에 차량이 여러 대 몰리면 틀린 걸 고를
+        /// 수 있다는 한계가 있다.</summary>
+        private static string FindBaseNameForMinute(List<string> fileNames, DateTime targetMinute, string excludePrefix)
+        {
+            var minutePrefix = targetMinute.ToString("yyyyMMddHHmm");
+            var candidates = new List<string>();
+
+            foreach (var name in fileNames)
+            {
+                if (!name.StartsWith(minutePrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var nameNoExt = Path.GetFileNameWithoutExtension(name);
+                if (nameNoExt.EndsWith("_1", StringComparison.OrdinalIgnoreCase))
+                {
+                    candidates.Add(name);
+                }
+            }
+
+            candidates.Sort(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var name in candidates)
+            {
+                var nameNoExt = Path.GetFileNameWithoutExtension(name);
+                if (nameNoExt.Length <= "_1".Length)
+                {
+                    continue;
+                }
+
+                var baseName = nameNoExt.Substring(0, nameNoExt.Length - "_1".Length);
                 if (!string.IsNullOrEmpty(excludePrefix) &&
                     baseName.StartsWith(excludePrefix, StringComparison.OrdinalIgnoreCase))
                 {
