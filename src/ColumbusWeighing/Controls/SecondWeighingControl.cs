@@ -638,10 +638,8 @@ namespace ColumbusWeighing.Controls
                 return;
             }
 
-            // TODO: XtraReports 로 작성된 2차 전표(.repx) 연결.
-            ComnFunc.gp_PrintMessage(
-                string.Format("[{0}] {1} 차량 2차 전표 인쇄는 준비 중입니다.", record.WeighSeq, record.VehicleNo),
-                "2차 전표", MessageType.알림);
+            var photos = _repository?.GetPhotos(record.Id) ?? new List<WeighPhoto>();
+            WeighSlipPrinter.ShowPrintPreview(FindForm(), record, photos);
         }
     }
 }

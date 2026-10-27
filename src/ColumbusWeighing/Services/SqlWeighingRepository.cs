@@ -158,6 +158,47 @@ ORDER BY w.FIRST_DATETIME";
                 CommandType.Text);
         }
 
+        /// <summary>WEIGH_PHOTO는 (BRANCH_CODE, SOURCE_KEY)로 연결되고 이 화면은 WEIGH_ID만
+        /// 들고 있으므로, WEIGH_RECORD를 거쳐 SOURCE_KEY로 조인한다.</summary>
+        public List<WeighPhoto> GetPhotos(int weighId)
+        {
+            const string sql = @"
+SELECT p.STAGE, p.SEQ, p.PHOTO_DATA
+FROM dbo.WEIGH_PHOTO p
+JOIN dbo.WEIGH_RECORD w ON w.BRANCH_CODE = p.BRANCH_CODE AND w.SOURCE_KEY = p.SOURCE_KEY
+WHERE w.WEIGH_ID = @WeighId
+ORDER BY p.STAGE, p.SEQ";
+
+            DataTable table;
+            try
+            {
+                table = DBConn.GetDataTable(
+                    sql,
+                    new List<Parameter> { new Parameter("WeighId", weighId, SqlDbType.Int) },
+                    CommandType.Text);
+            }
+            catch (SqlException ex)
+            {
+                ComnFunc.gp_PrintMessage(
+                    "계근 사진 조회에 실패했습니다.\r\n" + ex.Message,
+                    "DB 조회 오류", MessageType.오류);
+                return new List<WeighPhoto>();
+            }
+
+            var photos = new List<WeighPhoto>();
+            foreach (DataRow row in table.Rows)
+            {
+                photos.Add(new WeighPhoto
+                {
+                    Stage = AsString(row, "STAGE"),
+                    Seq = Convert.ToInt32(row["SEQ"]),
+                    Data = row["PHOTO_DATA"] as byte[],
+                });
+            }
+
+            return photos;
+        }
+
         private static string AsString(DataRow row, string column)
         {
             return row[column] == DBNull.Value ? null : row[column].ToString();

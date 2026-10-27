@@ -66,6 +66,7 @@
     <Compile Include="ComnLib\IniHelper.cs" />
     <Compile Include="ComnLib\LoginUser.cs" />
     <Compile Include="ComnLib\MainButtonInterface.cs" />
+    <Compile Include="ComnLib\WeighSlipPrinter.cs" />
     <Compile Include="ComnLib\MessageType.cs" />
     <Compile Include="ComnLib\Parameter.cs" />
     <Compile Include="ComnLib\PasswordHasher.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Models\BranchCodeExtensions.cs" />
     <Compile Include="Models\InOutType.cs" />
     <Compile Include="Models\WeighingRecord.cs" />
+    <Compile Include="Models\WeighPhoto.cs" />
     <Compile Include="Models\VersionRecord.cs" />
     <Compile Include="Models\AppSettings.cs" />
     <Compile Include="Models\IpCameraSetting.cs" />

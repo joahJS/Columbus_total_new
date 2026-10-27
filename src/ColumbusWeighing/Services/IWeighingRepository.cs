@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using ColumbusWeighing.Models;
 
@@ -24,5 +25,10 @@ namespace ColumbusWeighing.Services
         /// <summary>단가(관리자 수동 입력값)만 저장한다. 동기화되는 UnitPrice와는 별개 컬럼이다
         /// (2차계량 화면의 "단가" 컬럼 편집).</summary>
         void UpdateAdminUnitPrice(int weighId, decimal? adminUnitPrice);
+
+        /// <summary>이 계근건에 연결된 사진을 가져온다(계근표 출력용). 목록 조회(Records)와
+        /// 달리 매번 같이 받아오지 않고, 전표를 실제로 인쇄할 때만 그때그때 조회한다 -
+        /// 사진은 용량이 커서 목록 전체에 매번 같이 실어 오면 느려진다.</summary>
+        List<WeighPhoto> GetPhotos(int weighId);
     }
 }
