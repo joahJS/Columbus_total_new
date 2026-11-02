@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using ColumbusSync.BranchA.Config;
 using ColumbusSync.BranchA.Hub;
 using ColumbusSync.BranchA.Logging;
@@ -20,6 +21,16 @@ namespace ColumbusSync.BranchA
     /// </summary>
     public static class Program
     {
+        // RunOnce() 안에는 이미 자체 try/catch가 있어서 대부분의 실패는 "동기화 실패" 로그를
+        // 남기고 정상적으로 다음 주기로 넘어간다. B/C지점(ColumbusSync.BranchBC) 쪽에서
+        // "동기화 시작" 로그만 찍힌 채 며칠씩 완전히 멈춰버리는 사례가 실제로 있었다(각각
+        // 원인을 찾아 타임아웃을 걸었지만, 앞으로 또 다른 새로운 원인으로 멈출 가능성을
+        // 배제할 수 없다). A지점도 같은 방어 차원에서, RunOnce() 호출 자체를 통째로 시간제한
+        // 안에서 돌려서 뭐가 됐든 이 시간 안에 안 끝나면 포기하고 다음 주기로 넘어가게
+        // 해둔다. 멈춘 백그라운드 스레드 자체는 못 끊고 그대로 남지만(.NET에 스레드 강제
+        // 종료 수단이 없다), 적어도 메인 루프는 계속 살아서 재시도한다.
+        private static readonly TimeSpan RunOnceTimeout = TimeSpan.FromMinutes(20);
+
         public static void Main()
         {
             FileLogger.Info("ColumbusSync.BranchA 시작");
@@ -32,7 +43,13 @@ namespace ColumbusSync.BranchA
                     var hub = new HubWriter(SyncSettings.HubConnectionString);
                     var orchestrator = new SyncOrchestrator(source, hub);
 
-                    orchestrator.RunOnce();
+                    var task = Task.Run(() => orchestrator.RunOnce());
+                    if (!task.Wait(RunOnceTimeout))
+                    {
+                        FileLogger.Error(string.Format(
+                            "동기화가 {0}분 안에 끝나지 않았습니다. 어딘가에서 멈춘 것으로 보여 포기하고 다음 주기로 넘어갑니다.",
+                            RunOnceTimeout.TotalMinutes));
+                    }
                 }
                 catch (Exception ex)
                 {

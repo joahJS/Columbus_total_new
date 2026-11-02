@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ColumbusSync.BranchBC.Source
 {
@@ -35,6 +36,12 @@ namespace ColumbusSync.BranchBC.Source
     /// </summary>
     public class PhotoFileReader
     {
+        // 네트워크 드라이브 문제나 다른 프로그램의 파일 잠금 등으로 디스크 I/O가 멈춰버리는
+        // 경우를 대비한 보호장치. OleDbHelper의 mdb 쿼리 타임아웃과 같은 이유다 - 실제로
+        // "동기화 시작" 로그만 남긴 채 며칠씩 멈추는 사례가 있었는데, mdb 쪽은 이미 보호돼
+        // 있어서 이 파일 I/O 쪽이 의심된다.
+        private static readonly TimeSpan IoTimeout = TimeSpan.FromSeconds(30);
+
         private readonly Dictionary<string, List<string>> _dayFolderCache = new Dictionary<string, List<string>>();
 
         /// <summary>needFirstStage/needSecondStage는 이미 허브 DB에 올라가 있어 다시 읽을
@@ -91,22 +98,40 @@ namespace ColumbusSync.BranchBC.Source
                 return fileNames;
             }
 
-            if (Directory.Exists(dayFolder))
+            fileNames = RunWithTimeout(() =>
             {
+                if (!Directory.Exists(dayFolder))
+                {
+                    return null;
+                }
+
                 var paths = Directory.GetFiles(dayFolder);
-                fileNames = new List<string>(paths.Length);
+                var names = new List<string>(paths.Length);
                 foreach (var path in paths)
                 {
-                    fileNames.Add(Path.GetFileName(path));
+                    names.Add(Path.GetFileName(path));
                 }
-            }
-            else
-            {
-                fileNames = null;
-            }
+
+                return names;
+            });
 
             _dayFolderCache[dayFolder] = fileNames;
             return fileNames;
+        }
+
+        /// <summary>디스크 I/O 하나를 시간제한 안에서 실행한다. 시간 안에 못 끝나면
+        /// TimeoutException을 던진다 - 이 클래스를 쓰는 SyncOrchestrator.SyncPhotos가
+        /// 이미 사진 하나 처리 실패를 전부 잡아서 로그만 남기고 다음 건으로 넘어가므로,
+        /// 여기서 멈춰버리는 건이 하나 있어도 전체 동기화가 멈추지 않는다.</summary>
+        private static T RunWithTimeout<T>(Func<T> action)
+        {
+            var task = Task.Run(action);
+            if (!task.Wait(IoTimeout))
+            {
+                throw new TimeoutException(string.Format("사진 폴더/파일 I/O가 {0}초 안에 끝나지 않았습니다.", IoTimeout.TotalSeconds));
+            }
+
+            return task.Result;
         }
 
         private static void AddPhoto(List<WeighPhoto> photos, string dayFolder, List<string> matches, int index, string stage, int seq)
@@ -116,11 +141,12 @@ namespace ColumbusSync.BranchBC.Source
                 return;
             }
 
+            var path = Path.Combine(dayFolder, matches[index]);
             photos.Add(new WeighPhoto
             {
                 Stage = stage,
                 Seq = seq,
-                Data = File.ReadAllBytes(Path.Combine(dayFolder, matches[index])),
+                Data = RunWithTimeout(() => File.ReadAllBytes(path)),
             });
         }
 
