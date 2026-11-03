@@ -29,6 +29,7 @@ namespace ColumbusWeighing.Forms
         private DateEdit _dateEditFrom;
         private DateEdit _dateEditTo;
         private SimpleButton _btnToday;
+        private SimpleButton _btnYesterday;
         private ComboBoxEdit _cboStatus;
         private ComboBoxEdit _cboInOut;
         private ComboBoxEdit _cboBranch;
@@ -68,6 +69,7 @@ namespace ColumbusWeighing.Forms
             _dateEditTo.DateTime = DateTime.Today;
 
             _btnToday.Click += (s, e) => SetToday();
+            _btnYesterday.Click += (s, e) => SetYesterday();
             _btnExcel.Click += (s, e) => ExportToExcel();
             _btnPrint.Click += (s, e) => PrintList();
             _btnRetrieve.Click += (s, e) => Retrieve();
@@ -97,6 +99,14 @@ namespace ColumbusWeighing.Forms
         {
             _dateEditFrom.DateTime = DateTime.Today;
             _dateEditTo.DateTime = DateTime.Today;
+            Retrieve();
+        }
+
+        private void SetYesterday()
+        {
+            var yesterday = DateTime.Today.AddDays(-1);
+            _dateEditFrom.DateTime = yesterday;
+            _dateEditTo.DateTime = yesterday;
             Retrieve();
         }
 
@@ -211,15 +221,17 @@ namespace ColumbusWeighing.Forms
             _dateEditTo = AddDateEdit(200, 7, 110);
             _btnToday = new SimpleButton { Location = new Point(316, 6), Size = new Size(50, 22), Text = "오늘" };
             _filterPanel.Controls.Add(_btnToday);
+            _btnYesterday = new SimpleButton { Location = new Point(370, 6), Size = new Size(50, 22), Text = "전일" };
+            _filterPanel.Controls.Add(_btnYesterday);
 
-            AddLabel(380, 10, 54, "계량상태", labelFont);
-            _cboStatus = AddComboEdit(438, 7, 100, new[] { "전체", "1차 대기", "2차 완료" });
+            AddLabel(434, 10, 54, "계량상태", labelFont);
+            _cboStatus = AddComboEdit(492, 7, 100, new[] { "전체", "1차 대기", "2차 완료" });
 
-            AddLabel(548, 10, 54, "입출구분", labelFont);
-            _cboInOut = AddComboEdit(606, 7, 90, new[] { "전체", "입고", "출고" });
+            AddLabel(602, 10, 54, "입출구분", labelFont);
+            _cboInOut = AddComboEdit(660, 7, 90, new[] { "전체", "입고", "출고" });
 
-            AddLabel(716, 10, 30, "지점", labelFont);
-            _cboBranch = AddComboEdit(750, 7, 70, new[] { "전체", "영천", "생곡", "녹산" });
+            AddLabel(770, 10, 30, "지점", labelFont);
+            _cboBranch = AddComboEdit(804, 7, 70, new[] { "전체", "영천", "생곡", "녹산" });
 
             AddLabel(10, 43, 30, "제품", labelFont);
             _productEdit = AddTextEdit(44, 40, 130);
