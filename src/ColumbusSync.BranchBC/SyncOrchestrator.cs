@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ColumbusSync.BranchBC.Config;
 using ColumbusSync.BranchBC.Hub;
 using ColumbusSync.BranchBC.Logging;
@@ -17,6 +18,19 @@ namespace ColumbusSync.BranchBC
     /// </summary>
     public class SyncOrchestrator
     {
+        // 1차 계량 후 차량이 바로 2차로 가지 않고 한참 있다가(몇 시간 뒤) 돌아오는 경우가
+        // 실제로 있다(05:44 1차 -> 09:36 2차처럼 4시간 가까이 벌어진 실 사례로 확인됨).
+        // 그런데 WORK_DATE 증분 조회는 "그 행이 마지막으로 WRITE된 시각"만 보므로, 하필
+        // 1차만 끝난 그 행을 동기화 주기가 먼저 한 번 "본" 뒤에는(=watermark가 그 WORK_DATE를
+        // 넘어서 버린 뒤에는), 나중에 2차가 완료되어 같은 행이 다시 저장돼도 WORK_DATE가
+        // 그대로거나(갱신 안 됨) 이미 지나간 watermark보다 작은 값이면 그 완료분을 영원히
+        // 놓치게 된다 - "계량 순번이 통째로 누락된다"는 증상이 바로 이 경우였다(실제로
+        // 1차~2차 간격이 유독 긴 건들에서만 재현됨). 그래서 watermark를 그대로 커트라인으로
+        // 쓰지 않고, 매번 이만큼 더 이전부터 다시 훑는다 - MERGE 업서트가 멱등이라 겹쳐
+        // 읽어도 안전하고, 이 폭보다 짧은 1차~2차 간격이면 반드시 다음 주기 안에 완료분까지
+        // 다시 잡힌다.
+        private static readonly TimeSpan WatermarkSafetyMargin = TimeSpan.FromHours(48);
+
         private readonly MdbSourceReader _source;
         private readonly HubWriter _hub;
 
@@ -77,7 +91,7 @@ namespace ColumbusSync.BranchBC
                 }
                 else
                 {
-                    weighRows = _source.GetWeighRecordsModifiedSince(watermark);
+                    weighRows = _source.GetWeighRecordsModifiedSince(ApplySafetyMargin(watermark));
                 }
 
                 // 사진 동기화: mdb에 TB_IMAGE 테이블이 있으면(녹산/C지점처럼 DB에 직접 저장하는
@@ -172,6 +186,20 @@ namespace ColumbusSync.BranchBC
             {
                 FileLogger.Error(string.Format("사진 동기화 실패(SENO={0})", raw.Seno), ex);
             }
+        }
+
+        /// <summary>워터마크(yyyyMMddHHmmss, 14자리)에서 WatermarkSafetyMargin만큼 뺀 값을
+        /// 같은 형식의 문자열로 돌려준다. 형식이 예상과 다르면(혹시 모를 방어) 원래 값을
+        /// 그대로 돌려줘 증분 조회 자체가 깨지지 않게 한다.</summary>
+        private static string ApplySafetyMargin(string watermark)
+        {
+            DateTime parsed;
+            if (!DateTime.TryParseExact(watermark, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed))
+            {
+                return watermark;
+            }
+
+            return (parsed - WatermarkSafetyMargin).ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
         }
 
         private static string PhotoKey(string sourceKey, string stage)
