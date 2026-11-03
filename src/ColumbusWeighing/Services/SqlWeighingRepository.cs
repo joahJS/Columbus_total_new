@@ -19,6 +19,15 @@ namespace ColumbusWeighing.Services
         // VEHICLE은 (BRANCH_CODE, SOURCE_CODE) 기준 UNIQUE라 VEHICLE_NO만으로는 지점 내에서도
         // 여러 행이 나올 수 있다(예: 차량이 교체 등록된 경우). 그래서 LEFT JOIN 대신
         // OUTER APPLY + TOP 1로 가장 최근 동기화된 한 행만 붙인다(계근 건이 중복 표시되는 것을 방지).
+        //
+        // WEIGH_DATE는 항상 1차계량일(mdb DATE1) 기준인데, 1차~2차가 자정을 넘기는 건(예: 1차
+        // 23시, 2차 다음날 새벽)은 TS2020 계근증명서의 "일자"(2차계량일 기준으로 찍힘)와
+        // WEIGH_DATE가 하루 어긋난다 - 실제로 이 때문에 "분명히 전표가 있는데 오늘 날짜로
+        // 조회하면 안 보인다"는 문의가 있었다(데이터 누락이 아니라 전날 날짜로 조회해야
+        // 보였던 것). TS2020 자체도 "2차계량" 조회 화면은 2차계량일 기준으로 보여주므로, 여기도
+        // WEIGH_DATE(1차계량일) 또는 SECOND_DATETIME(2차계량일) 둘 중 하나라도 조회 기간에
+        // 걸리면 포함시킨다 - 계량순번(WEIGH_SEQ)이나 실제 저장된 WEIGH_DATE 값은 그대로 두고
+        // (TS2020의 BUNHO 채번 기준과 동일하게 유지), 검색 조건만 넓힌 것이다.
         private const string SelectSql = @"
 SELECT w.WEIGH_ID, w.BRANCH_CODE, w.WEIGH_SEQ, w.VEHICLE_NO, w.CUSTOMER_NAME, w.PRODUCT_NAME, w.IN_OUT_TYPE,
        w.WEIGHER_NAME, w.UNIT_PRICE, w.REMARK, w.WEIGH_DATE, w.FIRST_DATETIME, w.FIRST_WEIGHT,
@@ -31,7 +40,8 @@ OUTER APPLY (
     WHERE v.BRANCH_CODE = w.BRANCH_CODE AND v.VEHICLE_NO = w.VEHICLE_NO
     ORDER BY v.SYNCED_AT DESC
 ) veh
-WHERE w.WEIGH_DATE >= @FromDate AND w.WEIGH_DATE < @ToDate
+WHERE (w.WEIGH_DATE >= @FromDate AND w.WEIGH_DATE < @ToDate)
+   OR (w.SECOND_DATETIME >= @FromDate AND w.SECOND_DATETIME < @ToDate)
 ORDER BY w.FIRST_DATETIME";
 
         public BindingList<WeighingRecord> Records { get; } = new BindingList<WeighingRecord>();
