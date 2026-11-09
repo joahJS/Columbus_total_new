@@ -12,8 +12,9 @@ namespace ColumbusWeighing.ComnLib
     /// <summary>
     /// 계근건 1건을 계근표(계량증명서) 형태로 인쇄 미리보기에 띄운다. 항목은 실제 TS2020
     /// 출력물에 맞춰 요청받은 것만 정확히 이 순서로 보여준다: 일자/총중량, 차량번호/공차중량,
-    /// 거래처/실중량, 품명/감량, 계량자/구분, 비고(한 줄 전체) - 그 아래 1차·2차 사진 2x2,
-    /// 마지막에 지점 정보 푸터(BuildInfoRows 참고). 현장에서는 A4 세로 한 장에 같은 내용을
+    /// 거래처/실중량, 품명/감량, 계량자/구분, 비고(한 줄 전체) - 표 아래에 1차#1/1차#2/2차#1/2차#2
+    /// 사진을 가로로 한 줄 나열하고, 마지막에 지점 정보 푸터(BuildInfoRows 참고). 현장에서는
+    /// A4 세로 한 장에 같은 내용을
     /// 위아래 두 칸에 반복해서 찍어, 잘라서 업체용/보관용으로 나눠 가진다고 확인되어 그
     /// 방식을 그대로 따랐다. GridPrinter와 마찬가지로 DevExpress 인쇄 어셈블리 의존 없이
     /// 표준 PrintDocument로 직접 그린다.
@@ -106,14 +107,13 @@ namespace ColumbusWeighing.ComnLib
                 g.DrawString(copyLabel, copyFont, Brushes.Black, area.Right - 50f, y + titleSize.Height / 2f - 7f);
                 y += titleSize.Height + 4f;
 
-                var tableWidth = area.Width * 0.62f;
-                var tableHeight = DrawInfoTable(g, area.Left, y, tableWidth, labelFont, valueFont);
+                var tableHeight = DrawInfoTable(g, area.Left, y, area.Width, labelFont, valueFont);
+                y += tableHeight + 6f;
 
-                var photoX = area.Left + area.Width * 0.64f;
-                var photoWidth = area.Right - photoX;
-                DrawPhotoGrid(g, photoX, y, photoWidth, tableHeight);
+                const float photoRowHeight = 110f;
+                DrawPhotoRow(g, area.Left, y, area.Width, photoRowHeight);
+                y += photoRowHeight + 4f;
 
-                y += tableHeight + 4f;
                 DrawFooter(g, area, y, footerFont);
             }
             finally
@@ -227,18 +227,19 @@ namespace ColumbusWeighing.ComnLib
             g.DrawString(text ?? string.Empty, font, Brushes.Black, padded, format);
         }
 
-        private static void DrawPhotoGrid(Graphics g, float x, float y, float width, float height)
+        /// <summary>1차#1/1차#2/2차#1/2차#2 네 장을 표 아래에 가로로 한 줄 나열한다(이전엔
+        /// 표 오른쪽에 2x2로 붙여놨었는데, 한 줄로 바꿔달라는 요청에 맞췄다).</summary>
+        private static void DrawPhotoRow(Graphics g, float x, float y, float width, float height)
         {
-            var cellWidth = width / 2f;
-            var cellHeight = height / 2f;
+            var cellWidth = width / 4f;
             var labelFont = new Font("맑은 고딕", 7f);
 
             try
             {
-                DrawPhotoCell(g, x, y, cellWidth, cellHeight, "1차 #1", FindPhoto("1", 1), labelFont);
-                DrawPhotoCell(g, x + cellWidth, y, cellWidth, cellHeight, "1차 #2", FindPhoto("1", 2), labelFont);
-                DrawPhotoCell(g, x, y + cellHeight, cellWidth, cellHeight, "2차 #1", FindPhoto("2", 1), labelFont);
-                DrawPhotoCell(g, x + cellWidth, y + cellHeight, cellWidth, cellHeight, "2차 #2", FindPhoto("2", 2), labelFont);
+                DrawPhotoCell(g, x, y, cellWidth, height, "1차 #1", FindPhoto("1", 1), labelFont);
+                DrawPhotoCell(g, x + cellWidth, y, cellWidth, height, "1차 #2", FindPhoto("1", 2), labelFont);
+                DrawPhotoCell(g, x + cellWidth * 2, y, cellWidth, height, "2차 #1", FindPhoto("2", 1), labelFont);
+                DrawPhotoCell(g, x + cellWidth * 3, y, cellWidth, height, "2차 #2", FindPhoto("2", 2), labelFont);
             }
             finally
             {
