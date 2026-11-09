@@ -133,6 +133,13 @@ namespace ColumbusWeighing.ComnLib
             public string Label2;
             public string Value2;
 
+            /// <summary>총중량/공차중량처럼 Value2 칸 왼쪽에 시간을 같이 보여줘야 하는 행만
+            /// 채운다(전달받은 계근표 이미지처럼 "시간 ... 중량"을 한 칸 안에 나눠 찍는다).</summary>
+            public string Value2Time;
+
+            /// <summary>true면 Value2를 칸 오른쪽에 붙여 찍는다(중량 값들은 기본 우측정렬).</summary>
+            public bool RightAlignValue2;
+
             /// <summary>true면 이 행은 Label1/Value1만 쓰고, Value1 칸이 나머지 폭 전체를
             /// 차지한다(비고처럼 한 줄 전체를 쓰는 항목용) - Label2/Value2는 무시된다.</summary>
             public bool FullWidth;
@@ -147,15 +154,17 @@ namespace ColumbusWeighing.ComnLib
             var r = _record;
 
             var firstIsGross = !r.SecondWeight.HasValue || r.FirstWeight >= r.SecondWeight.Value;
+            var grossTime = firstIsGross ? r.FirstDateTime : r.SecondDateTime;
             var grossWeight = firstIsGross ? (decimal?)r.FirstWeight : r.SecondWeight;
+            var tareTime = firstIsGross ? r.SecondDateTime : (DateTime?)r.FirstDateTime;
             var tareWeight = firstIsGross ? r.SecondWeight : (decimal?)r.FirstWeight;
 
             return new List<InfoRow>
             {
-                new InfoRow { Label1 = "일자", Value1 = r.FirstDateTime.ToString("yyyy-MM-dd"), Label2 = "총중량", Value2 = grossWeight.HasValue ? FormatWeight(grossWeight.Value) : "-" },
-                new InfoRow { Label1 = "차량번호", Value1 = r.VehicleNo, Label2 = "공차중량", Value2 = tareWeight.HasValue ? FormatWeight(tareWeight.Value) : "-" },
-                new InfoRow { Label1 = "거래처", Value1 = r.CustomerName, Label2 = "실중량", Value2 = r.NetWeight.HasValue ? FormatWeight(r.NetWeight.Value) : "-" },
-                new InfoRow { Label1 = "품명", Value1 = r.ProductName, Label2 = "감량", Value2 = r.LossWeight.HasValue ? FormatWeight(r.LossWeight.Value) : "-" },
+                new InfoRow { Label1 = "일자", Value1 = r.FirstDateTime.ToString("yyyy-MM-dd"), Label2 = "총중량", Value2Time = grossTime.HasValue ? grossTime.Value.ToString("HH:mm") : "-", Value2 = grossWeight.HasValue ? FormatWeight(grossWeight.Value) : "-", RightAlignValue2 = true },
+                new InfoRow { Label1 = "차량번호", Value1 = r.VehicleNo, Label2 = "공차중량", Value2Time = tareTime.HasValue ? tareTime.Value.ToString("HH:mm") : "-", Value2 = tareWeight.HasValue ? FormatWeight(tareWeight.Value) : "-", RightAlignValue2 = true },
+                new InfoRow { Label1 = "거래처", Value1 = r.CustomerName, Label2 = "실중량", Value2 = r.NetWeight.HasValue ? FormatWeight(r.NetWeight.Value) : "-", RightAlignValue2 = true },
+                new InfoRow { Label1 = "품명", Value1 = r.ProductName, Label2 = "감량", Value2 = r.LossWeight.HasValue ? FormatWeight(r.LossWeight.Value) : "-", RightAlignValue2 = true },
                 new InfoRow { Label1 = "계량자", Value1 = r.WeigherName, Label2 = "구분", Value2 = r.InOutType.HasValue ? r.InOutType.Value.ToDisplayString() : "-" },
                 new InfoRow { Label1 = "비고", Value1 = r.Remark, FullWidth = true },
             };
@@ -179,20 +188,29 @@ namespace ColumbusWeighing.ComnLib
                 foreach (var row in BuildInfoRows())
                 {
                     var cellX = x;
-                    DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label1, labelFont, gridPen, true);
+                    DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label1, labelFont, gridPen, StringAlignment.Center, isLabel: true);
                     cellX += labelWidth;
 
                     if (row.FullWidth)
                     {
-                        DrawCell(g, cellX, y, width - labelWidth, rowHeight, row.Value1, valueFont, gridPen, false);
+                        DrawCell(g, cellX, y, width - labelWidth, rowHeight, row.Value1, valueFont, gridPen, StringAlignment.Near);
                     }
                     else
                     {
-                        DrawCell(g, cellX, y, valueWidth, rowHeight, row.Value1, valueFont, gridPen, false);
+                        DrawCell(g, cellX, y, valueWidth, rowHeight, row.Value1, valueFont, gridPen, StringAlignment.Near);
                         cellX += valueWidth;
-                        DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label2, labelFont, gridPen, true);
+                        DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label2, labelFont, gridPen, StringAlignment.Center, isLabel: true);
                         cellX += labelWidth;
-                        DrawCell(g, cellX, y, width - labelWidth - valueWidth - labelWidth, rowHeight, row.Value2, valueFont, gridPen, false);
+                        var value2Width = width - labelWidth - valueWidth - labelWidth;
+
+                        if (row.Value2Time != null)
+                        {
+                            DrawSplitCell(g, cellX, y, value2Width, rowHeight, row.Value2Time, row.Value2, valueFont, gridPen);
+                        }
+                        else
+                        {
+                            DrawCell(g, cellX, y, value2Width, rowHeight, row.Value2, valueFont, gridPen, row.RightAlignValue2 ? StringAlignment.Far : StringAlignment.Near);
+                        }
                     }
 
                     y += rowHeight;
@@ -204,7 +222,7 @@ namespace ColumbusWeighing.ComnLib
             return y - startY;
         }
 
-        private static void DrawCell(Graphics g, float x, float y, float width, float height, string text, Font font, Pen gridPen, bool isLabel)
+        private static void DrawCell(Graphics g, float x, float y, float width, float height, string text, Font font, Pen gridPen, StringAlignment alignment, bool isLabel = false)
         {
             if (isLabel)
             {
@@ -218,13 +236,39 @@ namespace ColumbusWeighing.ComnLib
 
             var format = new StringFormat
             {
-                Alignment = isLabel ? StringAlignment.Center : StringAlignment.Near,
+                Alignment = alignment,
                 LineAlignment = StringAlignment.Center,
                 Trimming = StringTrimming.EllipsisCharacter,
                 FormatFlags = StringFormatFlags.NoWrap,
             };
             var padded = new RectangleF(x + 4f, y, width - 8f, height);
             g.DrawString(text ?? string.Empty, font, Brushes.Black, padded, format);
+        }
+
+        /// <summary>한 칸 안에 왼쪽은 시간, 오른쪽은 중량을 나눠 찍는다(총중량/공차중량 행용 -
+        /// 전달받은 계근표 이미지처럼 "시간 ... 중량"을 한 칸에 같이 보여준다).</summary>
+        private static void DrawSplitCell(Graphics g, float x, float y, float width, float height, string leftText, string rightText, Font font, Pen gridPen)
+        {
+            g.DrawRectangle(gridPen, x, y, width, height);
+
+            var leftFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Near,
+                LineAlignment = StringAlignment.Center,
+                Trimming = StringTrimming.EllipsisCharacter,
+                FormatFlags = StringFormatFlags.NoWrap,
+            };
+            var rightFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Far,
+                LineAlignment = StringAlignment.Center,
+                Trimming = StringTrimming.EllipsisCharacter,
+                FormatFlags = StringFormatFlags.NoWrap,
+            };
+
+            var padded = new RectangleF(x + 4f, y, width - 8f, height);
+            g.DrawString(leftText ?? string.Empty, font, Brushes.Black, padded, leftFormat);
+            g.DrawString(rightText ?? string.Empty, font, Brushes.Black, padded, rightFormat);
         }
 
         /// <summary>1차#1/1차#2/2차#1/2차#2 네 장을 표 아래에 가로로 한 줄 나열한다(이전엔
