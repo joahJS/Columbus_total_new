@@ -11,14 +11,15 @@ namespace ColumbusWeighing.ComnLib
 {
     /// <summary>
     /// 계근건 1건을 계근표(계량증명서) 형태로 인쇄 미리보기에 띄운다. 각 지점이 지금 쓰는
-    /// TS2020/MES 프로그램이 출력하는 계근표(번호/일자/지점/거래처/차량/품명 + 중량 정보 +
-    /// 1차·2차 사진 2x2 + 지점 정보 푸터)를 참고해서 만들었다. 현장에서는 A4 세로 한 장에
-    /// 같은 내용을 위아래 두 칸에 반복해서 찍어, 잘라서 업체용/보관용으로 나눠 가진다고
-    /// 확인되어 그 방식을 그대로 따랐다. GridPrinter와 마찬가지로 DevExpress 인쇄 어셈블리
-    /// 의존 없이 표준 PrintDocument로 직접 그린다.
+    /// TS2020/MES 프로그램이 실제로 출력하는 계근표(일자+번호 / 차량번호 / 소속회사 / 거래처 /
+    /// 품명 / 총중량·공차중량(시간+중량) / 감율·감량 / 실중량(입출구분+중량) / 단가 / 금액 /
+    /// 비고 + 1차·2차 사진 2x2 + 지점 정보 푸터)를 실제 출력물 사진과 맞춰가며 만들었다.
+    /// 현장에서는 A4 세로 한 장에 같은 내용을 위아래 두 칸에 반복해서 찍어, 잘라서
+    /// 업체용/보관용으로 나눠 가진다고 확인되어 그 방식을 그대로 따랐다. GridPrinter와
+    /// 마찬가지로 DevExpress 인쇄 어셈블리 의존 없이 표준 PrintDocument로 직접 그린다.
     ///
-    /// 실제 TS2020 출력물 사진 한 장만 보고 만든 거라 정확한 칸 배치/문구가 조금 다를 수
-    /// 있다 - 미리보기를 보고 조정이 필요하면 바로 고칠 것.
+    /// "총중량"/"공차중량"은 TS2020처럼 1차/2차 순서가 아니라 더 무거운 쪽/가벼운 쪽
+    /// 기준이다(BuildInfoRows 참고) - 입고/출고 어느 쪽이든 총중량이 항상 더 큰 값이 되도록.
     /// </summary>
     public static class WeighSlipPrinter
     {
@@ -127,25 +128,46 @@ namespace ColumbusWeighing.ComnLib
 
         private class InfoRow
         {
-            public string Label1;
+            public string Label;
             public string Value1;
-            public string Label2;
             public string Value2;
         }
 
+        /// <summary>TS2020 원본 계근표는 1차/2차가 아니라 "총중량(더 무거운 쪽)/공차중량(더
+        /// 가벼운 쪽)" 틀로 보여준다 - 입고(적재 상태로 들어와 빈 채로 나감)/출고(빈 채로
+        /// 들어와 적재 상태로 나감) 어느 쪽이든 "총중량"이 항상 더 무거운 쪽이 되도록, 실제
+        /// 계량 순서(1차/2차)와 무관하게 중량 크기로 재배치한다 - SyncOrchestrator.Transform()의
+        /// 입출구분 재계산(1차>=2차면 입고)과 같은 기준이라 서로 어긋나지 않는다.</summary>
         private static List<InfoRow> BuildInfoRows()
         {
             var r = _record;
+
+            var firstIsGross = !r.SecondWeight.HasValue || r.FirstWeight >= r.SecondWeight.Value;
+            var grossTime = firstIsGross ? r.FirstDateTime : r.SecondDateTime;
+            var grossWeight = firstIsGross ? (decimal?)r.FirstWeight : r.SecondWeight;
+            var tareTime = firstIsGross ? r.SecondDateTime : (DateTime?)r.FirstDateTime;
+            var tareWeight = firstIsGross ? r.SecondWeight : (decimal?)r.FirstWeight;
+
+            decimal? lossRate = null;
+            if (r.LossWeight.HasValue && grossWeight.HasValue && grossWeight.Value != 0)
+            {
+                lossRate = r.LossWeight.Value / grossWeight.Value * 100m;
+            }
+
             return new List<InfoRow>
             {
-                new InfoRow { Label1 = "번호", Value1 = r.WeighSeq.ToString(), Label2 = "일자", Value2 = r.FirstDateTime.ToString("yyyy-MM-dd") },
-                new InfoRow { Label1 = "지점", Value1 = r.BranchCode.ToDisplayString() + "지점", Label2 = "거래처명", Value2 = r.CustomerName },
-                new InfoRow { Label1 = "차량번호", Value1 = r.VehicleNo, Label2 = "품명", Value2 = r.ProductName },
-                new InfoRow { Label1 = "운전자", Value1 = r.DriverName, Label2 = "계량자", Value2 = r.WeigherName },
-                new InfoRow { Label1 = "1차시간", Value1 = r.FirstDateTime.ToString("HH:mm"), Label2 = "2차시간", Value2 = r.SecondDateTime.HasValue ? r.SecondDateTime.Value.ToString("HH:mm") : "-" },
-                new InfoRow { Label1 = "1차중량", Value1 = FormatWeight(r.FirstWeight), Label2 = "2차중량", Value2 = r.SecondWeight.HasValue ? FormatWeight(r.SecondWeight.Value) : "-" },
-                new InfoRow { Label1 = "실중량", Value1 = r.NetWeight.HasValue ? FormatWeight(r.NetWeight.Value) : "-", Label2 = "업체중량", Value2 = r.VendorWeight.HasValue ? FormatWeight(r.VendorWeight.Value) : "-" },
-                new InfoRow { Label1 = "입출구분", Value1 = r.InOutType.HasValue ? r.InOutType.Value.ToDisplayString() : "-", Label2 = "비고", Value2 = r.Remark },
+                new InfoRow { Label = "일자", Value1 = r.FirstDateTime.ToString("yyyy-MM-dd"), Value2 = r.WeighSeq.ToString() },
+                new InfoRow { Label = "차량번호", Value1 = r.VehicleNo, Value2 = string.Empty },
+                new InfoRow { Label = "소속회사", Value1 = r.OwnerCompany, Value2 = string.Empty },
+                new InfoRow { Label = "거래처", Value1 = r.CustomerName, Value2 = string.Empty },
+                new InfoRow { Label = "품명", Value1 = r.ProductName, Value2 = string.Empty },
+                new InfoRow { Label = "총중량", Value1 = grossTime.HasValue ? grossTime.Value.ToString("HH:mm") : "-", Value2 = grossWeight.HasValue ? FormatWeight(grossWeight.Value) : "-" },
+                new InfoRow { Label = "공차중량", Value1 = tareTime.HasValue ? tareTime.Value.ToString("HH:mm") : "-", Value2 = tareWeight.HasValue ? FormatWeight(tareWeight.Value) : "-" },
+                new InfoRow { Label = "감율/감량", Value1 = lossRate.HasValue ? lossRate.Value.ToString("N1") + " %" : "-", Value2 = r.LossWeight.HasValue ? FormatWeight(r.LossWeight.Value) : "-" },
+                new InfoRow { Label = "실중량", Value1 = r.InOutType.HasValue ? r.InOutType.Value.ToDisplayString() : "-", Value2 = r.NetWeight.HasValue ? FormatWeight(r.NetWeight.Value) : "-" },
+                new InfoRow { Label = "단가", Value1 = string.Empty, Value2 = r.UnitPrice.HasValue ? FormatAmount(r.UnitPrice.Value) : "-" },
+                new InfoRow { Label = "금액", Value1 = string.Empty, Value2 = r.Amount.HasValue ? FormatAmount(r.Amount.Value) : "-" },
+                new InfoRow { Label = "비고", Value1 = r.Remark, Value2 = string.Empty },
             };
         }
 
@@ -154,11 +176,17 @@ namespace ColumbusWeighing.ComnLib
             return value.ToString("N0") + " kg";
         }
 
+        private static string FormatAmount(decimal value)
+        {
+            return value.ToString("N0") + " 원";
+        }
+
         private static float DrawInfoTable(Graphics g, float x, float y, float width, Font labelFont, Font valueFont)
         {
             var startY = y;
-            var labelWidth = width * 0.18f;
-            var valueWidth = width * 0.32f;
+            var labelWidth = width * 0.22f;
+            var value1Width = width * 0.30f;
+            var value2Width = width - labelWidth - value1Width;
             var rowHeight = Math.Max(labelFont.GetHeight(g), valueFont.GetHeight(g)) + 8f;
 
             using (var borderPen = new Pen(Color.Black))
@@ -167,13 +195,11 @@ namespace ColumbusWeighing.ComnLib
                 foreach (var row in BuildInfoRows())
                 {
                     var cellX = x;
-                    DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label1, labelFont, gridPen, true);
+                    DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label, labelFont, gridPen, true);
                     cellX += labelWidth;
-                    DrawCell(g, cellX, y, valueWidth, rowHeight, row.Value1, valueFont, gridPen, false);
-                    cellX += valueWidth;
-                    DrawCell(g, cellX, y, labelWidth, rowHeight, row.Label2, labelFont, gridPen, true);
-                    cellX += labelWidth;
-                    DrawCell(g, cellX, y, valueWidth, rowHeight, row.Value2, valueFont, gridPen, false);
+                    DrawCell(g, cellX, y, value1Width, rowHeight, row.Value1, valueFont, gridPen, false);
+                    cellX += value1Width;
+                    DrawCell(g, cellX, y, value2Width, rowHeight, row.Value2, valueFont, gridPen, false);
                     y += rowHeight;
                 }
 
