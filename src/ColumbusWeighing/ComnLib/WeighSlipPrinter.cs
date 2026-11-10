@@ -110,10 +110,22 @@ namespace ColumbusWeighing.ComnLib
                 var tableHeight = DrawInfoTable(g, area.Left, y, area.Width, labelFont, valueFont);
                 y += tableHeight + 6f;
 
-                // 표/푸터는 내용만큼만 차지하고 남는 세로 공간이 많이 비길래, 사진을 그
-                // 남는 공간만큼 최대한 크게 채운다(푸터 두 줄 + 여백만 미리 빼둔다).
+                // 사진 줄에 쓸 수 있는 최대 공간(표/푸터를 뺀 나머지)을 구한 다음, 실제
+                // 사진 비율에 맞는 높이만큼만 쓴다(ComputePhotoRowHeight 참고) - 무조건 꽉
+                // 채우면 가로로 긴 사진이라 위아래에 빈 여백만 커진다.
                 var footerHeight = (footerFont.GetHeight(g) + 2f) * 2;
-                var photoRowHeight = Math.Max(110f, area.Bottom - y - footerHeight - 6f);
+                var maxPhotoRowHeight = Math.Max(110f, area.Bottom - y - footerHeight - 6f);
+                var photoLabelFont = new Font("맑은 고딕", 7f);
+                float photoRowHeight;
+                try
+                {
+                    photoRowHeight = ComputePhotoRowHeight(g, area.Width / 4f, maxPhotoRowHeight, photoLabelFont);
+                }
+                finally
+                {
+                    photoLabelFont.Dispose();
+                }
+
                 DrawPhotoRow(g, area.Left, y, area.Width, photoRowHeight);
                 y += photoRowHeight + 4f;
 
@@ -274,6 +286,14 @@ namespace ColumbusWeighing.ComnLib
             g.DrawString(rightText ?? string.Empty, font, Brushes.Black, padded, rightFormat);
         }
 
+        private static readonly (string Stage, int Seq, string Label)[] PhotoSlots =
+        {
+            ("1", 1, "1차 #1"),
+            ("1", 2, "1차 #2"),
+            ("2", 1, "2차 #1"),
+            ("2", 2, "2차 #2"),
+        };
+
         /// <summary>1차#1/1차#2/2차#1/2차#2 네 장을 표 아래에 가로로 한 줄 나열한다(이전엔
         /// 표 오른쪽에 2x2로 붙여놨었는데, 한 줄로 바꿔달라는 요청에 맞췄다).</summary>
         private static void DrawPhotoRow(Graphics g, float x, float y, float width, float height)
@@ -283,15 +303,57 @@ namespace ColumbusWeighing.ComnLib
 
             try
             {
-                DrawPhotoCell(g, x, y, cellWidth, height, "1차 #1", FindPhoto("1", 1), labelFont);
-                DrawPhotoCell(g, x + cellWidth, y, cellWidth, height, "1차 #2", FindPhoto("1", 2), labelFont);
-                DrawPhotoCell(g, x + cellWidth * 2, y, cellWidth, height, "2차 #1", FindPhoto("2", 1), labelFont);
-                DrawPhotoCell(g, x + cellWidth * 3, y, cellWidth, height, "2차 #2", FindPhoto("2", 2), labelFont);
+                for (var i = 0; i < PhotoSlots.Length; i++)
+                {
+                    var slot = PhotoSlots[i];
+                    DrawPhotoCell(g, x + cellWidth * i, y, cellWidth, height, slot.Label, FindPhoto(slot.Stage, slot.Seq), labelFont);
+                }
             }
             finally
             {
                 labelFont.Dispose();
             }
+        }
+
+        /// <summary>사진 줄에 쓸 높이를 실제 사진들의 가로세로 비율에 맞춰 계산한다. 가능한
+        /// 세로 공간을 무조건 다 채우면(이전 방식) 사진은 보통 가로로 긴데 칸만 세로로
+        /// 길어져서 위아래에 빈 여백만 커지는 문제가 있었다 - 실제 사진 비율대로 칸 너비에서
+        /// 필요한 높이를 계산해서, 그 중 가장 큰 값(+라벨 높이)만큼만 쓰고 나머지는 포기한다.
+        /// 사진이 하나도 없으면 기본값(110)을 쓴다.</summary>
+        private static float ComputePhotoRowHeight(Graphics g, float cellWidth, float maxHeight, Font labelFont)
+        {
+            var labelHeight = labelFont.GetHeight(g) + 2f;
+            var maxImageHeight = 0f;
+
+            foreach (var slot in PhotoSlots)
+            {
+                var photo = FindPhoto(slot.Stage, slot.Seq);
+                if (photo == null || photo.Data == null || photo.Data.Length == 0)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    using (var stream = new MemoryStream(photo.Data))
+                    using (var image = Image.FromStream(stream))
+                    {
+                        var neededImageHeight = cellWidth * image.Height / (float)image.Width;
+                        if (neededImageHeight > maxImageHeight)
+                        {
+                            maxImageHeight = neededImageHeight;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // 디코딩 실패한 사진은 크기 계산에서 건너뛴다 - 실제로 찍을 때는
+                    // DrawPhotoCell이 "사진을 불러올 수 없음"으로 따로 처리한다.
+                }
+            }
+
+            var needed = maxImageHeight > 0f ? maxImageHeight + labelHeight + 4f : 110f;
+            return Math.Min(maxHeight, Math.Max(80f, needed));
         }
 
         private static WeighPhoto FindPhoto(string stage, int seq)
