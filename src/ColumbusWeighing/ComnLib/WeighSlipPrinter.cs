@@ -286,12 +286,21 @@ namespace ColumbusWeighing.ComnLib
             g.DrawString(rightText ?? string.Empty, font, Brushes.Black, padded, rightFormat);
         }
 
-        private static readonly (string Stage, int Seq, string Label)[] PhotoSlots =
+        private class PhotoSlot
         {
-            ("1", 1, "1차 #1"),
-            ("1", 2, "1차 #2"),
-            ("2", 1, "2차 #1"),
-            ("2", 2, "2차 #2"),
+            public string Stage;
+            public int Seq;
+            public string Label;
+        }
+
+        // 이 프로젝트는 구버전 csproj라 System.ValueTuple 패키지가 안 잡혀있어 튜플 리터럴을
+        // 쓸 수 없다(CS8137/CS8179) - 그래서 클래스로 대신한다.
+        private static readonly PhotoSlot[] PhotoSlots =
+        {
+            new PhotoSlot { Stage = "1", Seq = 1, Label = "1차 #1" },
+            new PhotoSlot { Stage = "1", Seq = 2, Label = "1차 #2" },
+            new PhotoSlot { Stage = "2", Seq = 1, Label = "2차 #1" },
+            new PhotoSlot { Stage = "2", Seq = 2, Label = "2차 #2" },
         };
 
         /// <summary>1차#1/1차#2/2차#1/2차#2 네 장을 표 아래에 가로로 한 줄 나열한다(이전엔
