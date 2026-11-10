@@ -110,24 +110,30 @@ namespace ColumbusWeighing.ComnLib
                 var tableHeight = DrawInfoTable(g, area.Left, y, area.Width, labelFont, valueFont);
                 y += tableHeight + 6f;
 
-                // 사진 줄에 쓸 수 있는 최대 공간(표/푸터를 뺀 나머지)을 구한 다음, 실제
-                // 사진 비율에 맞는 높이만큼만 쓴다(ComputePhotoRowHeight 참고) - 무조건 꽉
-                // 채우면 가로로 긴 사진이라 위아래에 빈 여백만 커진다.
+                // 사진을 둘 공간(표/푸터를 뺀 나머지)을 구한 다음, 1차 두 장을 1행, 2차 두
+                // 장을 2행으로 2x2 배치한다 - 한 줄에 4장을 다 넣으면 칸이 너무 좁아져서
+                // 번호판이 잘 안 보인다는 요청으로, 칸 너비를 2배로 늘렸다.
+                const float photoRowGap = 4f;
                 var footerHeight = (footerFont.GetHeight(g) + 2f) * 2;
-                var maxPhotoRowHeight = Math.Max(110f, area.Bottom - y - footerHeight - 6f);
+                var maxPhotoAreaHeight = Math.Max(110f, area.Bottom - y - footerHeight - 6f);
                 var photoLabelFont = new Font("맑은 고딕", 7f);
-                float photoRowHeight;
+                float photoCellHeight;
                 try
                 {
-                    photoRowHeight = ComputePhotoRowHeight(g, area.Width / 4f, maxPhotoRowHeight, photoLabelFont);
+                    var cellWidth = area.Width / 2f;
+                    var naturalCellHeight = ComputeNaturalPhotoCellHeight(g, cellWidth, photoLabelFont);
+                    var idealTotalHeight = naturalCellHeight * 2 + photoRowGap;
+                    photoCellHeight = idealTotalHeight > maxPhotoAreaHeight
+                        ? (maxPhotoAreaHeight - photoRowGap) / 2f
+                        : naturalCellHeight;
                 }
                 finally
                 {
                     photoLabelFont.Dispose();
                 }
 
-                DrawPhotoRow(g, area.Left, y, area.Width, photoRowHeight);
-                y += photoRowHeight + 4f;
+                DrawPhotoGrid(g, area.Left, y, area.Width, photoCellHeight, photoRowGap);
+                y += photoCellHeight * 2 + photoRowGap + 4f;
 
                 DrawFooter(g, area, y, footerFont);
             }
@@ -303,20 +309,22 @@ namespace ColumbusWeighing.ComnLib
             new PhotoSlot { Stage = "2", Seq = 2, Label = "2차 #2" },
         };
 
-        /// <summary>1차#1/1차#2/2차#1/2차#2 네 장을 표 아래에 가로로 한 줄 나열한다(이전엔
-        /// 표 오른쪽에 2x2로 붙여놨었는데, 한 줄로 바꿔달라는 요청에 맞췄다).</summary>
-        private static void DrawPhotoRow(Graphics g, float x, float y, float width, float height)
+        /// <summary>1차#1/1차#2를 1행, 2차#1/2차#2를 2행으로 2x2 배치한다(번호판이 잘 안
+        /// 보일 만큼 사진이 작다는 요청으로, 한 줄에 4장 대신 칸 너비를 2배로 늘렸다).
+        /// rowHeight는 한 행의 높이이고, 두 행 사이는 rowGap만큼 띄운다.</summary>
+        private static void DrawPhotoGrid(Graphics g, float x, float y, float width, float rowHeight, float rowGap)
         {
-            var cellWidth = width / 4f;
+            var cellWidth = width / 2f;
             var labelFont = new Font("맑은 고딕", 7f);
 
             try
             {
-                for (var i = 0; i < PhotoSlots.Length; i++)
-                {
-                    var slot = PhotoSlots[i];
-                    DrawPhotoCell(g, x + cellWidth * i, y, cellWidth, height, slot.Label, FindPhoto(slot.Stage, slot.Seq), labelFont);
-                }
+                DrawPhotoCell(g, x, y, cellWidth, rowHeight, PhotoSlots[0].Label, FindPhoto(PhotoSlots[0].Stage, PhotoSlots[0].Seq), labelFont);
+                DrawPhotoCell(g, x + cellWidth, y, cellWidth, rowHeight, PhotoSlots[1].Label, FindPhoto(PhotoSlots[1].Stage, PhotoSlots[1].Seq), labelFont);
+
+                var row2Y = y + rowHeight + rowGap;
+                DrawPhotoCell(g, x, row2Y, cellWidth, rowHeight, PhotoSlots[2].Label, FindPhoto(PhotoSlots[2].Stage, PhotoSlots[2].Seq), labelFont);
+                DrawPhotoCell(g, x + cellWidth, row2Y, cellWidth, rowHeight, PhotoSlots[3].Label, FindPhoto(PhotoSlots[3].Stage, PhotoSlots[3].Seq), labelFont);
             }
             finally
             {
@@ -324,12 +332,12 @@ namespace ColumbusWeighing.ComnLib
             }
         }
 
-        /// <summary>사진 줄에 쓸 높이를 실제 사진들의 가로세로 비율에 맞춰 계산한다. 가능한
-        /// 세로 공간을 무조건 다 채우면(이전 방식) 사진은 보통 가로로 긴데 칸만 세로로
-        /// 길어져서 위아래에 빈 여백만 커지는 문제가 있었다 - 실제 사진 비율대로 칸 너비에서
-        /// 필요한 높이를 계산해서, 그 중 가장 큰 값(+라벨 높이)만큼만 쓰고 나머지는 포기한다.
-        /// 사진이 하나도 없으면 기본값(110)을 쓴다.</summary>
-        private static float ComputePhotoRowHeight(Graphics g, float cellWidth, float maxHeight, Font labelFont)
+        /// <summary>사진 한 칸에 실제로 필요한 높이를 사진들의 가로세로 비율로 계산한다(그
+        /// 중 가장 큰 값 + 라벨 높이). 세로 공간을 무조건 다 채우면 사진은 보통 가로로 긴데
+        /// 칸만 길어져서 위아래에 빈 여백만 커지는 문제가 있었다. 사진이 하나도 없으면
+        /// 기본값(110)을 쓴다. 이 값을 예산(maxPhotoAreaHeight)에 맞게 줄이는 건 호출하는
+        /// 쪽(DrawSlip)의 몫이다.</summary>
+        private static float ComputeNaturalPhotoCellHeight(Graphics g, float cellWidth, Font labelFont)
         {
             var labelHeight = labelFont.GetHeight(g) + 2f;
             var maxImageHeight = 0f;
@@ -362,8 +370,7 @@ namespace ColumbusWeighing.ComnLib
                 }
             }
 
-            var needed = maxImageHeight > 0f ? maxImageHeight + labelHeight + 4f : 110f;
-            return Math.Min(maxHeight, Math.Max(80f, needed));
+            return maxImageHeight > 0f ? maxImageHeight + labelHeight + 4f : 110f;
         }
 
         private static WeighPhoto FindPhoto(string stage, int seq)
