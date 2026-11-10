@@ -347,6 +347,7 @@ namespace ColumbusWeighing.ComnLib
                     using (var stream = new MemoryStream(photo.Data))
                     using (var image = Image.FromStream(stream))
                     {
+                        ApplyExifOrientation(image);
                         var neededImageHeight = cellWidth * image.Height / (float)image.Width;
                         if (neededImageHeight > maxImageHeight)
                         {
@@ -402,6 +403,7 @@ namespace ColumbusWeighing.ComnLib
                 using (var stream = new MemoryStream(photo.Data))
                 using (var image = Image.FromStream(stream))
                 {
+                    ApplyExifOrientation(image);
                     var fitted = FitRect(image.Size, imageRect);
                     g.DrawImage(image, fitted);
                 }
@@ -409,6 +411,34 @@ namespace ColumbusWeighing.ComnLib
             catch (Exception)
             {
                 g.DrawString("사진을 불러올 수 없음", labelFont, Brushes.Gray, imageRect, centerFormat);
+            }
+        }
+
+        private const int ExifOrientationTagId = 0x0112;
+
+        /// <summary>카메라가 세로로 찍은 사진을 가로 픽셀로 저장하고 "회전해서 보여줘라"는
+        /// EXIF Orientation 태그만 남겨두는 경우가 있다(실제로 토탈솔루션에서 사진이 위아래로
+        /// 눌린 가로 사진처럼 나오는 원인이었다 - 실제 사진 속 픽셀 자체는 가로였던 것).
+        /// GDI+(System.Drawing)는 이 태그를 자동으로 반영하지 않아서, 여기서 직접 읽어
+        /// RotateFlip으로 돌려놓는다 - 그래야 이후 Width/Height와 그려지는 모양이 실제
+        /// 의도한 방향과 맞는다.</summary>
+        private static void ApplyExifOrientation(Image image)
+        {
+            if (Array.IndexOf(image.PropertyIdList, ExifOrientationTagId) < 0)
+            {
+                return;
+            }
+
+            var orientation = image.GetPropertyItem(ExifOrientationTagId).Value[0];
+            switch (orientation)
+            {
+                case 2: image.RotateFlip(RotateFlipType.RotateNoneFlipX); break;
+                case 3: image.RotateFlip(RotateFlipType.Rotate180FlipNone); break;
+                case 4: image.RotateFlip(RotateFlipType.Rotate180FlipX); break;
+                case 5: image.RotateFlip(RotateFlipType.Rotate90FlipX); break;
+                case 6: image.RotateFlip(RotateFlipType.Rotate90FlipNone); break;
+                case 7: image.RotateFlip(RotateFlipType.Rotate270FlipX); break;
+                case 8: image.RotateFlip(RotateFlipType.Rotate270FlipNone); break;
             }
         }
 
