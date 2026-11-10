@@ -110,7 +110,10 @@ namespace ColumbusWeighing.ComnLib
                 var tableHeight = DrawInfoTable(g, area.Left, y, area.Width, labelFont, valueFont);
                 y += tableHeight + 6f;
 
-                const float photoRowHeight = 110f;
+                // 표/푸터는 내용만큼만 차지하고 남는 세로 공간이 많이 비길래, 사진을 그
+                // 남는 공간만큼 최대한 크게 채운다(푸터 두 줄 + 여백만 미리 빼둔다).
+                var footerHeight = (footerFont.GetHeight(g) + 2f) * 2;
+                var photoRowHeight = Math.Max(110f, area.Bottom - y - footerHeight - 6f);
                 DrawPhotoRow(g, area.Left, y, area.Width, photoRowHeight);
                 y += photoRowHeight + 4f;
 
