@@ -30,5 +30,10 @@ namespace ColumbusWeighing.Services
         /// 달리 매번 같이 받아오지 않고, 전표를 실제로 인쇄할 때만 그때그때 조회한다 -
         /// 사진은 용량이 커서 목록 전체에 매번 같이 실어 오면 느려진다.</summary>
         List<WeighPhoto> GetPhotos(int weighId);
+
+        /// <summary>이 한 건을 DB에서 다시 조회해 최신 값을 돌려준다(전표 인쇄 직전용 -
+        /// 화면에 떠있는 그리드 값은 오래됐을 수 있어 인쇄 시점엔 항상 이걸로 다시 받는다).
+        /// 조회에 실패하거나 이미 삭제된 건이면 null.</summary>
+        WeighingRecord GetById(int weighId);
     }
 }

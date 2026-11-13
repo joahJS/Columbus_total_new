@@ -237,8 +237,12 @@ namespace ColumbusWeighing.Controls
                 return;
             }
 
+            // 그리드에 떠있는 값은 화면을 마지막으로 조회한 시점 기준이라, 그 사이 원본에서
+            // 중량이 수정됐을 수 있다 - 인쇄 직전에 DB에서 이 건만 다시 읽어 최신 값으로 찍는다.
+            var latest = _repository?.GetById(record.Id) ?? record;
+
             var photos = _repository?.GetPhotos(record.Id) ?? new List<WeighPhoto>();
-            WeighSlipPrinter.ShowPrintPreview(FindForm(), record, photos);
+            WeighSlipPrinter.ShowPrintPreview(FindForm(), latest, photos);
         }
     }
 }

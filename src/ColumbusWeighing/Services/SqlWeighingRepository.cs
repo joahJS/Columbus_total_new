@@ -28,7 +28,7 @@ namespace ColumbusWeighing.Services
         // WEIGH_DATE(1차계량일) 또는 SECOND_DATETIME(2차계량일) 둘 중 하나라도 조회 기간에
         // 걸리면 포함시킨다 - 계량순번(WEIGH_SEQ)이나 실제 저장된 WEIGH_DATE 값은 그대로 두고
         // (TS2020의 BUNHO 채번 기준과 동일하게 유지), 검색 조건만 넓힌 것이다.
-        private const string SelectSql = @"
+        private const string BaseSelectSql = @"
 SELECT w.WEIGH_ID, w.BRANCH_CODE, w.WEIGH_SEQ, w.VEHICLE_NO, w.CUSTOMER_NAME, w.PRODUCT_NAME, w.IN_OUT_TYPE,
        w.WEIGHER_NAME, w.UNIT_PRICE, w.REMARK, w.WEIGH_DATE, w.FIRST_DATETIME, w.FIRST_WEIGHT,
        w.SECOND_DATETIME, w.SECOND_WEIGHT, w.LOSS_WEIGHT, w.VENDOR_WEIGHT, w.ADMIN_UNIT_PRICE,
@@ -40,9 +40,14 @@ OUTER APPLY (
     WHERE v.BRANCH_CODE = w.BRANCH_CODE AND v.VEHICLE_NO = w.VEHICLE_NO
     ORDER BY v.SYNCED_AT DESC
 ) veh
+";
+
+        private const string SelectSql = BaseSelectSql + @"
 WHERE (w.WEIGH_DATE >= @FromDate AND w.WEIGH_DATE < @ToDate)
    OR (w.SECOND_DATETIME >= @FromDate AND w.SECOND_DATETIME < @ToDate)
 ORDER BY w.FIRST_DATETIME";
+
+        private const string SelectByIdSql = BaseSelectSql + "WHERE w.WEIGH_ID = @WeighId";
 
         public BindingList<WeighingRecord> Records { get; } = new BindingList<WeighingRecord>();
 
@@ -110,6 +115,32 @@ ORDER BY w.FIRST_DATETIME";
 
             Records.RaiseListChangedEvents = true;
             Records.ResetBindings();
+        }
+
+        /// <summary>전표 인쇄 직전에 이 한 건만 DB에서 다시 읽어온다. 그리드(Records)에
+        /// 올라간 값은 화면을 마지막으로 Refresh()한 시점 기준이라, 화면을 오래 띄워둔 채로
+        /// 인쇄하면 그 사이 원본(TS2020/MES)에서 중량이 수정되고 동기화된 최신 값을 놓치고
+        /// 옛날 값으로 인쇄될 수 있다(실제로 총중량이 다르게 찍히는 사례로 확인됨) - 그래서
+        /// 인쇄용 값은 항상 이 메서드로 그 순간의 최신 값을 다시 받아온다.</summary>
+        public WeighingRecord GetById(int weighId)
+        {
+            DataTable table;
+            try
+            {
+                table = DBConn.GetDataTable(
+                    SelectByIdSql,
+                    new List<Parameter> { new Parameter("WeighId", weighId, SqlDbType.Int) },
+                    CommandType.Text);
+            }
+            catch (SqlException ex)
+            {
+                ComnFunc.gp_PrintMessage(
+                    "전표 인쇄 전 최신 값 조회에 실패했습니다. 네트워크/DB 접속 정보를 확인해주세요.\r\n" + ex.Message,
+                    "DB 조회 오류", MessageType.오류);
+                return null;
+            }
+
+            return table.Rows.Count > 0 ? ToRecord(table.Rows[0]) : null;
         }
 
         private static WeighingRecord ToRecord(DataRow row)
